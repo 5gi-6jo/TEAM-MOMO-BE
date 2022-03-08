@@ -23,5 +23,9 @@ public class Success<T> {
         this.data = List.of(data);
     }
 
+    public static Success<TokenDto> tokenDtoSuccess(String jwt) {
+        TokenDto token = new TokenDto(jwt);
+        return new Success<>(token);
+    }
 
 }
