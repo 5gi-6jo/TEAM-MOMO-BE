@@ -21,13 +21,6 @@ import javax.validation.Valid;
 @Slf4j
 public class UserController {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 5f2ef452226787359a59b1868a94c9bea69d6716
-=======
     private final UserService userService;
 
     @PostMapping("/signup")
@@ -41,5 +34,5 @@ public class UserController {
         userService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>());
     }
->>>>>>> 18b52db519838a44de6904e1d6ff40dd01ebc4e2
+
 }

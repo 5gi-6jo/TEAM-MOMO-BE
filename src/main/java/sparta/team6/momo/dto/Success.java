@@ -15,8 +15,6 @@ public class Success<T> {
         message = "success";
         data = List.of();
     }
-<<<<<<< HEAD
+
 }
-=======
-}
->>>>>>> 18b52db519838a44de6904e1d6ff40dd01ebc4e2
+
