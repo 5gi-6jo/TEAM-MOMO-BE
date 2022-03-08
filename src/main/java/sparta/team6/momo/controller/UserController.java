@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 5f2ef452226787359a59b1868a94c9bea69d6716
 }

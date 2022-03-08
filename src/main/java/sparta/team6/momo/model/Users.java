@@ -1,5 +1,6 @@
 package sparta.team6.momo.model;
 
+<<<<<<< HEAD
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -19,4 +20,7 @@ public class Users extends TimeStamped {
 
     @Column(nullable = false)
     private String nickname;
+=======
+public class Users {
+>>>>>>> 5f2ef452226787359a59b1868a94c9bea69d6716
 }

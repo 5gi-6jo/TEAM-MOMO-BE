@@ -1,13 +1,11 @@
-package sparta.team6.momo.security;
+package sparta.team6.momo.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@EnableWebMvc
 @Configuration
 public class CorsConfig {
 
@@ -19,8 +17,9 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-        config.addExposedHeader("authorization");
-        source.registerCorsConfiguration("/**", config);
+
+        source.registerCorsConfiguration("/users/**", config);
         return new CorsFilter(source);
     }
+
 }
