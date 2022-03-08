@@ -33,11 +33,11 @@ public class PlanController {
 //            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !!")
 //    })
 
-    @PostMapping
-    public ResponseEntity<MakePlanResponse> makePlan(@Valid @RequestBody MakePlanRequest request) {
-        MakePlanResponse response = planService.savePlan(request);
-//        return ResponseEntity.ok().body(new Success<>(response.getPostId()));
-    }
+//    @PostMapping
+//    public ResponseEntity<MakePlanResponse> makePlan(@Valid @RequestBody MakePlanRequest request) {
+//        MakePlanResponse response = planService.savePlan(request);
+////        return ResponseEntity.ok().body(new Success<>(response.getPostId()));
+//    }
 
 
 }
