@@ -23,9 +23,15 @@ public class User extends TimeStamped {
 
     @Column(nullable = false)
     @NotEmpty
-    private String nickname;
+    private String password;
 
     @Column(nullable = false)
     @NotEmpty
-    private String password;
+    private String nickname;
+
+    public User(@NonNull String email, @NonNull String password, @NonNull String nickname) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+    }
 }
