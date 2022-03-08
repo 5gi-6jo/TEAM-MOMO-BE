@@ -1,5 +1,6 @@
 package sparta.team6.momo.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;
@@ -14,6 +15,12 @@ public class Success<T> {
         success = true;
         message = "success";
         data = List.of();
+    }
+
+    public Success(T data) {
+        success = true;
+        message = "success";
+        this.data = List.of(data);
     }
 
 }

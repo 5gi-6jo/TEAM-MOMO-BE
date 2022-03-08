@@ -1,18 +1,17 @@
 package sparta.team6.momo.dto;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import sparta.team6.momo.model.Plans;
+import sparta.team6.momo.model.Plan;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MakePlanRequest {
+@NoArgsConstructor
+public class MakePlanRequestDto {
     @NotNull(message = "약속 날짜를 입력하세요")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime planDate;
@@ -23,13 +22,11 @@ public class MakePlanRequest {
     @NotBlank(message = "약속 장소를 입력하세요")
     private String destination;
 
-    public Plans toEntity() {
-        return Plans.builder()
+    public Plan toEntity() {
+        return Plan.builder()
                 .planDate(planDate)
                 .planName(planName)
                 .destination(destination)
                 .build();
-
-
     }
 }
