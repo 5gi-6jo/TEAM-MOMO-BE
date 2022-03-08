@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.MakePlanRequest;
 import sparta.team6.momo.dto.MakePlanResponse;
+import sparta.team6.momo.dto.Success;
 import sparta.team6.momo.service.PlanService;
 
 import javax.validation.Valid;
@@ -35,6 +36,8 @@ public class PlanController {
     @PostMapping
     public ResponseEntity<MakePlanResponse> makePlan(@Valid @RequestBody MakePlanRequest request) {
         MakePlanResponse response = planService.savePlan(request);
-        return ResponseEntity.ok().body(response);
+//        return ResponseEntity.ok().body(new Success<>(response.getPostId()));
     }
+
+
 }
