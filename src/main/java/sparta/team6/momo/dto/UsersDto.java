@@ -1,4 +1,4 @@
 package sparta.team6.momo.dto;
 
-public class SignUpRequestDto {
+public class UsersDto {
 }

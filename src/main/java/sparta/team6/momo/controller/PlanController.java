@@ -1,15 +1,28 @@
 package sparta.team6.momo.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import sparta.team6.momo.dto.MakePlanRequest;
+import sparta.team6.momo.dto.MakePlanResponse;
+import sparta.team6.momo.service.PlanService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/plans")
+//@RequiredArgsConstructor
 public class PlanController {
+
+    private PlanService planService;
+
+    @Autowired
+    public PlanController(PlanService planService) {
+        this.planService = planService;
+    }
+
 
 //    @Operation(summary = "test hello", description = "hello api example")
 //    @ApiResponses({
@@ -18,4 +31,10 @@ public class PlanController {
 //            @ApiResponse(responseCode = "404", description = "NOT FOUND !!"),
 //            @ApiResponse(responseCode = "500", description = "INTERNAL SERVER ERROR !!")
 //    })
+
+    @PostMapping
+    public ResponseEntity<MakePlanResponse> makePlan(@Valid @RequestBody MakePlanRequest request) {
+        MakePlanResponse response = planService.savePlan(request);
+        return ResponseEntity.ok().body(response);
+    }
 }
