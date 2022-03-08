@@ -36,7 +36,8 @@ public class PlanController {
     @PostMapping
     public ResponseEntity<MakePlanResponse> makePlan(@Valid @RequestBody MakePlanRequest request) {
         MakePlanResponse response = planService.savePlan(request);
-//        return ResponseEntity.ok().body(new Success<>(response.getPostId()));
+        return ResponseEntity.ok().body(response);
+
     }
 
 
