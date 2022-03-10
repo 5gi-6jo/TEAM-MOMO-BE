@@ -9,7 +9,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sparta.team6.momo.dto.LoginRequestDto;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;

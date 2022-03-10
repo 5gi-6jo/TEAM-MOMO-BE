@@ -17,6 +17,8 @@ import sparta.team6.momo.security.jwt.JwtAccessDeniedHandler;
 import sparta.team6.momo.security.jwt.JwtAuthenticationEntryPoint;
 import sparta.team6.momo.security.jwt.JwtSecurityConfig;
 import sparta.team6.momo.security.jwt.TokenProvider;
+import sparta.team6.momo.security.oauth.OAuth2SuccessHandler;
+import sparta.team6.momo.security.oauth.Oauth2UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +30,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final TokenProvider tokenProvider;
+    private final Oauth2UserService oauth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 
     @Bean
@@ -64,13 +68,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
+                .antMatchers("/**").permitAll()
                 .antMatchers("/images/**").permitAll()
                 .antMatchers("/css/**").permitAll()
-                .antMatchers("/users/*").permitAll()
+                .antMatchers("/users/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-                .apply(new JwtSecurityConfig(tokenProvider));
+                .apply(new JwtSecurityConfig(tokenProvider))
+
+                .and()
+                .oauth2Login()
+                .successHandler(oAuth2SuccessHandler)
+                .userInfoEndpoint()
+                .userService(oauth2UserService);
 
     }
 }

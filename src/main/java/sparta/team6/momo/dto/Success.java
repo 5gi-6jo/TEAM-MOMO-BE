@@ -1,7 +1,6 @@
 package sparta.team6.momo.dto;
 
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 

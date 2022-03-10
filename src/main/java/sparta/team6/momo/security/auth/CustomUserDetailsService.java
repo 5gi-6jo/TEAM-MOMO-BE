@@ -1,4 +1,4 @@
-package sparta.team6.momo.security;
+package sparta.team6.momo.security.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
