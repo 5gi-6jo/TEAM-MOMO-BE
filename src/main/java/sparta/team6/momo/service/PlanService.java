@@ -7,12 +7,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.Plan;
 import sparta.team6.momo.repository.PlanRepository;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+
+import static sparta.team6.momo.exception.ErrorCode.MEMBER_NOT_FOUND;
 
 @Service
 public class PlanService {
@@ -40,14 +43,15 @@ public class PlanService {
     @Transactional
     public void updatePlan(Long id, UpdatePlanRequestDto requestDto) {
         Plan savedPlan = planRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("해당 id가 존재하지 않습니다")
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
+
         savedPlan.update(requestDto);
     }
 
     public ShowDetailResponseDto showDetail(Long id) {
         Plan plan = planRepository.findById(id).orElseThrow(
-                () -> new NullPointerException("해당 id가 존재하지 않습니다")
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
         return new ShowDetailResponseDto(plan);
     }
@@ -62,8 +66,8 @@ public class PlanService {
         return dtoList;
     }
 
-    public List<ShowRecordResponseDto> showRecord(int pageNumber) {
-        Pageable pageRequest = PageRequest.of(pageNumber, PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
+    public List<ShowRecordResponseDto> showRecord(Long pageNumber) {
+        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
         Page<Plan> planList = planRepository.findAll(pageRequest);
 //        System.out.println(planRepository.count());
         List<ShowRecordResponseDto> dtoList = new ArrayList<>();
