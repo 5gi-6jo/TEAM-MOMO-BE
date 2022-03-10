@@ -13,13 +13,19 @@ public class Success<T> {
 
     public Success() {
         success = true;
-        message = "success";
+        message = "Success";
         data = List.of();
     }
 
-    public Success(T data) {
+    public Success(String message) {
         success = true;
-        message = "success";
+        this.message = message;
+        data = List.of();
+    }
+
+    public Success(String message, T data) {
+        success = true;
+        this.message = message;
         this.data = List.of(data);
     }
 

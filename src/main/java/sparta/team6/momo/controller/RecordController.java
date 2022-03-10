@@ -24,6 +24,6 @@ public class RecordController {
     @GetMapping("/list")
     public ResponseEntity<Object> showRecord(@RequestParam Long pageNumber) {
         List<ShowRecordResponseDto> dtoList = planService.showRecord(pageNumber);
-        return ResponseEntity.ok().body(new PagingDto<>(dtoList));
+        return ResponseEntity.ok().body(new PagingDto<>("조회 완료", dtoList));
     }
 }

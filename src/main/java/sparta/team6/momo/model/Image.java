@@ -10,15 +10,21 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image {
+
     @Id
-    @Column(name = "plan_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "image_id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
     @Column
     private String image;
+
+    public Image(Plan plan, String image) {
+        this.plan = plan;
+        this.image = image;
+    }
 }

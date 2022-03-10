@@ -7,14 +7,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
-import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.DefaultException;
 import sparta.team6.momo.service.PlanService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/plans")
@@ -35,35 +32,35 @@ public class PlanController {
             }
         }
         MakePlanResponseDto responseDto = planService.savePlan(requestDto);
-        return ResponseEntity.ok().body(new Success<>(responseDto));
+        return ResponseEntity.ok().body(new Success<>("생성 완료", responseDto));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deletePlan(@PathVariable Long id) {
-        planService.deletePlan(id);
-        return ResponseEntity.ok().body(new Success<>());
+    @DeleteMapping("/{planId}")
+    public ResponseEntity<Object> deletePlan(@PathVariable Long planId) {
+        planService.deletePlan(planId);
+        return ResponseEntity.ok().body(new Success<>("삭제 완료"));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Object> updatePlan(@PathVariable Long id, @Valid @RequestBody UpdatePlanRequestDto requestDto, Errors errors) {
+    @PutMapping("/{planId}")
+    public ResponseEntity<Object> updatePlan(@PathVariable Long planId, @Valid @RequestBody UpdatePlanRequestDto requestDto, Errors errors) {
         if (errors.hasErrors()) {
             for (FieldError error : errors.getFieldErrors()) {
                 throw new DefaultException(HttpStatus.BAD_REQUEST, error.getDefaultMessage());
             }
         }
-        planService.updatePlan(id, requestDto);
-        return ResponseEntity.ok().body(new Success<>());
+        planService.updatePlan(planId, requestDto);
+        return ResponseEntity.ok().body(new Success<>("수정 완료"));
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Object> showDetail(@PathVariable Long id) {
-        ShowDetailResponseDto responseDto = planService.showDetail(id);
-        return ResponseEntity.ok().body(new Success<>(responseDto));
+    //Todo: 순환참조 문제
+    @GetMapping("/{planId}")
+    public ResponseEntity<Object> showDetail(@PathVariable Long planId) {
+        ShowDetailResponseDto responseDto = planService.showDetail(planId);
+        return ResponseEntity.ok().body(new Success<>("조회 완료", responseDto));
     }
 
     @GetMapping("/main")
     public ResponseEntity<Object> showMain() {
         List<ShowMainResponseDto> dtoList = planService.showMain();
-        return ResponseEntity.ok().body(new Success<>(dtoList));
+        return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }

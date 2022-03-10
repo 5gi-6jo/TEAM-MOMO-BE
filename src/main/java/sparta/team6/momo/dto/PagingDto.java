@@ -11,12 +11,11 @@ public class PagingDto<T> {
     private boolean success;
     private String message;
     private List<T> data;
-
     private boolean isLastPage;
 
-    public PagingDto(T data) {
+    public PagingDto(String message, T data) {
         success = true;
-        message = "success";
+        this.message = message;
         this.data = List.of(data);
         isLastPage = false;
     }

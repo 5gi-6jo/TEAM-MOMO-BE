@@ -34,8 +34,8 @@ public class Plan extends TimeStamped {
     @Column
     private String contents;
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> imageList = new ArrayList<>();
+//    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Image> imageList = new ArrayList<>();
 
     @Builder
     public Plan(String planName, String destination, LocalDateTime planDate) {
@@ -43,12 +43,12 @@ public class Plan extends TimeStamped {
         this.destination = destination;
         this.planDate = planDate;
     }
-
-    public Plan(MakePlanRequestDto request) {
-        this.planDate = request.getPlanDate();
-        this.planName = request.getPlanName();
-        this.destination = request.getDestination();
-    }
+//
+//    public Plan(MakePlanRequestDto request) {
+//        this.planDate = request.getPlanDate();
+//        this.planName = request.getPlanName();
+//        this.destination = request.getDestination();
+//    }
 
     public void update(UpdatePlanRequestDto requestDto) {
         this.planName = requestDto.getPlanName();

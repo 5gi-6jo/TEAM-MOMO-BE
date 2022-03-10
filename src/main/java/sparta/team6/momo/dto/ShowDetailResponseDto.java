@@ -1,5 +1,6 @@
 package sparta.team6.momo.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.team6.momo.model.Image;
@@ -17,15 +18,25 @@ public class ShowDetailResponseDto {
 
     private String destination;
 
-    private List<Image> imageList;
+    private List<ImageDto> imageList;
 
     private String contents;
 
-    public ShowDetailResponseDto(Plan plan) {
-        this.planDate = plan.getPlanDate();
-        this.planName = plan.getPlanName();
-        this.destination = plan.getDestination();
-        this.imageList = plan.getImageList();
-        this.contents = plan.getContents();
+//    @Builder
+//    public ShowDetailResponseDto() {
+//        this.planDate = plan.getPlanDate();
+//        this.planName = plan.getPlanName();
+//        this.destination = plan.getDestination();
+//        this.imageList = plan.getImageList();
+//        this.contents = plan.getContents();
+//    }
+
+    @Builder
+    public ShowDetailResponseDto(LocalDateTime planDate, String planName, String destination, List<ImageDto> imageList, String contents) {
+        this.planDate = planDate;
+        this.planName = planName;
+        this.destination = destination;
+        this.imageList = imageList;
+        this.contents = contents;
     }
 }
