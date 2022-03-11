@@ -37,6 +37,7 @@ public class UserController {
         return ResponseEntity.ok().body(new Success<>());
     }
 
+
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequestDto requestDto) {
