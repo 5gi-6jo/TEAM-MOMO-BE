@@ -9,7 +9,7 @@ import java.util.List;
 public class Success<T> {
     private boolean success;
     private String message;
-    private List<T> data;
+    private final List<T> data;
 
     public Success() {
         success = true;
@@ -17,17 +17,22 @@ public class Success<T> {
         data = List.of();
     }
 
-    public Success(String message) {
-        success = true;
-        this.message = message;
-        data = List.of();
-    }
 
-    public Success(String message, T data) {
+    public Success(T data) {
+        success = true;
+        message = "success";
+        this.data = List.of(data);
+    }
+  
+   public Success(String message, T data) {
         success = true;
         this.message = message;
         this.data = List.of(data);
     }
+
+    public static Success<TokenDto> tokenDtoSuccess(String jwt) {
+        TokenDto token = new TokenDto(jwt);
+        return new Success<>(token);
 
 }
 

@@ -3,8 +3,7 @@ package sparta.team6.momo.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,15 +14,14 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class TokenProvider implements InitializingBean {
 
-    private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
 
@@ -51,6 +49,8 @@ public class TokenProvider implements InitializingBean {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        log.info(authorities);
+
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
@@ -70,14 +70,14 @@ public class TokenProvider implements InitializingBean {
                 .parseClaimsJws(token)
                 .getBody();
 
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+//        Collection<? extends GrantedAuthority> authorities =
+//                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+//                        .map(SimpleGrantedAuthority::new)
+//                        .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        User principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
 
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+        return new UsernamePasswordAuthenticationToken(principal, token, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     public boolean validateToken(String token) {
@@ -85,13 +85,13 @@ public class TokenProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            logger.info("잘못된 JWT 서명입니다.");
+            log.info("잘못된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            logger.info("만료된 JWT 토큰입니다.");
+            log.info("만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            logger.info("지원되지 않는 JWT 토큰입니다.");
+            log.info("지원되지 않는 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            logger.info("JWT 토큰이 잘못되었습니다.");
+            log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
     }
