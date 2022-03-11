@@ -11,4 +11,6 @@ public class Fail {
         success = false;
         message = errorMessage;
     }
+
 }
+
