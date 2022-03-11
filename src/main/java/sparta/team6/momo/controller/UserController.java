@@ -1,5 +1,6 @@
 package sparta.team6.momo.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/test")
-    public String test(Authentication authentication) {
-        System.out.println("authentication = " + authentication.getPrincipal());
-        return "test";
-    }
     // 회원가입
+    @Operation(summary = "회원가입", description = "")
     @PostMapping("/signup")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
 
