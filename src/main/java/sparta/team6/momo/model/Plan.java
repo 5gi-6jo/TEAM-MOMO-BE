@@ -19,7 +19,7 @@ public class Plan extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "post_id")
+    @Column(name = "plan_id")
     private Long id;
 
     @Column(nullable = false)
@@ -34,21 +34,12 @@ public class Plan extends TimeStamped {
     @Column
     private String contents;
 
-//    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Image> imageList = new ArrayList<>();
-
     @Builder
     public Plan(String planName, String destination, LocalDateTime planDate) {
         this.planName = planName;
         this.destination = destination;
         this.planDate = planDate;
     }
-//
-//    public Plan(MakePlanRequestDto request) {
-//        this.planDate = request.getPlanDate();
-//        this.planName = request.getPlanName();
-//        this.destination = request.getDestination();
-//    }
 
     public void update(UpdatePlanRequestDto requestDto) {
         this.planName = requestDto.getPlanName();

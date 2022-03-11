@@ -13,6 +13,7 @@ import sparta.team6.momo.model.Plan;
 import sparta.team6.momo.repository.ImageRepository;
 import sparta.team6.momo.repository.PlanRepository;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,23 +36,28 @@ public class FileUploadService {
     }
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
-    public void uploadImage(MultipartFile file, Long planId) {
-        String fileName = createFileName(file.getOriginalFilename());
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentType(file.getContentType());
-        objectMetadata.setContentLength(file.getSize());
+    @Transactional
+    public void uploadImage(List<MultipartFile> files, Long planId) {
 
-        Optional<Plan> plan = planRepository.findById(planId);
-        if (plan.isPresent()) {
-            try (InputStream inputStream = file.getInputStream()) {
+        for (MultipartFile multipartFile : files) {
+            String fileName = createFileName(multipartFile.getOriginalFilename());
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentType(multipartFile.getContentType());
+            objectMetadata.setContentLength(multipartFile.getSize());
+            // S3 storage에 저장
+            try (InputStream inputStream = multipartFile.getInputStream()) {
                 uploadService.uploadFile(inputStream, objectMetadata, fileName);
             } catch (IOException e) {
-                throw new IllegalArgumentException(String.format("파일 변환 중 에러가 발생하였습니다 (%s)", file.getOriginalFilename()));
+                throw new IllegalArgumentException(String.format("파일 변환 중 에러가 발생하였습니다 (%s)", multipartFile.getOriginalFilename()));
             }
-            Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
-            imageRepository.save(image);
-        } else {
-            throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
+            // DB에 저장
+            Optional<Plan> plan = planRepository.findById(planId);
+            if (plan.isPresent()) {
+                Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
+                imageRepository.save(image);
+            } else {
+                throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
+            }
         }
     }
 
@@ -73,9 +79,18 @@ public class FileUploadService {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         List<ImageDto> dtoList = new ArrayList<>();
         for (Image image : imageList) {
-            dtoList.add(new ImageDto(image.getImage()));
+            dtoList.add(new ImageDto(image.getId(), image.getImage()));
         }
         return dtoList;
     }
 
+    public void deleteImageS3(Long imageId) {
+        Optional<Image> image = imageRepository.findById(imageId);
+        if (image.isPresent()) {
+            uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
+            imageRepository.deleteById(imageId);
+        }else{
+            throw new CustomException(ErrorCode.IMAGE_NOT_FOUNT);
+        }
+    }
 }

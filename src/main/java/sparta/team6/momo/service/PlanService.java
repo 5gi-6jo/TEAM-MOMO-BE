@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import sparta.team6.momo.amazonS3.UploadService;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.Image;
@@ -26,11 +27,13 @@ public class PlanService {
 
     private PlanRepository planRepository;
     private ImageRepository imageRepository;
+    private UploadService uploadService;
 
     @Autowired
-    public PlanService(PlanRepository planRepository, ImageRepository imageRepository) {
+    public PlanService(PlanRepository planRepository, ImageRepository imageRepository,UploadService uploadService) {
         this.planRepository = planRepository;
         this.imageRepository = imageRepository;
+        this.uploadService = uploadService;
     }
 
     @Transactional
@@ -41,6 +44,10 @@ public class PlanService {
 
     @Transactional
     public void deletePlan(Long planId) {
+        List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
+        for (Image image : imageList) {
+            uploadService.deleteFile(image.getImage().split(".com/")[1]);
+        }
         planRepository.deleteById(planId);
     }
 
@@ -60,8 +67,9 @@ public class PlanService {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         List<ImageDto> imageDto = new ArrayList<>();
         for (Image image : imageList) {
-            imageDto.add(new ImageDto(image.getImage()));
+            imageDto.add(new ImageDto(image.getId(), image.getImage()));
         }
+        //TODO: 쿼리2번 조회하지말고 테이블 join해서 쿼리 한번에 가져오게 하기
 
         return ShowDetailResponseDto.builder()
                 .contents(plan.getContents())
@@ -91,5 +99,4 @@ public class PlanService {
         }
         return dtoList;
     }
-
 }
