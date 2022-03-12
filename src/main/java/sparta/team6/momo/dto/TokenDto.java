@@ -1,8 +1,16 @@
 package sparta.team6.momo.dto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class TokenDto {
-    private final String token;
+    private final String accessToken;
+    private final String refreshToken;
+
+    public TokenDto(String accessToken, String refreshToken) {
+        this.accessToken = "Bearer " + accessToken;
+        this.refreshToken = refreshToken;
+    }
 }

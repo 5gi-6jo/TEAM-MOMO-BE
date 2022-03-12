@@ -10,9 +10,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.team6.momo.dto.SignupRequestDto;
+import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.dto.TokenReissueDto;
+import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
+
+import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +36,7 @@ public class UserService {
     }
 
 
-    public String loginUser(String email, String password) {
+    public TokenDto loginUser(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -44,5 +49,14 @@ public class UserService {
         if (userRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
             throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
         }
+    }
+
+    public TokenDto reissue(TokenReissueDto tokenDto) {
+        if (!tokenProvider.validateToken(tokenDto.getRefreshToken())) {
+            throw new CustomException(INVALID_REFRESH_TOKEN);
+        }
+        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
+         return tokenProvider.reissueToken(authentication, tokenDto.getRefreshToken());
+
     }
 }

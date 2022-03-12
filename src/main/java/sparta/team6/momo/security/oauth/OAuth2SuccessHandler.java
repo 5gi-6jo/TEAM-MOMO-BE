@@ -26,24 +26,24 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        String jwt = tokenProvider.createToken(authentication);
+        TokenDto jwt = tokenProvider.createToken(authentication);
         setResponseWithJwt(response, jwt);
     }
 
-    private void setResponseWithJwt(HttpServletResponse response, String jwt) throws IOException {
+    private void setResponseWithJwt(HttpServletResponse response, TokenDto jwt) throws IOException {
         setHeader(response, jwt);
         setBody(response, jwt);
     }
 
-    private void setHeader(HttpServletResponse response, String jwt) {
+    private void setHeader(HttpServletResponse response, TokenDto jwt) {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html;charset=UTF-8");
-        response.addHeader(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        response.addHeader(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken());
     }
 
-    private void setBody(HttpServletResponse response, String jwt) throws IOException {
+    private void setBody(HttpServletResponse response, TokenDto jwt) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
-        Success<TokenDto> success = Success.tokenDtoSuccess(jwt);
+        Success<TokenDto> success = new Success<>(jwt);
         response.getWriter().write(objectMapper.writeValueAsString(success));
     }
 }

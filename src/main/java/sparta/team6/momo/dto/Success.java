@@ -1,6 +1,5 @@
 package sparta.team6.momo.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.util.List;
@@ -23,16 +22,11 @@ public class Success<T> {
         message = "success";
         this.data = List.of(data);
     }
-  
-   public Success(String message, T data) {
+
+    public Success(String message, T data) {
         success = true;
         this.message = message;
         this.data = List.of(data);
     }
-
-    public static Success<TokenDto> tokenDtoSuccess(String jwt) {
-        TokenDto token = new TokenDto(jwt);
-        return new Success<>(token);
-
 }
 

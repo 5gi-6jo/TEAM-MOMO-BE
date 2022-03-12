@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
@@ -41,10 +38,16 @@ public class UserController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody LoginRequestDto requestDto) {
-        String jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        TokenDto token = new TokenDto(jwt);
+        TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        Success<TokenDto> success = new Success<>(jwt);
+        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(success);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissueToken(@RequestBody TokenReissueDto tokenDto) {
+        TokenDto token = userService.reissue(tokenDto);
         Success<TokenDto> success = new Success<>(token);
-        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt).body(success);
+        return ResponseEntity.ok().body(success);
     }
 
 }

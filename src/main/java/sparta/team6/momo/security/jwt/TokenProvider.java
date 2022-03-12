@@ -5,17 +5,21 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import sparta.team6.momo.dto.TokenDto;
 
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,16 +30,23 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
 
     private final String secret;
-    private final long tokenValidityInMilliseconds;
+    private final long accessTokenValidityIn;
+    private final long refreshTokenExpireTime;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     private Key key;
 
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenExpireTime,
+            RedisTemplate<String, String> redisTemplate) {
         this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.accessTokenValidityIn = accessTokenValidityInSeconds * 1000;
+        this.refreshTokenExpireTime = refreshTokenExpireTime * 1000;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -44,7 +55,7 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication) {
+    public TokenDto reissueToken(Authentication authentication, String refreshToken) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -52,23 +63,54 @@ public class TokenProvider implements InitializingBean {
         log.info(authorities);
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        Date validity = new Date(now + this.accessTokenValidityIn);
 
-        return Jwts.builder()
+        String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
+
+        redisTemplate.opsForValue()
+                .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
+
+
+        return new TokenDto(accessToken, refreshToken);
+    }
+
+    public TokenDto createToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        log.info(authorities);
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.accessTokenValidityIn);
+
+        String accessToken = Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(validity)
+                .compact();
+
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(now + refreshTokenExpireTime))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        log.info(authentication.getName());
+        redisTemplate.opsForValue()
+                .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
+
+
+        return new TokenDto(accessToken, refreshToken);
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = getClaims(token);
 
 //        Collection<? extends GrantedAuthority> authorities =
 //                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
@@ -78,6 +120,19 @@ public class TokenProvider implements InitializingBean {
         User principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
 
         return new UsernamePasswordAuthenticationToken(principal, token, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+    }
+
+    private Claims getClaims(String token) {
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     public boolean validateToken(String token) {
