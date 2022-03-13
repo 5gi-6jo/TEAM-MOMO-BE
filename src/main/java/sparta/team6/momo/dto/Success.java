@@ -1,32 +1,26 @@
 package sparta.team6.momo.dto;
 
 import lombok.Data;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class Success<T> {
-    private boolean success;
-    private String message;
-    private final List<T> data;
-
-    public Success() {
-        success = true;
-        message = "Success";
-        data = List.of();
-    }
-
+    private final boolean success = true;
+    private String message = "success";
+    private T data;
 
     public Success(T data) {
-        success = true;
-        message = "success";
-        this.data = List.of(data);
+        this.data = data;
     }
 
     public Success(String message, T data) {
-        success = true;
         this.message = message;
-        this.data = List.of(data);
+        this.data = data;
+    }
+
+    public static Success<TokenDto> of(TokenDto tokenDto) {
+        return new Success<>(tokenDto);
     }
 }
 

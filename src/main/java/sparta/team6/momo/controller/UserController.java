@@ -25,10 +25,8 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
 
-        if (bindingResult.hasErrors()) {
-            Fail fail = new Fail(bindingResult.getAllErrors().get(0).getDefaultMessage());
-            return ResponseEntity.badRequest().body(fail);
-        }
+        if (bindingResult.hasErrors())
+            return ResponseEntity.badRequest().body(Fail.of(bindingResult));
 
         userService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>());
@@ -37,10 +35,13 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginRequestDto requestDto) {
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors())
+            return ResponseEntity.badRequest().body(Fail.of(bindingResult));
+
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        Success<TokenDto> success = new Success<>(jwt);
-        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(success);
+        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(Success.of(jwt));
     }
 
     @PostMapping("/logout")
@@ -52,8 +53,7 @@ public class UserController {
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenReissueDto tokenDto) {
         TokenDto token = userService.reissue(tokenDto);
-        Success<TokenDto> success = new Success<>(token);
-        return ResponseEntity.ok().body(success);
+        return ResponseEntity.ok().body(Success.of(token));
     }
 
 }
