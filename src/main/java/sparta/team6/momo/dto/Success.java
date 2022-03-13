@@ -35,5 +35,4 @@ public class Success<T> {
         return new Success<>(token);
     }
 }
-}
 
