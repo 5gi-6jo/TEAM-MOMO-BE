@@ -23,8 +23,8 @@ public class Success<T> {
         message = "success";
         this.data = List.of(data);
     }
-  
-   public Success(String message, T data) {
+
+    public Success(String message, T data) {
         success = true;
         this.message = message;
         this.data = List.of(data);
@@ -33,6 +33,6 @@ public class Success<T> {
     public static Success<TokenDto> tokenDtoSuccess(String jwt) {
         TokenDto token = new TokenDto(jwt);
         return new Success<>(token);
-
+    }
 }
 
