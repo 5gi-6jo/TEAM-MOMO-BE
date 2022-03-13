@@ -45,14 +45,14 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody TokenReissueDto tokenDto) {
-        userService.logout(tokenDto);
+    public ResponseEntity<?> logout(@RequestBody TokenDto tokenDto) {
+        userService.logout(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(new Success<>());
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<?> reissueToken(@RequestBody TokenReissueDto tokenDto) {
-        TokenDto token = userService.reissue(tokenDto);
+    public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
+        TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(Success.of(token));
     }
 

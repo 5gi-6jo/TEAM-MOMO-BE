@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.dto.TokenDto;
-import sparta.team6.momo.dto.TokenReissueDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
@@ -21,7 +20,6 @@ import sparta.team6.momo.security.jwt.TokenProvider;
 import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
-import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 
 @Service
 @RequiredArgsConstructor
@@ -50,33 +48,39 @@ public class UserService {
         return tokenProvider.createToken(authentication);
     }
 
-    private void duplicateEmailCheck(SignupRequestDto requestDto) {
-        if (userRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
-            throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
-        }
-    }
 
-    public TokenDto reissue(TokenReissueDto tokenDto) {
-        if (!tokenProvider.validateToken(tokenDto.getRefreshToken())) {
-            throw new CustomException(INVALID_REFRESH_TOKEN);
-        }
-        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
-         return tokenProvider.reissueToken(authentication, tokenDto.getRefreshToken());
-
-    }
-
-    public void logout(TokenReissueDto tokenDto) {
-        if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
-            throw new CustomException(INVALID_ACCESS_TOKEN);
-        }
-        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
+    public void logout(String accessToken, String refreshToken) {
+        Authentication authentication = getAuthenticationByToken(accessToken, accessToken);
 
         if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
             redisTemplate.delete(authentication.getName());
         }
 
-        Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
+        Long expiration = tokenProvider.getExpiration(accessToken);
         redisTemplate.opsForValue()
-                .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+                .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
    }
+
+
+    public TokenDto reissue(String accessToken, String refreshToken) {
+        Authentication authentication = getAuthenticationByToken(refreshToken, accessToken);
+        return tokenProvider.reissueToken(authentication, refreshToken);
+
+    }
+
+
+    private Authentication getAuthenticationByToken(String validateToken, String accessToken) {
+        if (!tokenProvider.validateToken(validateToken)) {
+            throw new CustomException(INVALID_ACCESS_TOKEN);
+        }
+
+        return tokenProvider.getAuthentication(accessToken);
+    }
+
+
+    private void duplicateEmailCheck(SignupRequestDto requestDto) {
+        if (userRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
+            throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
+        }
+    }
 }

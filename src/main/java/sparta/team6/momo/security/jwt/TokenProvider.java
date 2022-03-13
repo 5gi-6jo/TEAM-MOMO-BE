@@ -5,7 +5,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,15 +15,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.TokenDto;
-import sparta.team6.momo.exception.CustomException;
 
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @Component
 @Slf4j
@@ -80,7 +76,7 @@ public class TokenProvider implements InitializingBean {
                 .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
 
 
-        return new TokenDto(accessToken, refreshToken);
+        return TokenDto.withBearer(accessToken, refreshToken);
     }
 
     public TokenDto createToken(Authentication authentication) {
@@ -110,7 +106,7 @@ public class TokenProvider implements InitializingBean {
                 .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
 
 
-        return new TokenDto(accessToken, refreshToken);
+        return TokenDto.withBearer(accessToken, refreshToken);
     }
 
 
@@ -161,6 +157,7 @@ public class TokenProvider implements InitializingBean {
         long now = new Date().getTime();
         return (expiration.getTime() - now);
     }
+
     public boolean isTokenValid(String jwt) {
         return ObjectUtils.isEmpty(redisTemplate.opsForValue().get(jwt));
     }
