@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPOSITORY=/home/ec2-user/app/deploy
+REPOSITORY=/home/ubuntu/app/deploy
 PROJECT_NAME=momo
 
 echo "> Build 파일 복사"
