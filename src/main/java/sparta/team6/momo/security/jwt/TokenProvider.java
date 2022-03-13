@@ -14,13 +14,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.exception.CustomException;
 
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @Component
 @Slf4j
@@ -109,6 +113,7 @@ public class TokenProvider implements InitializingBean {
         return new TokenDto(accessToken, refreshToken);
     }
 
+
     public Authentication getAuthentication(String token) {
         Claims claims = getClaims(token);
 
@@ -149,5 +154,14 @@ public class TokenProvider implements InitializingBean {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody().getExpiration();
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
+    public boolean isTokenValid(String jwt) {
+        return ObjectUtils.isEmpty(redisTemplate.opsForValue().get(jwt));
     }
 }

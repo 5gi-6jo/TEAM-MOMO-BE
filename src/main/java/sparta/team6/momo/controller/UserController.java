@@ -43,6 +43,12 @@ public class UserController {
         return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(success);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody TokenReissueDto tokenDto) {
+        userService.logout(tokenDto);
+        return ResponseEntity.ok().body(new Success<>());
+    }
+
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenReissueDto tokenDto) {
         TokenDto token = userService.reissue(tokenDto);

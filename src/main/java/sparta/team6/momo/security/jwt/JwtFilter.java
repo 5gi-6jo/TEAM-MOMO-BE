@@ -3,10 +3,13 @@ package sparta.team6.momo.security.jwt;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import sparta.team6.momo.exception.CustomException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -14,6 +17,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+
+import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @RequiredArgsConstructor
 public class JwtFilter extends GenericFilterBean {
@@ -32,6 +37,10 @@ public class JwtFilter extends GenericFilterBean {
         String requestURI = httpServletRequest.getRequestURI();
 
         if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            if (!tokenProvider.isTokenValid(jwt)) {
+                throw new CustomException(INVALID_ACCESS_TOKEN);
+            }
+
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             logger.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);

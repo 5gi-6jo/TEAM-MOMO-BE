@@ -13,6 +13,7 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰이 유효하지 않습니다"),
+    INVALID_ACCESS_TOKEN(BAD_REQUEST, "액세스 토큰이 유효하지 않습니다"),
 
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
     FILE_SIZE_EXCEED(BAD_REQUEST, "이미지 파일 업로드 용량 초과(1MB 제한)"),

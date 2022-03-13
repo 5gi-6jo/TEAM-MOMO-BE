@@ -1,6 +1,7 @@
 package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,6 +18,9 @@ import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
+import java.util.concurrent.TimeUnit;
+
+import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 
 @Service
@@ -27,6 +31,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
@@ -59,4 +64,19 @@ public class UserService {
          return tokenProvider.reissueToken(authentication, tokenDto.getRefreshToken());
 
     }
+
+    public void logout(TokenReissueDto tokenDto) {
+        if (!tokenProvider.validateToken(tokenDto.getAccessToken())) {
+            throw new CustomException(INVALID_ACCESS_TOKEN);
+        }
+        Authentication authentication = tokenProvider.getAuthentication(tokenDto.getAccessToken());
+
+        if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
+            redisTemplate.delete(authentication.getName());
+        }
+
+        Long expiration = tokenProvider.getExpiration(tokenDto.getAccessToken());
+        redisTemplate.opsForValue()
+                .set(tokenDto.getAccessToken(), "logout", expiration, TimeUnit.MILLISECONDS);
+   }
 }
