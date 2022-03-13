@@ -59,8 +59,4 @@ jobs:
 
       - name: Code Deploy
         run: aws deploy create-deployment
-        --application-name momo 
-        --deployment-config-name CodeDeployDefault.AllAtOnce 
-        --deployment-group-name momo 
-        --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=momo-build.zip
-        --region ap-northeast-2
+        --application-name momo --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name momo --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=momo-build.zip --region ap-northeast-2
