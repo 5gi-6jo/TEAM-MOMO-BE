@@ -11,7 +11,6 @@ import sparta.team6.momo.dto.Success;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.security.jwt.TokenProvider;
-import sparta.team6.momo.service.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
