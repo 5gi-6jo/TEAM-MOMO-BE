@@ -2,7 +2,6 @@ package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.exception.CustomException;
@@ -30,8 +30,7 @@ import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 @Slf4j
 public class UserService {
 
-    @Value("${jwt.refresh-token-validity-in-seconds}")
-    private final long REFRESH_TOKEN_EXPIRES_IN;
+
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -58,42 +57,47 @@ public class UserService {
 
 
     public void logout(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationByValidToken(accessToken, accessToken, INVALID_ACCESS_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, INVALID_ACCESS_TOKEN);
 
-        if (redisTemplate.opsForValue().get(authentication.getName()) != null) {
-            redisTemplate.delete(authentication.getName());
-        }
+        if (isRefreshTokenNotEquals(refreshToken, authentication))
+            throw new CustomException(INVALID_REFRESH_TOKEN);
 
-        Long expiration = tokenProvider.getExpiration(accessToken);
+        redisTemplate.delete(authentication.getName());
+
+        Long expiration = tokenProvider.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
    }
 
 
     public TokenDto reissue(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationByValidToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
 
-        String savedRefreshToken = redisTemplate.opsForValue().get(authentication.getName());
-        if (!refreshToken.equals(savedRefreshToken))
+        if (isRefreshTokenNotEquals(refreshToken, authentication))
             throw new CustomException(INVALID_REFRESH_TOKEN);
 
         return createAndSaveToken(authentication);
-
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
-                .set(authentication.getName(), tokenDto.getRefreshToken(), REFRESH_TOKEN_EXPIRES_IN, TimeUnit.MILLISECONDS);
+                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
         return tokenDto;
     }
 
 
-    private Authentication getAuthenticationByValidToken(String validateToken, String accessToken, ErrorCode errorCode) {
-        if (!tokenProvider.validateToken(validateToken)) {
+    private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken, ErrorCode errorCode) {
+        if (!tokenProvider.isTokenValidate(validateToken)) {
             throw new CustomException(errorCode);
         }
         return tokenProvider.getAuthentication(accessToken);
+    }
+
+
+    private boolean isRefreshTokenNotEquals(String refreshToken, Authentication authentication) {
+        String savedRefreshToken = redisTemplate.opsForValue().get(authentication.getName());
+        return !refreshToken.equals(savedRefreshToken) || ObjectUtils.isEmpty(savedRefreshToken);
     }
 
 

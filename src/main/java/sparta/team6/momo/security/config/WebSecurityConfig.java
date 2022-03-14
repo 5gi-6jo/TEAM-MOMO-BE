@@ -13,10 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
-import sparta.team6.momo.security.jwt.JwtAccessDeniedHandler;
-import sparta.team6.momo.security.jwt.JwtAuthenticationEntryPoint;
-import sparta.team6.momo.security.jwt.JwtSecurityConfig;
-import sparta.team6.momo.security.jwt.TokenProvider;
+import sparta.team6.momo.security.jwt.*;
 import sparta.team6.momo.security.oauth.OAuth2SuccessHandler;
 import sparta.team6.momo.security.oauth.Oauth2UserService;
 
@@ -30,6 +27,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final TokenProvider tokenProvider;
+    private final TokenUtils tokenUtils;
+    private final JwtFilter jwtFilter;
     private final Oauth2UserService oauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
@@ -78,7 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 
                 .and()
-                .apply(new JwtSecurityConfig(tokenProvider))
+                .apply(new JwtSecurityConfig(jwtFilter))
 
                 .and()
                 .oauth2Login()

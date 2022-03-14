@@ -14,6 +14,7 @@ public class TokenDto {
         this.refreshToken = refreshToken;
     }
 
+
     public static TokenDto withBearer(String accessToken, String refreshToken) {
         return new TokenDto("Bearer " + accessToken, refreshToken);
     }
