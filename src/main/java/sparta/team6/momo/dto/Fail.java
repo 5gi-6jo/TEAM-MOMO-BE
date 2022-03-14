@@ -5,11 +5,10 @@ import org.springframework.validation.BindingResult;
 
 @Data
 public class Fail {
-    private boolean success;
+    private final boolean success = false;
     private String message;
 
     public Fail(String errorMessage) {
-        success = false;
         message = errorMessage;
     }
 

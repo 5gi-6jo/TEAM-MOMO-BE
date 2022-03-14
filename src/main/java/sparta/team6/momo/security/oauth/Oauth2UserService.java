@@ -30,7 +30,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
         Optional<User> findUser = findUserByEmail(oAuth2User);
 
         if (findUser.isEmpty()) {
-            User user = User.kakaoOAuthToUser(oAuth2User);
+            User user = User.of(oAuth2User);
             return new PrincipalDetails(userRepository.save(user), oAuth2User.getAttributes());
         } else {
             return new PrincipalDetails(findUser.get(), oAuth2User.getAttributes());

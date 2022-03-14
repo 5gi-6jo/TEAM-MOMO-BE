@@ -15,12 +15,16 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.exception.CustomException;
+import sparta.team6.momo.exception.ErrorCode;
 
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
 
 @Component
 @Slf4j
@@ -30,8 +34,8 @@ public class TokenProvider implements InitializingBean {
     private static final String AUTHORITIES_KEY = "auth";
 
     private final String secret;
-    private final long accessTokenValidityIn;
-    private final long refreshTokenExpireTime;
+    private final long accessTokenExpireIn;
+    private final long refreshTokenExpireIn;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -41,11 +45,11 @@ public class TokenProvider implements InitializingBean {
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenExpireTime,
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenExpireInSeconds,
             RedisTemplate<String, String> redisTemplate) {
         this.secret = secret;
-        this.accessTokenValidityIn = accessTokenValidityInSeconds * 1000;
-        this.refreshTokenExpireTime = refreshTokenExpireTime * 1000;
+        accessTokenExpireIn = accessTokenValidityInSeconds * 1000;
+        refreshTokenExpireIn = refreshTokenExpireInSeconds * 1000;
         this.redisTemplate = redisTemplate;
     }
 
@@ -55,57 +59,10 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public TokenDto reissueToken(Authentication authentication, String refreshToken) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        log.info(authorities);
-
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValidityIn);
-
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
-
-        redisTemplate.opsForValue()
-                .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
-
-
-        return TokenDto.withBearer(accessToken, refreshToken);
-    }
 
     public TokenDto createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        log.info(authorities);
-
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValidityIn);
-
-        String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
-
-        String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + refreshTokenExpireTime))
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
-
-        log.info(authentication.getName());
-        redisTemplate.opsForValue()
-                .set(authentication.getName(), refreshToken, refreshTokenExpireTime, TimeUnit.MILLISECONDS);
-
-
+        String accessToken = createAccessToken(authentication);
+        String refreshToken = createRefreshToken();
         return TokenDto.withBearer(accessToken, refreshToken);
     }
 
@@ -160,5 +117,39 @@ public class TokenProvider implements InitializingBean {
 
     public boolean isTokenValid(String jwt) {
         return ObjectUtils.isEmpty(redisTemplate.opsForValue().get(jwt));
+    }
+
+
+    private String getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
+    private String createAccessToken(Authentication authentication) {
+        String authorities = getAuthorities(authentication);
+        String email = authentication.getName();
+        return createAccessTokenWith(email, authorities);
+    }
+
+    private String createAccessTokenWith(String email, String authorities) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(getExpireDate(accessTokenExpireIn))
+                .compact();
+    }
+
+    private String createRefreshToken() {
+        return Jwts.builder()
+                .setExpiration(getExpireDate(refreshTokenExpireIn))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    private Date getExpireDate(long expireIn) {
+        long now = (new Date()).getTime();
+        return new Date(now + expireIn);
     }
 }

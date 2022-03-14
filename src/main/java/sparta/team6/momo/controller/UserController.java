@@ -44,12 +44,14 @@ public class UserController {
         return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(Success.of(jwt));
     }
 
+    // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody TokenDto tokenDto) {
         userService.logout(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(new Success<>());
     }
 
+    // 토큰 재발행
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
         TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());

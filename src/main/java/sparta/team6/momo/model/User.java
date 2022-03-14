@@ -43,7 +43,7 @@ public class User extends TimeStamped {
     }
 
 
-    public static User kakaoOAuthToUser(OAuth2User oAuth2User) {
+    public static User of(OAuth2User oAuth2User) {
         Map<String, Object> kakao_account = oAuth2User.getAttribute("kakao_account");
         Map<String, String> properties = oAuth2User.getAttribute("properties");
         String email = String.valueOf(kakao_account.get("email"));

@@ -1,4 +1,4 @@
-package sparta.team6.momo.controller;
+package sparta.team6.momo.controller.test;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
