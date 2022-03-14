@@ -1,12 +1,13 @@
 package sparta.team6.momo.security.jwt;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
+import sparta.team6.momo.exception.CustomException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,14 +16,18 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-@RequiredArgsConstructor
-public class JwtFilter extends GenericFilterBean {
+import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
+@RequiredArgsConstructor
+@Slf4j
+@Component
+public class JwtFilter extends GenericFilterBean {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final TokenProvider tokenProvider;
+    private final TokenUtils tokenUtils;
+
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -31,12 +36,16 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();
 
-        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+        if (StringUtils.hasText(jwt) && tokenProvider.isTokenValidate(jwt)) {
+
+            if (tokenUtils.isTokenBlackList(jwt))
+                throw new CustomException(INVALID_ACCESS_TOKEN);
+
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            logger.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
+            log.info("Security Context에 '{}' 인증 정보를 저장했습니다, uri: {}", authentication.getName(), requestURI);
         } else {
-            logger.info("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
+            log.info("유효한 JWT 토큰이 없습니다, uri: {}", requestURI);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

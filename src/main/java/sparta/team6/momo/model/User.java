@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
+import sparta.team6.momo.dto.SignupRequestDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -41,7 +42,8 @@ public class User extends TimeStamped {
         this.nickname = nickname;
     }
 
-    public static User kakaoOAuthToUser(OAuth2User oAuth2User) {
+
+    public static User of(OAuth2User oAuth2User) {
         Map<String, Object> kakao_account = oAuth2User.getAttribute("kakao_account");
         Map<String, String> properties = oAuth2User.getAttribute("properties");
         String email = String.valueOf(kakao_account.get("email"));

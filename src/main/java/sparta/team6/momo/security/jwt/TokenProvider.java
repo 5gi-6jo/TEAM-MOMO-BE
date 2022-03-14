@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+import sparta.team6.momo.dto.TokenDto;
 
 import java.security.Key;
 import java.util.Collections;
@@ -24,51 +25,37 @@ public class TokenProvider implements InitializingBean {
 
 
     private static final String AUTHORITIES_KEY = "auth";
-
-    private final String secret;
-    private final long tokenValidityInMilliseconds;
-
+    private final String SECRET;
+    private final long ACCESS_TOKEN_VALIDITY;
+    private final long REFRESH_TOKEN_VALIDITY;
     private Key key;
 
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
-        this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+            @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds) {
+        SECRET = secret;
+        ACCESS_TOKEN_VALIDITY = accessTokenValidityInSeconds * 1000;
+        REFRESH_TOKEN_VALIDITY = refreshTokenValidityInSeconds * 1000;
     }
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
 
-        log.info(authorities);
-
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
-
-        return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
-                .compact();
+    public TokenDto createToken(Authentication authentication) {
+        String accessToken = createAccessToken(authentication);
+        String refreshToken = createRefreshToken();
+        return TokenDto.withBearer(accessToken, refreshToken);
     }
 
-    public Authentication getAuthentication(String token) {
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+
+    public Authentication getAuthentication(String accessToken) {
+        Claims claims = getClaimsWithoutExpirationCheck(accessToken);
 
 //        Collection<? extends GrantedAuthority> authorities =
 //                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
@@ -77,10 +64,11 @@ public class TokenProvider implements InitializingBean {
 
         User principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
 
-        return new UsernamePasswordAuthenticationToken(principal, token, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        return new UsernamePasswordAuthenticationToken(principal, accessToken, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
-    public boolean validateToken(String token) {
+
+    public boolean isTokenValidate(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
@@ -94,5 +82,63 @@ public class TokenProvider implements InitializingBean {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+
+    public Long getRemainExpiration(String token) {
+        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
+        long now = new Date().getTime();
+        return (expiration.getTime() - now);
+    }
+
+
+    public long getRefreshTokenValidity() {
+        return REFRESH_TOKEN_VALIDITY;
+    }
+
+    private Claims getClaimsWithoutExpirationCheck(String token) {
+        try {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+    }
+
+
+    private String getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+    }
+
+    private String createAccessToken(Authentication authentication) {
+        String authorities = getAuthorities(authentication);
+        String email = authentication.getName();
+        return createAccessTokenWith(email, authorities);
+    }
+
+    private String createAccessTokenWith(String email, String authorities) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(getExpireDate(ACCESS_TOKEN_VALIDITY))
+                .compact();
+    }
+
+    private String createRefreshToken() {
+        return Jwts.builder()
+                .setExpiration(getExpireDate(REFRESH_TOKEN_VALIDITY))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    private Date getExpireDate(long expireIn) {
+        long now = (new Date()).getTime();
+        return new Date(now + expireIn);
     }
 }
