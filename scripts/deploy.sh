@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPOSITORY=/home/ubuntu/app/deploy
+REPOSITORY=/home/ubuntu/app
 PROJECT_NAME=momo
 
 echo "> Build 파일 복사"
@@ -9,7 +9,7 @@ cp ./build/libs/*.jar $REPOSITORY/
 
 echo "> 현재 구동중인 애플리케이션 pid 확인"
 
-CURRENT_PID=$(pgrep -fl $PROJECT_NAME | grep jar | awk '{print $1}')
+CURRENT_PID=$(pgrep -fl $PROJECT_NAME | grep java | awk '{print $1}')
 
 echo "$CURRENT_PID"
 
@@ -22,12 +22,12 @@ else
 fi
 
 echo "> 새 어플리케이션 배포"
-
-JAR_NAME=$(ls $REPOSITORY/*.jar |grep jar | tail -n 1)
+JAR_NAME=$(ls -tr $REPOSITORY/*.jar | tail -n 1)
 
 echo "> JAR Name: $JAR_NAME"
+
 echo "> $JAR_NAME에 실행권한 추가"
 chmod +x $JAR_NAME
 
 echo "> $JAR_NAME 실행"
-nohup java -jar $REPOSITORY/$JAR_NAME &
+nohup java -jar $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &

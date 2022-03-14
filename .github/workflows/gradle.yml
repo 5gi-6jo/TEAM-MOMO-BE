@@ -39,9 +39,24 @@ jobs:
         with:
           arguments: build
 
+      # 디렉토리 생성
+      - name: Make Directory
+        run: mkdir -p deploy
+
+      # Jar 파일 복사
+      - name: Copy Jar
+        run: cp ./build/libs/*.jar ./deploy
+
+      # 파일 압축
       - name: Make zip file
-        run: zip -r ./$GITHUB_SHA.zip .
-        shell: bash
+        run: zip -r ./$GITHUB_SHA.zip ./deploy
+
+      # appspec.yml 파일 복사
+      - name: Copy appspec.yml
+        run: cp appspec.yml ./deploy
+
+      - name: Copy script
+        run: cp ./scripts/*.sh ./deploy
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -55,3 +70,5 @@ jobs:
 
       - name: Code Deploy
         run: aws deploy create-deployment --application-name Github-Actions-Deploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name Github-Actions-Group --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
+
+
