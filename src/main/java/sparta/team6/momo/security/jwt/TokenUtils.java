@@ -16,4 +16,5 @@ public class TokenUtils {
     public boolean isTokenBlackList(String jwt) {
         return !ObjectUtils.isEmpty(redisTemplate.opsForValue().get(jwt));
     }
+
 }

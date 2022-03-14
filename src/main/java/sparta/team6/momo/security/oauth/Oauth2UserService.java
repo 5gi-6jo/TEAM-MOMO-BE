@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.PrincipalDetails;
+import sparta.team6.momo.security.jwt.TokenProvider;
+import sparta.team6.momo.service.UserService;
 
 import java.util.*;
 
@@ -19,10 +21,12 @@ import java.util.*;
 public class Oauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
+
         return createPrincipalDetails(oAuth2User);
     }
 
