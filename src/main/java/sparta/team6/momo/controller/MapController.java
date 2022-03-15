@@ -10,7 +10,7 @@ import sparta.team6.momo.dto.LocationDto;
 @Controller
 public class MapController {
 
-    @MessageMapping("/")
+    @MessageMapping("/hello")
     @SendTo("/topic/public")
     public LocationDto sendLocation(@Payload LocationDto locationDto) {
         return locationDto;
