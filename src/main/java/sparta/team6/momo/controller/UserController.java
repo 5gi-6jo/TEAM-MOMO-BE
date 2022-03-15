@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
@@ -56,6 +57,12 @@ public class UserController {
     public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
         TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(Success.of(token));
+    }
+
+    @GetMapping("/login")
+    public ResponseEntity<?> getUserInfo(Authentication authentication) {
+        UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
+        return ResponseEntity.ok().body(Success.of(userInfo));
     }
 
 }
