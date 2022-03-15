@@ -48,7 +48,7 @@ public class FileUploadService {
             try (InputStream inputStream = multipartFile.getInputStream()) {
                 uploadService.uploadFile(inputStream, objectMetadata, fileName);
             } catch (IOException e) {
-                throw new IllegalArgumentException(String.format("파일 변환 중 에러가 발생하였습니다 (%s)", multipartFile.getOriginalFilename()));
+                throw new CustomException(ErrorCode.FILE_CONVERT_ERROR);
             }
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
@@ -89,7 +89,7 @@ public class FileUploadService {
         if (image.isPresent()) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
-        }else{
+        } else {
             throw new CustomException(ErrorCode.IMAGE_NOT_FOUNT);
         }
     }
