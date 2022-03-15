@@ -36,6 +36,8 @@ public class User extends TimeStamped {
     @NotEmpty
     private String nickname;
 
+
+
     public User(@NonNull String email, @NonNull String password, @NonNull String nickname) {
         this.email = email;
         this.password = password;
@@ -43,7 +45,7 @@ public class User extends TimeStamped {
     }
 
 
-    public static User of(OAuth2User oAuth2User) {
+    public static User ofKakao(OAuth2User oAuth2User) {
         Map<String, Object> kakao_account = oAuth2User.getAttribute("kakao_account");
         Map<String, String> properties = oAuth2User.getAttribute("properties");
         String email = String.valueOf(kakao_account.get("email"));

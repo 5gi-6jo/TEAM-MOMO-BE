@@ -8,12 +8,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.dto.UserResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.User;
@@ -77,6 +79,13 @@ public class UserService {
             throw new CustomException(INVALID_REFRESH_TOKEN);
 
         return createAndSaveToken(authentication);
+    }
+
+    public UserResponseDto getUserInfo(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException(email + "을 찾을 수 없습니다")
+        );
+        return UserResponseDto.of(user);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {

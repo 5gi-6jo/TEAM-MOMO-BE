@@ -13,6 +13,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
+                .setAllowedOrigins("https://www.seoultaste.click/", "http://localhost:8080/", "http://localhost:3000")
                 .withSockJS();
     }
 
@@ -22,7 +23,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/topic");
         // 데이터 가공 후 메세지 브로커에게 전달해야 할 경우 핸들러를 거쳐야 한다
         // 해당 url 로 접근하면 해당 경로를 처리하고 있는 핸들러로 접근
-        registry.setApplicationDestinationPrefixes("/app", "/chat");
-//        registry.setApplicationDestinationPrefixes("/map", "/chat");
+        registry.setApplicationDestinationPrefixes("/map", "/chat");
     }
 }
