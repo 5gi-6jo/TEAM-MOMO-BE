@@ -5,10 +5,13 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.Arrays;
 
 import static sparta.team6.momo.exception.ErrorCode.DUPLICATE_RESOURCE;
 import static sparta.team6.momo.exception.ErrorCode.FILE_SIZE_EXCEED;
@@ -35,7 +38,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {CustomException.class})
     protected ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
-        log.error("handleCustomException throw CustomException : {}", e.getErrorCode());
+        log.error("handleCustomException throw CustomException : {} {}", e.getErrorCode(), e.getErrorCode().getDetail());
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
+
+
+
 }
