@@ -22,6 +22,10 @@ public class MakePlanRequestDto {
     @NotBlank(message = "약속 장소를 입력하세요")
     private String destination;
 
+    // Todo : 내용 + 알람시간
+
+    // 알람시간은 분 단위 String으로 받음
+
     public Plan toEntity() {
         return Plan.builder()
                 .planDate(planDate)
