@@ -26,8 +26,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final CorsFilter corsFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final TokenProvider tokenProvider;
-    private final TokenUtils tokenUtils;
     private final JwtFilter jwtFilter;
     private final Oauth2UserService oauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
