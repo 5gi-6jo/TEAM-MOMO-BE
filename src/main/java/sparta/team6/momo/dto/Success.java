@@ -22,5 +22,9 @@ public class Success<T> {
     public static Success<TokenDto> of(TokenDto tokenDto) {
         return new Success<>(tokenDto);
     }
+
+    public static Success<UserResponseDto> of(UserResponseDto userResponseDto) {
+        return new Success<>(userResponseDto);
+    }
 }
 

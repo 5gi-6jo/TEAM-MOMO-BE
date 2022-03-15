@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 

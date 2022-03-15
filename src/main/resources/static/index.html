@@ -4,12 +4,35 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+
+
+<body>
+<button id="login-kakao-btn" onclick="location.href='/oauth2/authorization/kakao'">카카오</button>
+<button id="login-google-btn" onclick="location.href='/oauth2/authorization/google'">구글</button>
+<button id="login-naver-btn" onclick="location.href='/oauth2/authorization/naver'">네이버</button>
+
+<form id="locationForm" name="locationForm">
+    <input type="text" id="title" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+    <input type="text" id="lat" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+    <input type="text" id="lng" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+    <button type="submit" class="primary">보내기</button>
+</form>
+
+<ul id="messageArea">
+
+</ul>
+</body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 <script>
-    function connect(event) {
+    document.querySelector('#locationForm').addEventListener('submit', connect, true);
+    var messageArea = document.querySelector('#messageArea');
+    var title = document.querySelector('#title');
 
+    function connect(event) {
+        console.log("connect")
         var socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
@@ -18,12 +41,40 @@
         event.preventDefault();
     }
 
-</script>
+    function onConnected() {
+        var t = title.value.trim();
 
-<body>
-<button id="login-kakao-btn" onclick="location.href='/oauth2/authorization/kakao'">카카오</button>
-<button id="login-google-btn" onclick="location.href='/oauth2/authorization/google'">구글</button>
-<button id="login-naver-btn" onclick="location.href='/oauth2/authorization/naver'">네이버</button>
-<button id="random-test-btn" onclick="location.href='/map/hello'">랜덤</button>
-</body>
+        // Subscribe to the Public Topic
+        stompClient.subscribe('/topic/public', onMessageReceived);
+
+        // Tell your username to the server
+        var chatMessage = {
+            title: t
+        };
+        stompClient.send("/map/hello", {}, JSON.stringify(chatMessage));
+    }
+
+    function onMessageReceived(payload) {
+        var message = JSON.parse(payload.body);
+
+        var messageElement = document.createElement('li');
+
+        var textElement = document.createElement('p');
+        var messageText = document.createTextNode(message.title);
+        textElement.appendChild(messageText);
+
+        messageElement.appendChild(textElement);
+
+        messageArea.appendChild(messageElement);
+        messageArea.scrollTop = messageArea.scrollHeight;
+    }
+
+    function onError(error) {
+        connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
+        connectingElement.style.color = 'red';
+    }
+
+
+
+</script>
 </html>
