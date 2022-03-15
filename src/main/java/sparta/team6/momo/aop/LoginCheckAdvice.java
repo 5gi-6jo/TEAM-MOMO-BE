@@ -9,6 +9,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import sparta.team6.momo.exception.CustomException;
+import sparta.team6.momo.exception.ErrorCode;
+
+import static sparta.team6.momo.exception.ErrorCode.ONLY_LOGOUT_ACCESS;
 
 @Aspect
 @Slf4j
@@ -25,9 +29,8 @@ public class LoginCheckAdvice {
     @Before("register() || login()")
     public void onlyLogoutAccess() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info(auth.getPrincipal().toString());
         if (auth.getPrincipal() instanceof UserDetails) {
-            throw new AccessDeniedException("이미 로그인이 되어있습니다");
+            throw new CustomException(ONLY_LOGOUT_ACCESS);
         }
     }
 }
