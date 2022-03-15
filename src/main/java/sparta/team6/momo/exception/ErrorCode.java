@@ -22,6 +22,8 @@ public enum ErrorCode {
 
     FILE_CONVERT_ERROR(BAD_REQUEST, "파일 변환 중 에러가 발생하였습니다"),
 
+    FAILED_TO_SEND_MESSAGE(BAD_REQUEST, "메세지 전송에 실패하였습니다"),
+
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
 
