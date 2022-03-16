@@ -13,6 +13,8 @@ import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -38,7 +40,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
 
         if (bindingResult.hasErrors())
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
@@ -67,12 +69,16 @@ public class UserController {
     // 토큰 재발행
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
-        TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+        userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
         return ResponseEntity.ok().body(new Success<>());
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> getUserInfo(Authentication authentication) {
+    public ResponseEntity<?> getUserInfo(Authentication authentication,  HttpServletRequest httpServletRequest) {
+        Cookie[] cookie1 = httpServletRequest.getCookies();
+        for (Cookie cookie2 : cookie1) {
+            System.out.println(cookie2.getName() + cookie2.getValue());
+        }
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
