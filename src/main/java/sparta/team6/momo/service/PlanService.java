@@ -35,10 +35,11 @@ public class PlanService {
     private UserRepository userRepository;
 
     @Autowired
-    public PlanService(PlanRepository planRepository, ImageRepository imageRepository, UploadService uploadService) {
+    public PlanService(PlanRepository planRepository, ImageRepository imageRepository, UploadService uploadService, UserRepository userRepository) {
         this.planRepository = planRepository;
         this.imageRepository = imageRepository;
         this.uploadService = uploadService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
