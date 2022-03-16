@@ -3,6 +3,8 @@ package sparta.team6.momo.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
@@ -42,7 +44,17 @@ public class UserController {
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
 
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(new Success<>());
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwt.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(6000000)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
+                .body(new Success<>());
     }
 
     // 로그아웃
