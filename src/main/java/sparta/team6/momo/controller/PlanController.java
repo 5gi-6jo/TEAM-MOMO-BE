@@ -3,7 +3,7 @@ package sparta.team6.momo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
@@ -25,9 +25,9 @@ public class PlanController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, Errors errors) {
-        if (errors.hasErrors()) {
-            for (FieldError error : errors.getFieldErrors()) {
+    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            for (FieldError error : bindingResult.getFieldErrors()) {
                 throw new DefaultException(HttpStatus.BAD_REQUEST, error.getDefaultMessage());
             }
         }
@@ -42,9 +42,9 @@ public class PlanController {
     }
 
     @PutMapping("/{planId}")
-    public ResponseEntity<Object> updatePlan(@PathVariable Long planId, @Valid @RequestBody UpdatePlanRequestDto requestDto, Errors errors) {
-        if (errors.hasErrors()) {
-            for (FieldError error : errors.getFieldErrors()) {
+    public ResponseEntity<Object> updatePlan(@PathVariable Long planId, @Valid @RequestBody UpdatePlanRequestDto requestDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            for (FieldError error : bindingResult.getFieldErrors()) {
                 throw new DefaultException(HttpStatus.BAD_REQUEST, error.getDefaultMessage());
             }
         }

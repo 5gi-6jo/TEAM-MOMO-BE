@@ -27,4 +27,16 @@ public class ErrorResponse {
                 );
     }
 
+    public static ResponseEntity<ErrorResponse> toResponseDefault(DefaultException defaultException) {
+        return ResponseEntity
+                .status(defaultException.getHttpStatus())
+                .body(ErrorResponse.builder()
+                        .status(defaultException.getHttpStatus().value())
+                        .error(defaultException.getHttpStatus().name())
+                        .code(defaultException.getClass().getSimpleName())
+                        .message(defaultException.getMessage())
+                        .build()
+                );
+    }
+
 }
