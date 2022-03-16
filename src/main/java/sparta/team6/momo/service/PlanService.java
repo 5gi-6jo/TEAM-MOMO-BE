@@ -44,6 +44,7 @@ public class PlanService {
     @Transactional
     public MakePlanResponseDto savePlan(MakePlanRequestDto request, String email) {
         Plan savedPlan = planRepository.save(request.toEntity());
+        System.out.println(savedPlan);
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
