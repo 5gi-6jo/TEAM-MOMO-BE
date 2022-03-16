@@ -75,10 +75,6 @@ public class UserController {
 
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo(Authentication authentication,  HttpServletRequest httpServletRequest) {
-        Cookie[] cookie1 = httpServletRequest.getCookies();
-        for (Cookie cookie2 : cookie1) {
-            System.out.println(cookie2.getName() + cookie2.getValue());
-        }
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
