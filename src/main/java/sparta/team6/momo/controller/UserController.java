@@ -42,7 +42,7 @@ public class UserController {
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
 
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(Success.of(jwt));
+        return ResponseEntity.ok().header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken()).body(new Success<>());
     }
 
     // 로그아웃
@@ -56,7 +56,7 @@ public class UserController {
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
         TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
-        return ResponseEntity.ok().body(Success.of(token));
+        return ResponseEntity.ok().body(new Success<>());
     }
 
     @GetMapping("/login")
