@@ -19,7 +19,6 @@ import java.util.List;
 public class PlanController {
 
     private PlanService planService;
-    private UserService userService;
 
     @Autowired
     public PlanController(PlanService planService) {
@@ -37,7 +36,7 @@ public class PlanController {
     }
 
     @DeleteMapping("/{planId}")
-    public ResponseEntity<Object> deletePlan(@PathVariable Long planId) {
+    public ResponseEntity<Object> deletePlan(@PathVariable Long planId, Authentication authentication) {
         planService.deletePlan(planId);
         return ResponseEntity.ok().body(new Success<>("삭제 완료"));
     }
@@ -58,8 +57,9 @@ public class PlanController {
     }
 
     @GetMapping("/main")
-    public ResponseEntity<Object> showMain() {
-        List<ShowMainResponseDto> dtoList = planService.showMain();
+    public ResponseEntity<Object> showMain(Authentication authentication) {
+        String email = authentication.getName();
+        List<ShowMainResponseDto> dtoList = planService.showMain(email);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }

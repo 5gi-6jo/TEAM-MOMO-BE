@@ -2,6 +2,7 @@ package sparta.team6.momo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.PagingDto;
 import sparta.team6.momo.dto.ShowRecordResponseDto;
@@ -22,8 +23,9 @@ public class RecordController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Object> showRecord(@RequestParam Long pageNumber) {
-        List<ShowRecordResponseDto> dtoList = planService.showRecord(pageNumber);
+    public ResponseEntity<Object> showRecord(@RequestParam Long pageNumber, Authentication authentication) {
+        String email = authentication.getName();
+        List<ShowRecordResponseDto> dtoList = planService.showRecord(pageNumber, email);
         return ResponseEntity.ok().body(new PagingDto<>("조회 완료", dtoList));
     }
 }

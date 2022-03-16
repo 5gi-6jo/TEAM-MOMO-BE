@@ -43,7 +43,6 @@ public class PlanService {
     @Transactional
     public MakePlanResponseDto savePlan(MakePlanRequestDto request, String email) {
         Plan savedPlan = planRepository.save(request.toEntity());
-        System.out.println(savedPlan);
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -65,7 +64,6 @@ public class PlanService {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-
         savedPlan.update(requestDto);
     }
 
@@ -79,18 +77,14 @@ public class PlanService {
             imageDto.add(new ImageDto(image.getId(), image.getImage()));
         }
         //TODO: 쿼리2번 조회하지말고 테이블 join해서 쿼리 한번에 가져오게 하기
-
-        return ShowDetailResponseDto.builder()
-                .contents(plan.getContents())
-                .planDate(plan.getPlanDate())
-                .planName(plan.getPlanName())
-                .destination(plan.getDestination())
-                .imageList(imageDto)
-                .build();
+        return ShowDetailResponseDto.of(plan, imageDto);
     }
 
-    public List<ShowMainResponseDto> showMain() {
-        List<Plan> planList = planRepository.findAll();
+    public List<ShowMainResponseDto> showMain(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        List<Plan> planList = planRepository.findAllByUserId(user.getId());
         List<ShowMainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new ShowMainResponseDto(plan));
@@ -98,9 +92,12 @@ public class PlanService {
         return dtoList;
     }
 
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber) {
+    public List<ShowRecordResponseDto> showRecord(Long pageNumber, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-        Page<Plan> planList = planRepository.findAll(pageRequest);
+        Page<Plan> planList = planRepository.findAllByUserId(user.getId(), pageRequest);
 //        System.out.println(planRepository.count());
         List<ShowRecordResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
