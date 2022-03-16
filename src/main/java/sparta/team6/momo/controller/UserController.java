@@ -13,6 +13,8 @@ import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -38,7 +40,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
 
         if (bindingResult.hasErrors())
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
@@ -52,9 +54,11 @@ public class UserController {
                 .maxAge(6000000)
                 .build();
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
-                                .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                                .body(Success.of(jwt));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
+                .body(new Success<>());
     }
 
     // 로그아웃
@@ -67,12 +71,16 @@ public class UserController {
     // 토큰 재발행
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(@RequestBody TokenDto tokenDto) {
-        TokenDto token = userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
-        return ResponseEntity.ok().body(Success.of(token));
+        userService.reissue(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+        return ResponseEntity.ok().body(new Success<>());
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> getUserInfo(Authentication authentication) {
+    public ResponseEntity<?> getUserInfo(Authentication authentication,  @CookieValue(name = "refresh_token", defaultValue = "refresh") String cookie) {
+//        System.out.println(cookie);
+        log.info(cookie);
+        if (authentication == null)
+            return ResponseEntity.ok().body(new Success<>());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }

@@ -11,8 +11,10 @@ import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.Image;
 import sparta.team6.momo.model.Plan;
+import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.ImageRepository;
 import sparta.team6.momo.repository.PlanRepository;
+import sparta.team6.momo.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -28,17 +30,24 @@ public class PlanService {
     private PlanRepository planRepository;
     private ImageRepository imageRepository;
     private UploadService uploadService;
+    private UserRepository userRepository;
 
     @Autowired
-    public PlanService(PlanRepository planRepository, ImageRepository imageRepository,UploadService uploadService) {
+    public PlanService(PlanRepository planRepository, ImageRepository imageRepository, UploadService uploadService, UserRepository userRepository) {
         this.planRepository = planRepository;
         this.imageRepository = imageRepository;
         this.uploadService = uploadService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
-    public MakePlanResponseDto savePlan(MakePlanRequestDto request) {
+    public MakePlanResponseDto savePlan(MakePlanRequestDto request, String email) {
         Plan savedPlan = planRepository.save(request.toEntity());
+        System.out.println(savedPlan);
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        savedPlan.addPlan(user);
         return new MakePlanResponseDto(savedPlan.getId());
     }
 

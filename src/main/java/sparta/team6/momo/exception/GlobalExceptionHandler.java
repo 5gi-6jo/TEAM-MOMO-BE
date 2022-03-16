@@ -42,6 +42,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ErrorResponse.toResponseEntity(e.getErrorCode());
     }
 
+    @ExceptionHandler(value = {DefaultException.class})
+    protected ResponseEntity<ErrorResponse> handleDefaultException(DefaultException e) {
+        log.error("handleDefaulException throw DefaultException : {} {}", e.getHttpStatus(), e.getMessage());
+        return ErrorResponse.toResponseDefault(e);
+    }
+
 
 
 }

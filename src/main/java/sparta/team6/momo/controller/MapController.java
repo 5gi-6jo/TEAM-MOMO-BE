@@ -23,20 +23,6 @@ public class MapController {
         return locationDto;
     }
 
-
-    @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public LocationDto sendMessage(@Payload LocationDto chatMessage) {
-        return chatMessage;
-    }
-
-    @MessageMapping("/chat.addUser")
-    @SendTo("/topic/public")
-    public LocationDto addUser(@Payload LocationDto chatMessage, SimpMessageHeaderAccessor headerAccessor) {
-        headerAccessor.getSessionAttributes().put("username", chatMessage.getTitle());
-        return chatMessage;
-    }
-
 }
 
 
