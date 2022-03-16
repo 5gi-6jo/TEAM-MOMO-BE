@@ -8,10 +8,7 @@ import sparta.team6.momo.dto.SignupRequestDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -36,6 +33,8 @@ public class User extends TimeStamped {
     @NotEmpty
     private String nickname;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Plan> planList = new ArrayList<>();
 
 
     public User(@NonNull String email, @NonNull String password, @NonNull String nickname) {
@@ -43,7 +42,6 @@ public class User extends TimeStamped {
         this.password = password;
         this.nickname = nickname;
     }
-
 
     public static User ofKakao(OAuth2User oAuth2User) {
         Map<String, Object> kakao_account = oAuth2User.getAttribute("kakao_account");
