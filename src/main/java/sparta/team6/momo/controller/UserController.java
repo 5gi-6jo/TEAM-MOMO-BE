@@ -44,15 +44,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
 
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-//        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwt.getRefreshToken())
-//                .httpOnly(true)
-//                .secure(true)
-//                .path("/")
-//                .maxAge(6000000)
-//                .build();
+        ResponseCookie cookie = ResponseCookie.from("refresh_token", jwt.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(6000000)
+                .build();
 
         return ResponseEntity.ok()
-//                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
                 .body(new Success<>());
     }

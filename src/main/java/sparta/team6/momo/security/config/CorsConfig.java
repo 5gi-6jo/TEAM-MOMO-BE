@@ -21,7 +21,7 @@ public class CorsConfig {
         config.addAllowedMethod("*");
         config.addExposedHeader("Authorization");
         config.addExposedHeader("authorization");
-
+        config.addExposedHeader("Set-Cookie");
 
         source.registerCorsConfiguration("/users/**", config);
         source.registerCorsConfiguration("/plans/**", config);
