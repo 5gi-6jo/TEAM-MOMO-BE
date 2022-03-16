@@ -74,7 +74,8 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> getUserInfo(Authentication authentication,  HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> getUserInfo(Authentication authentication,  @CookieValue(name = "refresh_token", defaultValue = "refresh") String cookie) {
+        System.out.println(cookie);
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
