@@ -61,6 +61,8 @@ public class UserController {
 
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo(Authentication authentication) {
+        if (authentication == null)
+            return ResponseEntity.ok().body(new Success<>());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
