@@ -16,10 +16,11 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-//        config.addAllowedOrigin("*");
         config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("authorization");
 
         source.registerCorsConfiguration("/users/**", config);
         source.registerCorsConfiguration("/plans/**", config);

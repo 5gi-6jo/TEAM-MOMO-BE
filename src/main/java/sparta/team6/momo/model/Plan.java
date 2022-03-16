@@ -1,9 +1,6 @@
 package sparta.team6.momo.model;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import sparta.team6.momo.dto.MakePlanRequestDto;
 import sparta.team6.momo.dto.UpdatePlanRequestDto;
 
@@ -13,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Plan extends TimeStamped {
@@ -34,8 +32,13 @@ public class Plan extends TimeStamped {
     @Column
     private String contents;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Builder
     public Plan(String planName, String destination, LocalDateTime planDate) {
+
         this.planName = planName;
         this.destination = destination;
         this.planDate = planDate;
@@ -46,5 +49,10 @@ public class Plan extends TimeStamped {
         this.destination = requestDto.getDestination();
         this.planDate = requestDto.getPlanDate();
         this.contents = requestDto.getContents();
+    }
+
+    public void addPlan(User user) {
+        this.user = user;
+        user.getPlanList().add(this);
     }
 }
