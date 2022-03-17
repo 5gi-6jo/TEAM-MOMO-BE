@@ -13,8 +13,6 @@ import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -40,7 +38,7 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors())
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
@@ -58,8 +56,11 @@ public class UserController {
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody TokenDto tokenDto) {
-        userService.logout(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+    public ResponseEntity<?> logout(
+            @RequestBody TokenDto tokenDto,
+            @CookieValue(name = "refresh_token") String refreshToken) {
+
+        userService.logout(tokenDto.getAccessToken(), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
     }
 

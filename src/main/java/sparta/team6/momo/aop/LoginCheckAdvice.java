@@ -32,6 +32,9 @@ public class LoginCheckAdvice {
     @Pointcut("execution(public * sparta.team6.momo.controller.UserController.reissueToken(..))")
     private void reissueToken(){}
 
+    @Pointcut("execution(public * sparta.team6.momo.controller.UserController.getUserInfo(..))")
+    private void getUserInfo(){}
+
     @Before("register() || login() || reissueToken()")
     public void onlyLogoutAccess() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -40,15 +43,20 @@ public class LoginCheckAdvice {
         }
     }
 
-    @Around("register()")
+    @Around("register() || getUserInfo()")
     public Object validate(ProceedingJoinPoint joinPoint) throws Throwable {
+
         Object[] args = joinPoint.getArgs();
         for (Object arg : args) {
+            log.info(arg.toString());
             if (arg instanceof Errors) {
                 Errors e = (Errors) arg;
-                throw new DefaultException(HttpStatus.BAD_REQUEST, e.getAllErrors().get(0).getDefaultMessage());
+                if (e.hasErrors())
+                    throw new DefaultException(HttpStatus.BAD_REQUEST, e.getAllErrors().get(0).getDefaultMessage());
             }
         }
         return joinPoint.proceed();
     }
+
+
 }

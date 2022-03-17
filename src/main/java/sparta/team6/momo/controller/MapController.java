@@ -17,7 +17,7 @@ public class MapController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/**")
+    @MessageMapping("/hello")
     @SendTo("/topic/public")
     public LocationDto sendLocation(@Payload LocationDto locationDto) {
         return locationDto;
