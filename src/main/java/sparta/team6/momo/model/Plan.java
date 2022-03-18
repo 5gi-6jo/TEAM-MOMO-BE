@@ -1,7 +1,7 @@
 package sparta.team6.momo.model;
 
 import lombok.*;
-import sparta.team6.momo.dto.UpdatePlanRequestDto;
+import sparta.team6.momo.dto.MakePlanRequestDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -45,11 +45,12 @@ public class Plan extends TimeStamped {
         this.noticeTime = noticeTime;
     }
 
-    public void update(UpdatePlanRequestDto requestDto) {
+    public void update(MakePlanRequestDto requestDto) {
         this.planName = requestDto.getPlanName();
         this.destination = requestDto.getDestination();
-        this.planDate = requestDto.getPlanDate();
         this.contents = requestDto.getContents();
+        this.planDate = requestDto.getPlanDate();
+        this.noticeTime = requestDto.toLocalDateTIme(requestDto.getNoticeTime());
     }
 
     public void addPlan(User user) {
