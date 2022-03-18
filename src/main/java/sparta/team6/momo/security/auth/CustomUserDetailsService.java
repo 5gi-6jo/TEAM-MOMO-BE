@@ -29,10 +29,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(email + "을 찾을 수 없습니다"));
     }
 
-    private org.springframework.security.core.userdetails.User createUser(User user) {
+    private MoMoUser createUser(User user) {
         List<GrantedAuthority> grantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),
+        return new MoMoUser(
+                user.getEmail(),
                 user.getPassword(),
-                grantedAuthorities);
+                grantedAuthorities,
+                user.getId());
     }
 }

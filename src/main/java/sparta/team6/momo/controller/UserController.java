@@ -7,9 +7,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 
@@ -75,10 +77,11 @@ public class UserController {
 
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo(Authentication authentication,  @CookieValue(name = "refresh_token", defaultValue = "refresh") String cookie) {
-//        System.out.println(cookie);
-        log.info(cookie);
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
+        System.out.println(authentication);
+        MoMoUser user = (MoMoUser) authentication.getPrincipal();
+        System.out.println(user.getUserId());
         UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }

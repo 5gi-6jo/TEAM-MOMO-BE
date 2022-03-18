@@ -52,7 +52,9 @@ public class UserService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        System.out.println(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        System.out.println(authentication);
 
         return createAndSaveToken(authentication);
     }
