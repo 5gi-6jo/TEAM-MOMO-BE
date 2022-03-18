@@ -1,6 +1,8 @@
 package sparta.team6.momo.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,19 +17,14 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/plans")
 public class PlanController {
 
-    private PlanService planService;
-    private UserService userService;
-
-    @Autowired
-    public PlanController(PlanService planService) {
-        this.planService = planService;
-    }
-
+    private final PlanService planService;
+    /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping
-    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, Authentication authentication, BindingResult bindingResult) {
+    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
         if (bindingResult.hasErrors()) {
             throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
         }
@@ -37,8 +34,9 @@ public class PlanController {
     }
 
     @DeleteMapping("/{planId}")
-    public ResponseEntity<Object> deletePlan(@PathVariable Long planId) {
-        planService.deletePlan(planId);
+    public ResponseEntity<Object> deletePlan(@PathVariable Long planId, Authentication authentication) {
+        String email = authentication.getName();
+        planService.deletePlan(planId, email);
         return ResponseEntity.ok().body(new Success<>("삭제 완료"));
     }
 
@@ -58,8 +56,9 @@ public class PlanController {
     }
 
     @GetMapping("/main")
-    public ResponseEntity<Object> showMain() {
-        List<ShowMainResponseDto> dtoList = planService.showMain();
+    public ResponseEntity<Object> showMain(Authentication authentication) {
+        String email = authentication.getName();
+        List<ShowMainResponseDto> dtoList = planService.showMain(email);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }
