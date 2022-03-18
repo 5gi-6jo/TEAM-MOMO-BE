@@ -1,5 +1,6 @@
 package sparta.team6.momo.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,19 +13,15 @@ import sparta.team6.momo.service.FileUploadService;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class FileUploadController {
 
-    private FileUploadService fileUploadService;
-
-    @Autowired
-    public FileUploadController(FileUploadService fileUploadService) {
-        this.fileUploadService = fileUploadService;
-    }
+    private final FileUploadService fileUploadService;
 
     @PostMapping("/plans/{planId}/images")
     public ResponseEntity<Object> uploadImage(@RequestParam("files") List<MultipartFile> files, @PathVariable Long planId) {
-        fileUploadService.uploadImage(files, planId);
-        return ResponseEntity.ok().body(new Success<>("업로드 성공"));
+        List<ImageDto> imageDtoList = fileUploadService.uploadImage(files, planId);
+        return ResponseEntity.ok().body(new Success<>("업로드 성공", imageDtoList));
     }
 
     @GetMapping("/plans/{planId}/images")

@@ -1,5 +1,6 @@
 package sparta.team6.momo.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,15 +13,11 @@ import sparta.team6.momo.service.PlanService;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/records")
 public class RecordController {
 
-    private PlanService planService;
-
-    @Autowired
-    public RecordController(PlanService planService) {
-        this.planService = planService;
-    }
+    private final PlanService planService;
 
     @GetMapping("/list")
     public ResponseEntity<Object> showRecord(@RequestParam Long pageNumber, Authentication authentication) {
