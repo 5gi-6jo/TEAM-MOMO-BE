@@ -35,7 +35,7 @@ public class MakePlanRequestDto {
     @NotNull(message = "모두모여 시간을 설정해주세요")
     private Long noticeTime;
 
-    private LocalDateTime toLocalDateTIme(Long noticeTime) {
+    public LocalDateTime toLocalDateTIme(Long noticeTime) {
         return planDate.minusMinutes(noticeTime);
     }
 
