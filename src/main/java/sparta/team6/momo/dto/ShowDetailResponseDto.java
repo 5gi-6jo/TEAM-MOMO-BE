@@ -23,15 +23,6 @@ public class ShowDetailResponseDto {
 
     private String contents;
 
-//    @Builder
-//    public ShowDetailResponseDto() {
-//        this.planDate = plan.getPlanDate();
-//        this.planName = plan.getPlanName();
-//        this.destination = plan.getDestination();
-//        this.imageList = plan.getImageList();
-//        this.contents = plan.getContents();
-//    }
-
     @Builder
     public ShowDetailResponseDto(LocalDateTime planDate, String planName, String destination, List<ImageDto> imageList, String contents) {
         this.planDate = planDate;

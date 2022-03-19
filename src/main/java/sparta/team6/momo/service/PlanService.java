@@ -38,7 +38,7 @@ public class PlanService {
 
 
     @Transactional
-    public MakePlanResponseDto savePlan(MakePlanRequestDto request, String email) {
+    public Long savePlan(MakePlanRequestDto request, String email) {
         System.out.println("service 진입");
         Plan savedPlan = planRepository.save(request.toEntity());
         User user = userRepository.findByEmail(email).orElseThrow(
@@ -46,7 +46,7 @@ public class PlanService {
         );
         savedPlan.addPlan(user);
         System.out.println("service 종료");
-        return new MakePlanResponseDto(savedPlan.getId());
+        return savedPlan.getId();
     }
 
     @Transactional
@@ -66,14 +66,14 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planId, UpdatePlanRequestDto requestDto) {
+    public void updatePlan(Long planId, MakePlanRequestDto requestDto) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
         savedPlan.update(requestDto);
     }
 
-    public ShowDetailResponseDto showDetail(Long planId) {
+    public ShowDetailResponseDto showDetail(Long planId, String email) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
