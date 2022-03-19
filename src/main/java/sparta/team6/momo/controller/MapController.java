@@ -24,9 +24,4 @@ public class MapController {
     }
 }
 
-class Test {
-    private String id;
-    private String message;
-}
-
 
