@@ -11,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.model.User;
+import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
@@ -18,6 +20,7 @@ import sparta.team6.momo.service.UserService;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -26,6 +29,9 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+
+    //임시
+    private final UserRepository userRepository;
 
     // 회원가입
     @Operation(summary = "회원가입", description = "")
@@ -79,10 +85,8 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(Authentication authentication,  @CookieValue(name = "refresh_token", defaultValue = "refresh") String cookie) {
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
-        System.out.println(authentication);
-        MoMoUser user = (MoMoUser) authentication.getPrincipal();
-        System.out.println(user.getUserId());
-        UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
+        Optional<User> findUser = userRepository.findById(Long.parseLong(authentication.getName()));
+        UserResponseDto userInfo = userService.getUserInfo(findUser.get().getEmail());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 
