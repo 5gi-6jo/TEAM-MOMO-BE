@@ -85,6 +85,7 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(Authentication authentication,  @CookieValue(name = "refresh_token", defaultValue = "refresh") String cookie) {
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>());
+        System.out.println("authentication.getName() = " + authentication.getName());
         Optional<User> findUser = userRepository.findById(Long.parseLong(authentication.getName()));
         UserResponseDto userInfo = userService.getUserInfo(findUser.get().getEmail());
         return ResponseEntity.ok().body(Success.of(userInfo));
