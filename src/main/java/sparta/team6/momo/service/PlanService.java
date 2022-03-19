@@ -98,7 +98,7 @@ public class PlanService {
         return dtoList;
     }
 
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber, String email) {
+    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, String email) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
         Page<Plan> planList = planRepository.findAllByUserEmail(email, pageRequest);
         List<ShowRecordResponseDto> dtoList = new ArrayList<>();
