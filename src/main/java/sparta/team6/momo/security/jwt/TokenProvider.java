@@ -5,6 +5,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.security.auth.MoMoUser;
 
 import java.security.Key;
 import java.util.Collections;
@@ -30,11 +33,12 @@ public class TokenProvider implements InitializingBean {
     private final long REFRESH_TOKEN_VALIDITY;
     private Key key;
 
-
+    @Autowired
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds) {
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds,
+            UserRepository userRepository) {
         SECRET = secret;
         ACCESS_TOKEN_VALIDITY = accessTokenValidityInSeconds * 1000;
         REFRESH_TOKEN_VALIDITY = refreshTokenValidityInSeconds * 1000;
@@ -62,8 +66,7 @@ public class TokenProvider implements InitializingBean {
 //                        .map(SimpleGrantedAuthority::new)
 //                        .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-
+        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
         return new UsernamePasswordAuthenticationToken(principal, accessToken, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
@@ -109,25 +112,22 @@ public class TokenProvider implements InitializingBean {
     }
 
 
-    private String getAuthorities(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-    }
 
     private String createAccessToken(Authentication authentication) {
         String authorities = getAuthorities(authentication);
-        String email = authentication.getName();
-        return createAccessTokenWith(email, authorities);
-    }
-
-    private String createAccessTokenWith(String email, String authorities) {
+        String userId = authentication.getName();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(getExpireDate(ACCESS_TOKEN_VALIDITY))
                 .compact();
+    }
+
+    private String getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 
     private String createRefreshToken() {

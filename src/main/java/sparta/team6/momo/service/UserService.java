@@ -81,9 +81,9 @@ public class UserService {
         return createAndSaveToken(authentication);
     }
 
-    public UserResponseDto getUserInfo(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException(email + "을 찾을 수 없습니다")
+    public UserResponseDto getUserInfo(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("유저를 찾을 수 없습니다")
         );
         return UserResponseDto.of(user);
     }

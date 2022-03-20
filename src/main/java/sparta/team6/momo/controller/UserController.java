@@ -6,10 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.security.auth.MoMoUser;
+import sparta.team6.momo.security.auth.MoMoUserDetails;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 
@@ -44,7 +50,6 @@ public class UserController {
             return ResponseEntity.badRequest().body(Fail.of(bindingResult));
 
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
 
 
@@ -82,7 +87,7 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(Authentication authentication) {
         if (authentication == null)
             return ResponseEntity.ok().body(new Success<>("No User"));
-        UserResponseDto userInfo = userService.getUserInfo(authentication.getName());
+        UserResponseDto userInfo = userService.getUserInfo(Long.valueOf(authentication.getName()));
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 

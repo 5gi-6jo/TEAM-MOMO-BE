@@ -12,14 +12,18 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Getter
-public class PrincipalDetails implements UserDetails, OAuth2User {
+public class MoMoUserDetails implements UserDetails, OAuth2User {
 
     private final User user;
     private Map<String, Object> attributes;
 
-    public PrincipalDetails(User user, Map<String, Object> attributes) {
+    public MoMoUserDetails(User user, Map<String, Object> attributes) {
         this.user = user;
         this.attributes = attributes;
+    }
+
+    public Long getUserId() {
+        return user.getId();
     }
 
     @Override

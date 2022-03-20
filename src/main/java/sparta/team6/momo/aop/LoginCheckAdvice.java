@@ -43,7 +43,7 @@ public class LoginCheckAdvice {
         }
     }
 
-    @Around("register() || getUserInfo()")
+    @Around("register()")
     public Object validate(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Object[] args = joinPoint.getArgs();
