@@ -13,6 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sparta.team6.momo.annotation.DTOValid;
+import sparta.team6.momo.annotation.LogoutCheck;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.auth.MoMoUserDetails;
@@ -32,11 +34,8 @@ public class UserController {
     // 회원가입
     @Operation(summary = "회원가입", description = "")
     @PostMapping("/signup")
+    @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-
-//        if (bindingResult.hasErrors())
-//            return ResponseEntity.badRequest().body(Fail.of(bindingResult));
-
         userService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>());
     }
@@ -44,11 +43,8 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
+    @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors())
-            return ResponseEntity.badRequest().body(Fail.of(bindingResult));
-
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
 
