@@ -81,6 +81,7 @@ public class UserController {
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 
+
     private ResponseCookie createTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)

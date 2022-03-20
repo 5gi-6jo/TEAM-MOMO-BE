@@ -2,7 +2,6 @@ package sparta.team6.momo.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sparta.team6.momo.amazonS3.UploadService;
@@ -32,7 +31,7 @@ public class FileUploadService {
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
     @Transactional
-    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId) {
+    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long userId) {
         List<ImageDto> imageDtoList = new ArrayList<>();
 
         for (MultipartFile multipartFile : files) {
@@ -48,7 +47,7 @@ public class FileUploadService {
             }
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
-            if (plan.isPresent()) {
+            if (plan.isPresent() && userId.equals(plan.get().getUser().getId())) {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
@@ -68,27 +67,36 @@ public class FileUploadService {
     private String getFileExtension(String fileName) {
         try {
             return fileName.substring(fileName.lastIndexOf("."));
-        } catch (StringIndexOutOfBoundsException e) {
-            throw new IllegalArgumentException(String.format("잘못된 형식의 파일 (%s) 입니다", fileName));
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
         }
     }
 
-    public List<ImageDto> showImage(Long planId) {
+    public List<ImageDto> showImage(Long planId, Long userId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
-        List<ImageDto> dtoList = new ArrayList<>();
-        for (Image image : imageList) {
-            dtoList.add(new ImageDto(image.getId(), image.getImage()));
+        try {
+            if (userId.equals(imageList.get(0).getPlan().getUser().getId())) {
+                List<ImageDto> dtoList = new ArrayList<>();
+                for (Image image : imageList) {
+                    dtoList.add(new ImageDto(image.getId(), image.getImage()));
+                }
+                return dtoList;
+            } else {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+            }
+        } catch (IndexOutOfBoundsException e) {
+            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
         }
-        return dtoList;
+
     }
 
-    public void deleteImageS3(Long imageId) {
+    public void deleteImageS3(Long imageId, Long userId) {
         Optional<Image> image = imageRepository.findById(imageId);
-        if (image.isPresent()) {
+        if (image.isPresent() && userId.equals(image.get().getPlan().getUser().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
         } else {
-            throw new CustomException(ErrorCode.IMAGE_NOT_FOUNT);
+            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
         }
     }
 }

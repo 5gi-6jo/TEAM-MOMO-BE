@@ -3,9 +3,7 @@ package sparta.team6.momo.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sparta.team6.momo.model.Image;
 import sparta.team6.momo.model.Plan;
-import sparta.team6.momo.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
