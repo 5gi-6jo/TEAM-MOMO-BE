@@ -3,9 +3,12 @@ package sparta.team6.momo.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +16,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import sparta.team6.momo.dto.TokenDto;
+import sparta.team6.momo.exception.DefaultException;
+import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.security.auth.MoMoUser;
 
 import java.security.Key;
 import java.util.Collections;
@@ -30,11 +36,12 @@ public class TokenProvider implements InitializingBean {
     private final long REFRESH_TOKEN_VALIDITY;
     private Key key;
 
-
+    @Autowired
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds) {
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds,
+            UserRepository userRepository) {
         SECRET = secret;
         ACCESS_TOKEN_VALIDITY = accessTokenValidityInSeconds * 1000;
         REFRESH_TOKEN_VALIDITY = refreshTokenValidityInSeconds * 1000;
@@ -62,8 +69,7 @@ public class TokenProvider implements InitializingBean {
 //                        .map(SimpleGrantedAuthority::new)
 //                        .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-
+        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
         return new UsernamePasswordAuthenticationToken(principal, accessToken, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
@@ -72,16 +78,15 @@ public class TokenProvider implements InitializingBean {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+        } catch (SecurityException | MalformedJwtException e) {
+            throw new DefaultException(HttpStatus.BAD_REQUEST, "잘못 구성된 JWT 서명입니다.");
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            throw new DefaultException(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            throw new DefaultException(HttpStatus.BAD_REQUEST, "지원되지 않는 형식의 JWT 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            throw new DefaultException(HttpStatus.BAD_REQUEST, "JWT 토큰이 잘못되었습니다.");
         }
-        return false;
     }
 
     public Long getRemainExpiration(String token) {
@@ -109,25 +114,22 @@ public class TokenProvider implements InitializingBean {
     }
 
 
-    private String getAuthorities(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-    }
 
     private String createAccessToken(Authentication authentication) {
         String authorities = getAuthorities(authentication);
-        String email = authentication.getName();
-        return createAccessTokenWith(email, authorities);
-    }
-
-    private String createAccessTokenWith(String email, String authorities) {
+        String userId = authentication.getName();
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(userId)
                 .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(getExpireDate(ACCESS_TOKEN_VALIDITY))
                 .compact();
+    }
+
+    private String getAuthorities(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
     }
 
     private String createRefreshToken() {

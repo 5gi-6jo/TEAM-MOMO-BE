@@ -16,4 +16,5 @@ public class DefaultException extends RuntimeException {
         this.httpStatus = httpStatus;
         this.message = message;
     }
+
 }

@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -19,6 +21,12 @@ import static sparta.team6.momo.exception.ErrorCode.FILE_SIZE_EXCEED;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(value = {MissingRequestCookieException.class})
+    protected ResponseEntity<ErrorResponse> handleMissingCookieException(MissingRequestCookieException e) {
+        log.error("handleMissingCookieException throw Exception : {}", e.toString());
+        return ErrorResponse.toResponseDefault(new DefaultException(HttpStatus.BAD_REQUEST, e.getMessage()));
+    }
 
     @ExceptionHandler(value = {ConstraintViolationException.class, DataIntegrityViolationException.class})
     protected ResponseEntity<ErrorResponse> handleDataException() {

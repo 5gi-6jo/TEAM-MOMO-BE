@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
-import sparta.team6.momo.security.auth.PrincipalDetails;
+import sparta.team6.momo.security.auth.MoMoUserDetails;
 
 import java.util.Map;
 import java.util.Optional;
@@ -28,14 +28,14 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
         return createPrincipalDetails(oAuth2User);
     }
 
-    private PrincipalDetails createPrincipalDetails(OAuth2User oAuth2User) {
+    private MoMoUserDetails createPrincipalDetails(OAuth2User oAuth2User) {
         Optional<User> findUser = findUserByEmail(oAuth2User);
 
         if (findUser.isEmpty()) {
             User user = User.ofKakao(oAuth2User);
-            return new PrincipalDetails(userRepository.save(user), oAuth2User.getAttributes());
+            return new MoMoUserDetails(userRepository.save(user), oAuth2User.getAttributes());
         } else {
-            return new PrincipalDetails(findUser.get(), oAuth2User.getAttributes());
+            return new MoMoUserDetails(findUser.get(), oAuth2User.getAttributes());
         }
     }
 

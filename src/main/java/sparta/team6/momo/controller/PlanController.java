@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.DefaultException;
 import sparta.team6.momo.service.PlanService;
@@ -22,10 +23,8 @@ public class PlanController {
 
     /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping
+    @DTOValid
     public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
         Long userId = Long.parseLong(authentication.getName());
         Long planId = planService.savePlan(requestDto, userId);
         return ResponseEntity.ok().body(new Success<>("생성 완료", planId));
@@ -39,10 +38,8 @@ public class PlanController {
     }
 
     @PutMapping("/{planId}")
+    @DTOValid
     public ResponseEntity<Object> updatePlan(@PathVariable Long planId, @Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
         Long userId = Long.parseLong(authentication.getName());
         planService.updatePlan(planId, requestDto, userId);
         return ResponseEntity.ok().body(new Success<>("수정 완료", planId));
@@ -56,10 +53,8 @@ public class PlanController {
     }
 
     @PostMapping("/main")
+    @DTOValid
     public ResponseEntity<Object> showMain(@Valid @RequestBody ShowMainRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
         Long userId = Long.parseLong(authentication.getName());
         List<ShowMainResponseDto> dtoList = planService.showMain(requestDto.getDate(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
