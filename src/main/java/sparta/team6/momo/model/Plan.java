@@ -2,12 +2,9 @@ package sparta.team6.momo.model;
 
 import lombok.*;
 import sparta.team6.momo.dto.MakePlanRequestDto;
-import sparta.team6.momo.dto.UpdatePlanRequestDto;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -26,29 +23,34 @@ public class Plan extends TimeStamped {
     @Column(nullable = false)
     private String destination;
 
-    @Column(nullable = false)
-    private LocalDateTime planDate;
-
     @Column
     private String contents;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private LocalDateTime planDate;
+
+    @Column(nullable = false)
+    private LocalDateTime noticeTime;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Plan(String planName, String destination, LocalDateTime planDate) {
-
+    public Plan(String planName, String destination, String contents, LocalDateTime planDate, LocalDateTime noticeTime) {
         this.planName = planName;
         this.destination = destination;
+        this.contents = contents;
         this.planDate = planDate;
+        this.noticeTime = noticeTime;
     }
 
-    public void update(UpdatePlanRequestDto requestDto) {
+    public void update(MakePlanRequestDto requestDto) {
         this.planName = requestDto.getPlanName();
         this.destination = requestDto.getDestination();
-        this.planDate = requestDto.getPlanDate();
         this.contents = requestDto.getContents();
+        this.planDate = requestDto.getPlanDate();
+        this.noticeTime = requestDto.toLocalDateTIme(requestDto.getNoticeTime());
     }
 
     public void addPlan(User user) {

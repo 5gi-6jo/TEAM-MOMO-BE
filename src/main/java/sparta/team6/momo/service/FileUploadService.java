@@ -1,6 +1,7 @@
 package sparta.team6.momo.service;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,22 +23,17 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class FileUploadService {
 
-    private UploadService uploadService;
-    private ImageRepository imageRepository;
-    private PlanRepository planRepository;
-
-    @Autowired
-    public FileUploadService(UploadService uploadService, ImageRepository imageRepository, PlanRepository planRepository) {
-        this.uploadService = uploadService;
-        this.imageRepository = imageRepository;
-        this.planRepository = planRepository;
-    }
+    private final UploadService uploadService;
+    private final ImageRepository imageRepository;
+    private final PlanRepository planRepository;
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
     @Transactional
-    public void uploadImage(List<MultipartFile> files, Long planId) {
+    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId) {
+        List<ImageDto> imageDtoList = new ArrayList<>();
 
         for (MultipartFile multipartFile : files) {
             String fileName = createFileName(multipartFile.getOriginalFilename());
@@ -55,10 +51,12 @@ public class FileUploadService {
             if (plan.isPresent()) {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
+                imageDtoList.add(new ImageDto(image));
             } else {
                 throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
             }
         }
+        return imageDtoList;
     }
 
     // 기존 확장자명을 유지한 채, 유니크한 파일의 이름을 생성하는 메서드

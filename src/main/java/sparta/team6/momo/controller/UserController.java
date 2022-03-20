@@ -18,11 +18,15 @@ import sparta.team6.momo.annotation.LogoutCheck;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.auth.MoMoUserDetails;
+import sparta.team6.momo.model.User;
+import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
 import sparta.team6.momo.utils.UserUtils;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -32,6 +36,9 @@ public class UserController {
 
     private final UserService userService;
     private final UserUtils userUtils;
+
+    //임시
+    private final UserRepository userRepository;
 
     // 회원가입
     @Operation(summary = "회원가입", description = "")
