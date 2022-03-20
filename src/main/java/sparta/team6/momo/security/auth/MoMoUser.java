@@ -5,19 +5,22 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
+import java.util.List;
+
+
 
 @Getter
 public class MoMoUser extends User {
 
     private final Long userId;
 
-    public MoMoUser(String username, String password, Collection<? extends GrantedAuthority> authorities, Long userId) {
-        super(username, password, authorities);
+    public MoMoUser(Long userId, Collection<? extends GrantedAuthority> authorities) {
+        super(String.valueOf(userId), "", authorities);
         this.userId = userId;
     }
 
-    public MoMoUser(String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities, Long userId) {
-        super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
+    public MoMoUser(Long userId, String password, List<GrantedAuthority> grantedAuthorities) {
+        super(String.valueOf(userId), password, grantedAuthorities);
         this.userId = userId;
     }
 }
