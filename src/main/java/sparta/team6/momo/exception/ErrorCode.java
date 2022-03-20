@@ -28,6 +28,7 @@ public enum ErrorCode {
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
 
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
+    ONLY_LOGIN_ACCESS(UNAUTHORIZED, "로그인이 필요합니다"),
 
 
 

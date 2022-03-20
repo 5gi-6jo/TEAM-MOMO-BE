@@ -20,6 +20,7 @@ import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.auth.MoMoUserDetails;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.UserService;
+import sparta.team6.momo.utils.UserUtils;
 
 import javax.validation.Valid;
 
@@ -30,6 +31,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final UserUtils userUtils;
 
     // 회원가입
     @Operation(summary = "회원가입", description = "")
@@ -80,10 +82,8 @@ public class UserController {
     }
 
     @GetMapping("/login")
-    public ResponseEntity<?> getUserInfo(Authentication authentication) {
-        if (authentication == null)
-            return ResponseEntity.ok().body(new Success<>("No User"));
-        UserResponseDto userInfo = userService.getUserInfo(Long.valueOf(authentication.getName()));
+    public ResponseEntity<?> getUserInfo() {
+        UserResponseDto userInfo = userService.getUserInfo(userUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 
