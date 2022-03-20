@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.DefaultException;
 import sparta.team6.momo.service.PlanService;
@@ -29,10 +30,8 @@ public class RecordController {
     }
 
     @PostMapping("/search")
+    @DTOValid
     public ResponseEntity<Object> searchRecord(@Valid @RequestBody SearchRecordRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
         Long userId = Long.parseLong(authentication.getName());
         List<ShowRecordResponseDto> dtoList = planService.searchRecord(requestDto.getWord(), requestDto.getPageNumber(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
