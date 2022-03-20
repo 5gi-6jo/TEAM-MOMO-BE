@@ -13,13 +13,14 @@ public class ShowRecordResponseDto {
     private LocalDateTime planDate;
     private String planName;
     private boolean isFinished;
-
-    //Todo: isFinished 체크
-
     public ShowRecordResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planDate = plan.getPlanDate();
         this.planName = plan.getPlanName();
-        this.isFinished = false;
+        this.isFinished = finishCheck(plan.getPlanDate());
+    }
+
+    public boolean finishCheck(LocalDateTime planDate) {
+        return LocalDateTime.now().isAfter(planDate.plusHours(6));
     }
 }

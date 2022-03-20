@@ -1,8 +1,6 @@
 package sparta.team6.momo.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,16 +26,15 @@ public class PlanController {
         if (bindingResult.hasErrors()) {
             throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
         }
-//        Long userId = authentication.getName();
-        String email = authentication.getName();
-        Long planId = planService.savePlan(requestDto, email);
+        Long userId = Long.parseLong(authentication.getName());
+        Long planId = planService.savePlan(requestDto, userId);
         return ResponseEntity.ok().body(new Success<>("생성 완료", planId));
     }
 
     @DeleteMapping("/{planId}")
     public ResponseEntity<Object> deletePlan(@PathVariable Long planId, Authentication authentication) {
-        String email = authentication.getName();
-        planService.deletePlan(planId, email);
+        Long userId = Long.parseLong(authentication.getName());
+        planService.deletePlan(planId, userId);
         return ResponseEntity.ok().body(new Success<>("삭제 완료"));
     }
 
@@ -46,22 +43,25 @@ public class PlanController {
         if (bindingResult.hasErrors()) {
             throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
         }
-        String email = authentication.getName();
-        planService.updatePlan(planId, requestDto);
+        Long userId = Long.parseLong(authentication.getName());
+        planService.updatePlan(planId, requestDto, userId);
         return ResponseEntity.ok().body(new Success<>("수정 완료", planId));
     }
 
     @GetMapping("/{planId}")
     public ResponseEntity<Object> showDetail(@PathVariable Long planId, Authentication authentication) {
-        String email = authentication.getName();
-        ShowDetailResponseDto responseDto = planService.showDetail(planId, email);
+        Long userId = Long.parseLong(authentication.getName());
+        ShowDetailResponseDto responseDto = planService.showDetail(planId, userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", responseDto));
     }
 
-    @GetMapping("/main")
-    public ResponseEntity<Object> showMain(Authentication authentication) {
-        String email = authentication.getName();
-        List<ShowMainResponseDto> dtoList = planService.showMain(email);
+    @PostMapping("/main")
+    public ResponseEntity<Object> showMain(@Valid @RequestBody ShowMainRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
+        if (bindingResult.hasErrors()) {
+            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
+        }
+        Long userId = Long.parseLong(authentication.getName());
+        List<ShowMainResponseDto> dtoList = planService.showMain(requestDto.getDate(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }

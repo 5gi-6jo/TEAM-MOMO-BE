@@ -17,6 +17,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(BAD_REQUEST, "액세스 토큰이 유효하지 않습니다"),
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
     ONLY_LOGOUT_ACCESS(BAD_REQUEST, "이미 로그인 되어있습니다"),
+    INVALID_FILE_FORMAT(BAD_REQUEST, "잘못된 형식의 파일입니다"),
 
     FILE_SIZE_EXCEED(BAD_REQUEST, "이미지 파일 업로드 용량 초과(1MB 제한)"),
 
@@ -35,8 +36,8 @@ public enum ErrorCode {
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     MEMBER_NOT_FOUND(NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다"),
     PLAN_NOT_FOUND(NOT_FOUND, "해당 모임 정보를 찾을 수 없습니다"),
-
-    IMAGE_NOT_FOUNT(NOT_FOUND, "해당 이미지 정보를 찾을 수 없습니다"),
+    DO_NOT_HAVE_ANY_RESOURCE(NOT_FOUND, "데이터가 존재하지 않습니다"),
+    IMAGE_NOT_FOUND(NOT_FOUND, "해당 이미지 정보를 찾을 수 없습니다"),
 
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
 

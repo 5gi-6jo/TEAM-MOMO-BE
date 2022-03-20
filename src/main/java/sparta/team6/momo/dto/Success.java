@@ -10,6 +10,10 @@ public class Success<T> {
     private String message = "success";
     private T data;
 
+    public Success(String message) {
+        this.message = message;
+    }
+
     public Success(T data) {
         this.data = data;
     }

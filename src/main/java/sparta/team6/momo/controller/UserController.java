@@ -89,5 +89,4 @@ public class UserController {
         UserResponseDto userInfo = userService.getUserInfo(findUser.get().getEmail());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
-
 }
