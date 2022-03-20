@@ -32,7 +32,7 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
         Optional<User> findUser = findUserByEmail(oAuth2User);
 
         if (findUser.isEmpty()) {
-            User user = User.ofKakao(oAuth2User);
+            User user = User.fromKakao(oAuth2User);
             return new MoMoUserDetails(userRepository.save(user), oAuth2User.getAttributes());
         } else {
             return new MoMoUserDetails(findUser.get(), oAuth2User.getAttributes());

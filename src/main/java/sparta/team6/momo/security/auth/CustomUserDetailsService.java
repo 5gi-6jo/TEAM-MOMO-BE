@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 
@@ -30,7 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private MoMoUser createUser(User user) {
-        List<GrantedAuthority> grantedAuthorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-        return new MoMoUser(user.getId(), user.getPassword(), grantedAuthorities);
+        return new MoMoUser(user.getId(), user.getPassword(), USER);
     }
 }

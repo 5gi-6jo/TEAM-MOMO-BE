@@ -19,6 +19,7 @@ import sparta.team6.momo.dto.UserResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.User;
+import sparta.team6.momo.model.UserRole;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
+import static sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class UserService {
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname());
+        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), ROLE_USER);
         userRepository.save(user);
     }
 
