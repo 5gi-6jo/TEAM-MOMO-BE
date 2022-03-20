@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     /* 401 UNAUTHENTICATED : 인증되지 않은 사용자 */
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
+    ONLY_LOGIN_ACCESS(UNAUTHORIZED, "로그인이 필요합니다"),
 
 
     /* 403 Forbidden : 권한 없음(인가) */

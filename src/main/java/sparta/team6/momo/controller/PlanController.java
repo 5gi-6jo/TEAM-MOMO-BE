@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.DefaultException;
 import sparta.team6.momo.service.PlanService;
@@ -24,10 +25,8 @@ public class PlanController {
 
     /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping
-    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
+    @DTOValid
+    public ResponseEntity<Object> makePlan(@Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {     
 //        Long userId = authentication.getName();
         String email = authentication.getName();
         Long planId = planService.savePlan(requestDto, email);
@@ -42,10 +41,8 @@ public class PlanController {
     }
 
     @PutMapping("/{planId}")
+    @DTOValid
     public ResponseEntity<Object> updatePlan(@PathVariable Long planId, @Valid @RequestBody MakePlanRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
-        if (bindingResult.hasErrors()) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, bindingResult.getFieldErrors().get(0).getDefaultMessage());
-        }
         String email = authentication.getName();
         planService.updatePlan(planId, requestDto);
         return ResponseEntity.ok().body(new Success<>("수정 완료", planId));
