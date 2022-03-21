@@ -1,4 +1,4 @@
-package sparta.team6.momo.swagger;
+package sparta.team6.momo.utils.swagger;
 
 
 import org.springframework.context.annotation.Bean;

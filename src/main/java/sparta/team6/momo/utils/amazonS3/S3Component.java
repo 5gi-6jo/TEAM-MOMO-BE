@@ -1,4 +1,4 @@
-package sparta.team6.momo.amazonS3;
+package sparta.team6.momo.utils.amazonS3;
 
 import lombok.Getter;
 import lombok.Setter;
