@@ -54,12 +54,12 @@ public class MakePlanRequestDto {
                 .build();
     }
 
-    public Destination toEntityDestination(Plan plan) {
+    public Destination toEntityDestination(Plan plan, MakePlanRequestDto requestDto) {
         return Destination.builder()
                 .plan(plan)
-                .address(planName)
-                .lat(lat)
-                .lng(lng)
+                .address(requestDto.getAddress())
+                .lat(requestDto.getLat())
+                .lng(requestDto.getLng())
                 .build();
     }
 
