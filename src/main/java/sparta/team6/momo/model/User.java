@@ -40,7 +40,7 @@ public class User extends TimeStamped {
     private UserRole userRole;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Plan> planList = new ArrayList<>();
+    private final List<Plan> planList = new ArrayList<>();
 
 
     public User(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {

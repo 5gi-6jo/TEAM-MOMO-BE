@@ -18,6 +18,8 @@ import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -61,13 +63,13 @@ public class TokenProvider implements InitializingBean {
     public Authentication getAuthentication(String accessToken) {
         Claims claims = getClaimsWithoutExpirationCheck(accessToken);
 
-//        Collection<? extends GrantedAuthority> authorities =
-//                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-//                        .map(SimpleGrantedAuthority::new)
-//                        .collect(Collectors.toList());
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
-        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-        return new UsernamePasswordAuthenticationToken(principal, accessToken, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), authorities);
+        return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
     }
 
 
