@@ -1,11 +1,15 @@
 package sparta.team6.momo.model;
 
+import lombok.Data;
+import sparta.team6.momo.dto.Center;
 
+@Data
 public class ChatMessage {
 
     private MessageType type;
     private String content;
     private String sender;
+    private String center;
 
     public MessageType getType() {
         return type;
