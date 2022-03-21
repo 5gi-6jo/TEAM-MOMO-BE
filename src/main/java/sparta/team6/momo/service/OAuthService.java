@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,11 +20,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import sparta.team6.momo.dto.KakaoUserInfoDto;
+import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
+import sparta.team6.momo.security.jwt.TokenProvider;
 
+import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +36,10 @@ public class OAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenProvider tokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
-    public void kakaoLogin(String code) throws JsonProcessingException {
+    public TokenDto kakaoLogin(String code) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
         String email = kakaoUserInfo.getEmail();
@@ -45,12 +52,18 @@ public class OAuthService {
 
             kakaoUser = new User(email, encodedPassword, nickname);
             userRepository.save(kakaoUser);
-
-//            MoMoUser user = new MoMoUser(kakaoUser.getId(),new SimpleGrantedAuthority("ROLE_USER"))
-//            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-    }
+            MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        TokenDto tokenDto = tokenProvider.createToken(authentication);
+        redisTemplate.opsForValue()
+                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
+
+        return tokenDto;
+        }
+
 
     private String getAccessToken(String code) throws JsonProcessingException {
         // HTTP Header 생성

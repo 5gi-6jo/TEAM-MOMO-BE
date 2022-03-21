@@ -1,5 +1,6 @@
 package sparta.team6.momo.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,8 +86,14 @@ public class UserController {
     }
 
     @GetMapping("/kakao/callback")
-    public void kakaoLogin(@RequestParam String code) {
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        TokenDto tokenDto = oAuthService.kakaoLogin(code);
+        ResponseCookie cookie = createTokenCookie(tokenDto.getRefreshToken());
 
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())
+                .body(new Success<>());
     }
 
 

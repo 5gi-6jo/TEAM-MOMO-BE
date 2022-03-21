@@ -9,7 +9,8 @@ public class ChatMessage {
     private MessageType type;
     private String content;
     private String sender;
-    private String center;
+    private String lat;
+    private String lng;
 
     public MessageType getType() {
         return type;

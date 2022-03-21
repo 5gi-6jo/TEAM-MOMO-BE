@@ -76,13 +76,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 
                 .and()
-                .apply(new JwtSecurityConfig(jwtFilter))
+                .apply(new JwtSecurityConfig(jwtFilter));
 
-                .and()
-                .oauth2Login()
-                .successHandler(oAuth2SuccessHandler)
-                .userInfoEndpoint()
-                .userService(oauth2UserService);
+//                .and()
+//                .oauth2Login()
+//                .successHandler(oAuth2SuccessHandler)
+//                .userInfoEndpoint()
+//                .userService(oauth2UserService);
 
     }
 }
