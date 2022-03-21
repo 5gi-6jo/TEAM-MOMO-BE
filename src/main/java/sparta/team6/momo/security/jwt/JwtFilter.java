@@ -36,7 +36,7 @@ public class JwtFilter extends GenericFilterBean {
         String jwt = resolveToken(httpServletRequest);
         String requestURI = httpServletRequest.getRequestURI();
 
-        if (StringUtils.hasText(jwt) && tokenProvider.isTokenValidate(jwt)) {
+        if (StringUtils.hasText(jwt) && tokenUtils.isTokenValidate(jwt)) {
 
             if (tokenUtils.isTokenBlackList(jwt))
                 throw new CustomException(INVALID_ACCESS_TOKEN);

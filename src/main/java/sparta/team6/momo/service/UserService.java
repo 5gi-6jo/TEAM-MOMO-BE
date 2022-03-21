@@ -21,6 +21,7 @@ import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
+import sparta.team6.momo.security.jwt.TokenUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,6 +39,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final TokenUtils tokenUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -69,7 +71,7 @@ public class UserService {
 
         redisTemplate.delete(authentication.getName());
 
-        Long expiration = tokenProvider.getRemainExpiration(accessToken);
+        Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
    }
@@ -100,7 +102,7 @@ public class UserService {
 
 
     private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken, ErrorCode errorCode) {
-        if (!tokenProvider.isTokenValidate(validateToken)) {
+        if (!tokenUtils.isTokenValidate(validateToken)) {
             throw new CustomException(errorCode);
         }
         return tokenProvider.getAuthentication(accessToken);

@@ -39,6 +39,7 @@ public class User extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Plan> planList = new ArrayList<>();
 
