@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.model.Guest;
+import sparta.team6.momo.model.UserRole;
 import sparta.team6.momo.repository.GuestRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.TokenProvider;
@@ -26,7 +27,7 @@ public class GuestService {
 
     public TokenDto connectGuest(String nickname) {
         Guest saveGuest = guestRepository.save(new Guest(nickname));
-        MoMoUser principal = new MoMoUser(saveGuest.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")));
+        MoMoUser principal = new MoMoUser(saveGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(UserRole.ROLE_GUEST.toString())));
         Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         TokenDto tokenDto = tokenProvider.createToken(authentication);
