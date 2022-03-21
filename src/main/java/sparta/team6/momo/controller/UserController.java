@@ -86,7 +86,7 @@ public class UserController {
 
     @GetMapping("/kakao/callback")
     public void kakaoLogin(@RequestParam String code) {
-        oAuthService
+        oAuthService.kakaoLogin(code);
     }
 
 
