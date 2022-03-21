@@ -24,12 +24,13 @@ public enum ErrorCode {
 
     FAILED_TO_SEND_MESSAGE(BAD_REQUEST, "메세지 전송에 실패하였습니다"),
 
-    /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
+    /* 401 UNAUTHENTICATED : 인증되지 않은 사용자 */
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
-
-    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
     ONLY_LOGIN_ACCESS(UNAUTHORIZED, "로그인이 필요합니다"),
 
+
+    /* 403 Forbidden : 권한 없음(인가) */
+    UNAUTHORIZED_MEMBER(FORBIDDEN, "해당 권한이 없습니다"),
 
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */

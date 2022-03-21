@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.User;
 import java.util.Collection;
 import java.util.List;
 
+
+
 @Getter
 public class MoMoUser extends User {
 
