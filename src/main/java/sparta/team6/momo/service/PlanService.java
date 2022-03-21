@@ -43,7 +43,7 @@ public class PlanService {
     @Transactional
     public Long savePlan(MakePlanRequestDto request, Long userId) {
         Plan savedPlan = planRepository.save(request.toEntityPlan());
-        destinationRepository.save(request.toEntityDestination(savedPlan));
+        destinationRepository.save(request.toEntityDestination(savedPlan,request));
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );

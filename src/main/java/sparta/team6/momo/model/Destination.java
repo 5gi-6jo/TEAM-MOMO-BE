@@ -20,13 +20,13 @@ public class Destination {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @Column
+    @Column(nullable = false)
     private String address;
 
-    @Column
+    @Column(nullable = false)
     private Double lat;
 
-    @Column
+    @Column(nullable = false)
     private Double lng;
 
     @Builder
