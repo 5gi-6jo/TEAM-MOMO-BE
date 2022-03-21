@@ -3,9 +3,6 @@ package sparta.team6.momo.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import sparta.team6.momo.model.Image;
-import sparta.team6.momo.model.Plan;
-
-import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
