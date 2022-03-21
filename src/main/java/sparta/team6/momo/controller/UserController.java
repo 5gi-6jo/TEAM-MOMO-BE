@@ -77,6 +77,7 @@ public class UserController {
 
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo() {
+        log.info("ok");
         UserResponseDto userInfo = userService.getUserInfo(userUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
