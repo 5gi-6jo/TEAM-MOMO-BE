@@ -1,13 +1,14 @@
 package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import sparta.team6.momo.amazonS3.UploadService;
+import sparta.team6.momo.model.Destination;
+import sparta.team6.momo.repository.DestinationRepository;
+import sparta.team6.momo.utils.amazonS3.UploadService;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
@@ -36,11 +37,13 @@ public class PlanService {
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
     private final UserRepository userRepository;
+    private final DestinationRepository destinationRepository;
 
 
     @Transactional
     public Long savePlan(MakePlanRequestDto request, Long userId) {
-        Plan savedPlan = planRepository.save(request.toEntity());
+        Plan savedPlan = planRepository.save(request.toEntityPlan());
+        destinationRepository.save(request.toEntityDestination(savedPlan));
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -86,7 +89,10 @@ public class PlanService {
             for (Image image : imageList) {
                 imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
             }
-            return ShowDetailResponseDto.of(plan, imageDtoList);
+            Destination destination = destinationRepository.findByPlanId(planId);
+            DestinationDto destinationDto = new DestinationDto(destination);
+
+            return ShowDetailResponseDto.of(plan, imageDtoList, destinationDto);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }

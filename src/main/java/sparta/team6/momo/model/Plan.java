@@ -20,8 +20,8 @@ public class Plan extends TimeStamped {
     @Column(nullable = false)
     private String planName;
 
-    @Column(nullable = false)
-    private String destination;
+//    @Column(nullable = false)
+//    private String destination;
 
     @Column
     private String contents;
@@ -37,9 +37,8 @@ public class Plan extends TimeStamped {
     private User user;
 
     @Builder
-    public Plan(String planName, String destination, String contents, LocalDateTime planDate, LocalDateTime noticeTime) {
+    public Plan(String planName, String contents, LocalDateTime planDate, LocalDateTime noticeTime) {
         this.planName = planName;
-        this.destination = destination;
         this.contents = contents;
         this.planDate = planDate;
         this.noticeTime = noticeTime;
@@ -47,7 +46,6 @@ public class Plan extends TimeStamped {
 
     public void update(MakePlanRequestDto requestDto) {
         this.planName = requestDto.getPlanName();
-        this.destination = requestDto.getDestination();
         this.contents = requestDto.getContents();
         this.planDate = requestDto.getPlanDate();
         this.noticeTime = requestDto.toLocalDateTIme(requestDto.getNoticeTime());
