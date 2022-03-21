@@ -27,7 +27,7 @@ public class GuestService {
 
     public TokenDto connectGuest(String nickname) {
         Guest saveGuest = guestRepository.save(new Guest(nickname));
-        MoMoUser principal = new MoMoUser(saveGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(UserRole.ROLE_GUEST.toString())));
+        MoMoUser principal = new MoMoUser(saveGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(UserRole.ROLE_GUEST.)));
         Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", Collections.singleton(new SimpleGrantedAuthority("ROLE_GUEST")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         TokenDto tokenDto = tokenProvider.createToken(authentication);
