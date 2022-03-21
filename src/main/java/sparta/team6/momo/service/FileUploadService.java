@@ -4,7 +4,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sparta.team6.momo.amazonS3.UploadService;
+import sparta.team6.momo.utils.amazonS3.UploadService;
 import sparta.team6.momo.dto.ImageDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
