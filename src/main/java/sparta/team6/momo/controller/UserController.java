@@ -12,6 +12,7 @@ import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.annotation.LogoutCheck;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
+import sparta.team6.momo.service.OAuthService;
 import sparta.team6.momo.service.UserService;
 import sparta.team6.momo.utils.UserUtils;
 
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final OAuthService oAuthService;
     private final UserUtils userUtils;
 
     // 회원가입
@@ -80,6 +82,11 @@ public class UserController {
         log.info("ok");
         UserResponseDto userInfo = userService.getUserInfo(userUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
+    }
+
+    @GetMapping("/kakao/callback")
+    public void kakaoLogin(@RequestParam String code) {
+        oAuthService
     }
 
 
