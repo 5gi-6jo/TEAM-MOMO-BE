@@ -87,6 +87,7 @@ public class UserController {
 
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        log.info("kakaoakkakaoakaoaka");
         TokenDto tokenDto = oAuthService.kakaoLogin(code);
         ResponseCookie cookie = createTokenCookie(tokenDto.getRefreshToken());
 
