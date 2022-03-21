@@ -19,7 +19,6 @@ import sparta.team6.momo.dto.UserResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.User;
-import sparta.team6.momo.model.UserRole;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
