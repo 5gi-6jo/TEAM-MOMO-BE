@@ -22,6 +22,7 @@ import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
@@ -41,10 +42,11 @@ public class UserService {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public void registerUser(SignupRequestDto requestDto) {
+    public String registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
         User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname());
         userRepository.save(user);
+        return user.getNickname();
     }
 
 

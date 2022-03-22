@@ -35,8 +35,8 @@ public class UserController {
     @PostMapping("/signup")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        userService.registerUser(requestDto);
-        return ResponseEntity.ok().body(new Success<>());
+        String nickname = userService.registerUser(requestDto);
+        return ResponseEntity.ok().body(new Success<>(new LoginResponseDto(nickname)));
     }
 
 
