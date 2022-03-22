@@ -1,10 +1,8 @@
 package sparta.team6.momo.utils.amazonS3;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +28,10 @@ public class AwsS3UploadService implements UploadService {
 
     @Override
     public void deleteFile(String fileName) {
-        DeleteObjectRequest request = new DeleteObjectRequest(component.getBucket(), fileName);
-        amazonS3.deleteObject(request);
+//        DeleteObjectRequest request = new DeleteObjectRequest(component.getBucket(), fileName);
+//        amazonS3.deleteObject(request);
+        DeleteObjectsRequest request = new DeleteObjectsRequest(component.getBucket()).withKeys(fileName);
+        amazonS3.deleteObjects(request);
     }
 
 }
