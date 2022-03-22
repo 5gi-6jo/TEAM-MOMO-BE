@@ -1,6 +1,10 @@
 package sparta.team6.momo.security.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -20,6 +24,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -27,9 +32,14 @@ public class TokenProvider implements InitializingBean {
 
 
     private final TokenInfo tokenInfo;
+
     private long ACCESS_TOKEN_VALIDITY;
+
+    @Getter
     private long REFRESH_TOKEN_VALIDITY;
+
     private static final String AUTHORITIES_KEY = "auth";
+
     private Key key;
 
     @Autowired
@@ -61,10 +71,6 @@ public class TokenProvider implements InitializingBean {
 
         MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), authorities);
         return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
-    }
-
-    public long getRefreshTokenValidity() {
-        return REFRESH_TOKEN_VALIDITY;
     }
 
     private String createAccessToken(Authentication authentication) {

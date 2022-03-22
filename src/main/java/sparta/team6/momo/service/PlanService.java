@@ -1,13 +1,14 @@
 package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import sparta.team6.momo.amazonS3.UploadService;
+import sparta.team6.momo.model.Destination;
+import sparta.team6.momo.repository.DestinationRepository;
+import sparta.team6.momo.utils.amazonS3.UploadService;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
@@ -19,6 +20,7 @@ import sparta.team6.momo.repository.PlanRepository;
 import sparta.team6.momo.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,26 +37,26 @@ public class PlanService {
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
     private final UserRepository userRepository;
+    private final DestinationRepository destinationRepository;
 
 
     @Transactional
-    public Long savePlan(MakePlanRequestDto request, String email) {
-        System.out.println("service 진입");
-        Plan savedPlan = planRepository.save(request.toEntity());
-        User user = userRepository.findByEmail(email).orElseThrow(
+    public Long savePlan(MakePlanRequestDto request, Long userId) {
+        Plan savedPlan = planRepository.save(request.toEntityPlan());
+        destinationRepository.save(request.toEntityDestination(savedPlan,request));
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         savedPlan.addPlan(user);
-        System.out.println("service 종료");
         return savedPlan.getId();
     }
 
     @Transactional
-    public void deletePlan(Long planId, String email) {
+    public void deletePlan(Long planId, Long userId) {
         Plan result = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (email.equals(result.getUser().getEmail())) {
+        if (userId.equals(result.getUser().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
@@ -66,31 +68,44 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planId, MakePlanRequestDto requestDto) {
+    public void updatePlan(Long planId, MakePlanRequestDto requestDto, Long userId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        savedPlan.update(requestDto);
+        if (userId.equals(savedPlan.getUser().getId())) {
+            savedPlan.update(requestDto);
+        } else {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
     }
 
-    public ShowDetailResponseDto showDetail(Long planId, String email) {
+    public ShowDetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
+        if (userId.equals(plan.getUser().getId())) {
+            List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
+            List<ImageDto> imageDtoList = new ArrayList<>();
+            for (Image image : imageList) {
+                imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
+            }
+            Destination destination = destinationRepository.findByPlanId(planId);
+            DestinationDto destinationDto = new DestinationDto(destination);
 
-        List<ImageDto> imageDtoList = new ArrayList<>();
-        for (Image image : imageList) {
-            imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
+            return ShowDetailResponseDto.of(plan, imageDtoList, destinationDto);
+        } else {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
         //TODO: 쿼리2번 조회하지말고 테이블 join해서 쿼리 한번에 가져오게 하기
         // 시도해봤으나, image가 비어있는 경우에 plan 데이터를 받아오지못해서 에러 발생함
         // plan entity가 image entity를 참조하지 않기 때문에 join 불가능(단방향 연관관계)
-        return ShowDetailResponseDto.of(plan, imageDtoList);
     }
 
-    public List<ShowMainResponseDto> showMain(String email) {
-        List<Plan> planList = planRepository.findAllByUserEmail(email);
+    public List<ShowMainResponseDto> showMain(LocalDateTime date, Long userId) {
+        LocalDateTime monthStart = LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0, 0);
+        LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
+
+        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, monthStart, monthEnd);
         List<ShowMainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new ShowMainResponseDto(plan));
@@ -98,12 +113,37 @@ public class PlanService {
         return dtoList;
     }
 
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, String email) {
+    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-        Page<Plan> planList = planRepository.findAllByUserEmail(email, pageRequest);
+
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime startDate = currentTime.minusDays(period - 1);
+        startDate = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0, 0);
+
+        Page<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
+
+        if (planList.getTotalPages() <= pageNumber) {
+            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
+        }
+
         List<ShowRecordResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new ShowRecordResponseDto(plan));
+        }
+        return dtoList;
+    }
+
+    public List<ShowRecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
+        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
+
+        Page<Plan> searchResult = planRepository.findAllByUserIdAndPlanNameContaining(userId, word, pageRequest);
+        if (searchResult.getTotalPages() <= pageNumber) {
+            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
+        }
+
+        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
+        for (Plan result : searchResult) {
+            dtoList.add(new ShowRecordResponseDto(result));
         }
         return dtoList;
     }

@@ -6,7 +6,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.util.Collections;
 
 @Configuration
 public class CorsConfig {
@@ -17,13 +16,15 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.addAllowedOriginPattern("*");
+        config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.addExposedHeader("Authorization");
-        config.addExposedHeader("authorization");
         config.addExposedHeader("Set-Cookie");
 
         source.registerCorsConfiguration("/users/**", config);
+        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/kakao/**", config);
         source.registerCorsConfiguration("/plans/**", config);
         source.registerCorsConfiguration("/api/**", config);
         return new CorsFilter(source);

@@ -5,8 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import sparta.team6.momo.dto.Success;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.security.jwt.JwtFilter;
@@ -21,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final TokenProvider tokenProvider;
     private final ObjectMapper objectMapper;
@@ -29,10 +32,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//        String targetUrl = "http://localhost:3000/oauth2/redirect";
+        String targetUrl = "https://www.inflearn.com/";
+
         TokenDto jwt = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
                 .set(authentication.getName(), jwt.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
         setResponseWithJwt(response, jwt);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private void setResponseWithJwt(HttpServletResponse response, TokenDto jwt) throws IOException {

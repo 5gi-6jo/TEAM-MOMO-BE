@@ -1,5 +1,6 @@
 package sparta.team6.momo.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,12 @@ import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.annotation.LogoutCheck;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
+import sparta.team6.momo.service.OAuthService;
 import sparta.team6.momo.service.UserService;
 import sparta.team6.momo.utils.UserUtils;
 
 import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/users")
@@ -24,6 +27,7 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
+    private final OAuthService oAuthService;
     private final UserUtils userUtils;
 
 
@@ -77,9 +81,22 @@ public class UserController {
 
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo() {
+        log.info("ok");
         UserResponseDto userInfo = userService.getUserInfo(userUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
+
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        TokenDto tokenDto = oAuthService.kakaoLogin(code);
+        ResponseCookie cookie = createTokenCookie(tokenDto.getRefreshToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())
+                .body(new Success<>());
+    }
+
 
     private ResponseCookie createTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)

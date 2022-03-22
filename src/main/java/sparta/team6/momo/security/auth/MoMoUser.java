@@ -9,10 +9,12 @@ import java.util.List;
 
 
 
+
 @Getter
 public class MoMoUser extends User {
 
     private final Long userId;
+
 
     public MoMoUser(Long userId, Collection<? extends GrantedAuthority> authorities) {
         super(String.valueOf(userId), "", authorities);
