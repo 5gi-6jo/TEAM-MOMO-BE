@@ -7,6 +7,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import sparta.team6.momo.dto.ChatDto;
+import sparta.team6.momo.dto.EnterDto;
 import sparta.team6.momo.dto.MapDto;
 
 @Controller
@@ -16,24 +17,33 @@ public class SocketController {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/enterMap")
-    public void enterMap(@Payload MapDto mapDto) {
+    @MessageMapping("/enter")
+    public void enter(@Payload EnterDto enterDto) {
+        ChatDto chatDto = ChatDto.from(enterDto);
         //TODO 목적지 위도 경도 세팅
+        MapDto mapDto = MapDto.from(enterDto);
+        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
         simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
-    @MessageMapping("/enterChat")
-    public void enterChat(@Payload ChatDto chatDto) {
-        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
-        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
-    }
+//    @MessageMapping("/map.enter")
+//    public void enterMap(@Payload MapDto mapDto) {
+//        //TODO 목적지 위도 경도 세팅
+//        simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
+//    }
+//
+//    @MessageMapping("/chat.enter")
+//    public void enterChat(@Payload ChatDto chatDto) {
+//        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
+//        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
+//    }
 
-    @MessageMapping("/sendMap")
+    @MessageMapping("/map.send")
     public void sendMap(@Payload MapDto mapDto) {
         simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
-    @MessageMapping("/sendChat")
+    @MessageMapping("/chat.send")
     public void sendChat(@Payload ChatDto chatDto) {
         simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
     }
