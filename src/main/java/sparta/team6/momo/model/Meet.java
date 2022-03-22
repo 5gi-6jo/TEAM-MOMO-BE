@@ -24,6 +24,4 @@ public class Meet {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    private List<String>
-
 }
