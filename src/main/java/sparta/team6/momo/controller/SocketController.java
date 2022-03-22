@@ -20,6 +20,8 @@ public class SocketController {
     @MessageMapping("/enter")
     public void enter(@Payload EnterDto enterDto) {
         ChatDto chatDto = ChatDto.from(enterDto);
+        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
+
         //TODO 목적지 위도 경도 세팅
         MapDto mapDto = MapDto.from(enterDto);
         simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
