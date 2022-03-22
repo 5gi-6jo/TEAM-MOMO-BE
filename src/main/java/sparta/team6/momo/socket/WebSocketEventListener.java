@@ -1,27 +1,26 @@
-package sparta.team6.momo.controller;
+package sparta.team6.momo.socket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-import sparta.team6.momo.model.ChatMessage;
+import sparta.team6.momo.dto.ChatDto;
 import sparta.team6.momo.model.MessageType;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class WebSocketEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
-    @Autowired
-    private SimpMessageSendingOperations messagingTemplate;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        logger.info("Received a new web socket connection");
+        log.info("Received a new web socket connection");
     }
 
     @EventListener
@@ -30,13 +29,13 @@ public class WebSocketEventListener {
 
         String username = (String) headerAccessor.getSessionAttributes().get("username");
         if (username != null) {
-            logger.info("User Disconnected : " + username);
+            log.info("User Disconnected : " + username);
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(MessageType.LEAVE);
-            chatMessage.setSender(username);
+            ChatDto chatDto = new ChatDto();
+            chatDto.setType(MessageType.LEAVE);
+            chatDto.setSender(username);
 
-            messagingTemplate.convertAndSend("/topic/public", chatMessage);
+//            messagingTemplate.convertAndSend("/topic/chat" + chatDto., chatDto);
         }
     }
 }
