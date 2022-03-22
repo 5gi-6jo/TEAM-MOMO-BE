@@ -1,14 +1,12 @@
 package sparta.team6.momo.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
-import sparta.team6.momo.exception.DefaultException;
 import sparta.team6.momo.service.PlanService;
 
 import javax.validation.Valid;
