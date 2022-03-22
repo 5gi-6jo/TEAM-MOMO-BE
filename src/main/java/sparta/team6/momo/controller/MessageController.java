@@ -1,18 +1,24 @@
 package sparta.team6.momo.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import sparta.team6.momo.model.ChatMessage;
 
 @Controller
+@RequiredArgsConstructor
 public class MessageController {
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/public")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
-        return chatMessage;
+    public void sendMessage(@Payload ChatMessage chatMessage) {
+        simpMessagingTemplate.convertAndSend("/topic/public", chatMessage);
+        simpMessagingTemplate.convertAndSend("/topic/momo", chatMessage);
     }
 
     @MessageMapping("/chat.addUser")
