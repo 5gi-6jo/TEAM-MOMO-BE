@@ -96,7 +96,7 @@ public class UserService {
     private TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
-                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
+                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
         return tokenDto;
     }
 

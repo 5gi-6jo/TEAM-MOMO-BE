@@ -18,6 +18,7 @@ public enum ErrorCode {
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
     ONLY_LOGOUT_ACCESS(BAD_REQUEST, "이미 로그인 되어있습니다"),
     INVALID_FILE_FORMAT(BAD_REQUEST, "잘못된 형식의 파일입니다"),
+    INVALID_MAP_URL(BAD_REQUEST, "잘못된 형식의 URL입니다"),
 
     FILE_SIZE_EXCEED(BAD_REQUEST, "이미지 파일 업로드 용량 초과(1MB 제한)"),
 

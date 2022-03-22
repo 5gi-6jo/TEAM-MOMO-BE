@@ -1,13 +1,21 @@
 package sparta.team6.momo.model;
 
+import lombok.Getter;
+
 public enum UserRole {
-    ROLE_USER("ROLE_USER"),
-    ROLE_GUEST("ROLE_GUEST");
+    ROLE_USER(Authority.USER),
+    ROLE_GUEST(Authority.GUEST);
 
-    private final String role;
+    @Getter
+    private final String authority;
 
-    UserRole(String role) {
-        this.role = role;
+    UserRole(String authority) {
+        this.authority = authority;
+    }
+
+    public static class Authority {
+        public static final String USER = "ROLE_USER";
+        public static final String GUEST = "ROLE_GUEST";
     }
 
 }

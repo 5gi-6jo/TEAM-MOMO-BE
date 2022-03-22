@@ -1,14 +1,19 @@
 package sparta.team6.momo.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
-import sparta.team6.momo.dto.SignupRequestDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static sparta.team6.momo.model.UserRole.ROLE_USER;
 
@@ -52,7 +57,7 @@ public class User extends TimeStamped {
     }
 
     public static User fromKakao(OAuth2User oAuth2User) {
-        Map<String, Object> kakao_account = oAuth2User.getAttribute("kakao_account");
+        Map<String, String> kakao_account = oAuth2User.getAttribute("kakao_account");
         Map<String, String> properties = oAuth2User.getAttribute("properties");
         String email = String.valueOf(kakao_account.get("email"));
         String password = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());

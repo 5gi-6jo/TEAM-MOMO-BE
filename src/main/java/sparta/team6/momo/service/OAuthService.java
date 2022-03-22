@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import sparta.team6.momo.dto.KakaoUserInfoDto;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.model.User;
+import sparta.team6.momo.model.UserRole;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.TokenProvider;
@@ -50,7 +51,7 @@ public class OAuthService {
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
-            kakaoUser = new User(email, encodedPassword, nickname);
+            kakaoUser = new User(email, encodedPassword, nickname, UserRole.ROLE_USER);
             userRepository.save(kakaoUser);
         }
             MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
@@ -59,7 +60,7 @@ public class OAuthService {
 
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
-                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
+                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
 
         return tokenDto;
         }

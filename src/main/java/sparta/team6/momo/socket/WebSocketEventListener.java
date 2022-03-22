@@ -11,6 +11,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import sparta.team6.momo.dto.ChatDto;
 import sparta.team6.momo.model.MessageType;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,17 +28,24 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
+        String nickname = null; Long planId = null;
 
-        String username = (String) headerAccessor.getSessionAttributes().get("username");
-        if (username != null) {
-            log.info("User Disconnected : " + username);
+        if (attributes != null) {
+            nickname = (String) attributes.get("nickname");
+            planId = (Long) attributes.get("planId");
+        }
+
+        if (nickname != null && planId != null) {
+            log.info("User Disconnected : " + nickname);
 
             ChatDto chatDto = ChatDto.builder()
+                    .planId(planId)
                     .type(MessageType.LEAVE)
-                    .sender(username)
+                    .sender(nickname)
                     .build();
 
-//            messagingTemplate.convertAndSend("/topic/chat" + chatDto., chatDto);
+            messagingTemplate.convertAndSend("/topic/chat" + planId, chatDto);
         }
     }
 }
