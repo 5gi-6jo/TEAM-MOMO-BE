@@ -35,8 +35,8 @@ public class UserController {
     @PostMapping("/signup")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        String nickname = userService.registerUser(requestDto);
-        return ResponseEntity.ok().body(new Success<>(new LoginResponseDto(nickname)));
+        userService.registerUser(requestDto);
+        return ResponseEntity.ok().body(new Success<>());
     }
 
 
@@ -45,13 +45,14 @@ public class UserController {
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        String nickname = userService.getNickname(requestDto.getEmail());
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
 
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>());
+                .body(new Success<>(new LoginResponseDto(nickname)));
     }
 
     // 로그아웃

@@ -23,6 +23,7 @@ import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
@@ -54,9 +55,7 @@ public class UserService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        System.out.println(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        System.out.println(authentication);
 
         return createAndSaveToken(authentication);
     }
@@ -92,6 +91,11 @@ public class UserService {
         return UserResponseDto.of(user);
     }
 
+    public String getNickname(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.map(User::getNickname).orElse(null);
+    }
+
     private TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
@@ -119,4 +123,5 @@ public class UserService {
             throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
         }
     }
+
 }
