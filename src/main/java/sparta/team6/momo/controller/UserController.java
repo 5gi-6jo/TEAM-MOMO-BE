@@ -45,13 +45,14 @@ public class UserController {
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        String nickname = userService.getNickname(requestDto.getEmail());
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
 
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>());
+                .body(new Success<>(new LoginResponseDto(nickname)));
     }
 
     // 로그아웃
@@ -87,7 +88,6 @@ public class UserController {
 
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
-        log.info("kakaoakkakaoakaoaka");
         TokenDto tokenDto = oAuthService.kakaoLogin(code);
         ResponseCookie cookie = createTokenCookie(tokenDto.getRefreshToken());
 
