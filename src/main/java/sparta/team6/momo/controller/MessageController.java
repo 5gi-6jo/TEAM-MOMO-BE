@@ -17,10 +17,7 @@ public class MessageController {
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(@Payload ChatMessage chatMessage) {
-        ChatMessage chatMessage1 = new ChatMessage();
-        chatMessage1.setContent("으ㅏ아ㅏㅏㅏ아아아아아ㅏ아아아아아아아아아아ㅏ아앙");
         simpMessagingTemplate.convertAndSend("/topic/public", chatMessage);
-        simpMessagingTemplate.convertAndSend("/topic/momo", chatMessage1);
     }
 
     @MessageMapping("/chat.addUser")
