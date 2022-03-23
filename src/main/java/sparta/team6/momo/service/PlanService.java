@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import sparta.team6.momo.model.Account;
 import sparta.team6.momo.model.Destination;
 import sparta.team6.momo.repository.DestinationRepository;
 import sparta.team6.momo.utils.amazonS3.UploadService;
@@ -14,10 +15,9 @@ import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.Image;
 import sparta.team6.momo.model.Plan;
-import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.ImageRepository;
 import sparta.team6.momo.repository.PlanRepository;
-import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.repository.AccountRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -37,7 +37,7 @@ public class PlanService {
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
     private final MapService mapService;
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final DestinationRepository destinationRepository;
 
 
@@ -45,10 +45,10 @@ public class PlanService {
     public Long savePlan(MakePlanRequestDto request, Long userId) {
         Plan savedPlan = planRepository.save(request.toEntityPlan());
         destinationRepository.save(request.toEntityDestination(savedPlan,request));
-        User user = userRepository.findById(userId).orElseThrow(
+        Account account = accountRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-        savedPlan.addPlan(user);
+        savedPlan.addPlan(account);
 
         mapService.createMapRoom(savedPlan.getId());
         return savedPlan.getId();
@@ -59,7 +59,7 @@ public class PlanService {
         Plan result = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(result.getUser().getId())) {
+        if (userId.equals(result.getAccount().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
@@ -75,7 +75,7 @@ public class PlanService {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(savedPlan.getUser().getId())) {
+        if (userId.equals(savedPlan.getAccount().getId())) {
             savedPlan.update(requestDto);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
@@ -86,7 +86,7 @@ public class PlanService {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(plan.getUser().getId())) {
+        if (userId.equals(plan.getAccount().getId())) {
             List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : imageList) {
@@ -108,7 +108,7 @@ public class PlanService {
         LocalDateTime monthStart = LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 
-        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, monthStart, monthEnd);
+        List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, monthStart, monthEnd);
         List<ShowMainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new ShowMainResponseDto(plan));
@@ -123,7 +123,7 @@ public class PlanService {
         LocalDateTime startDate = currentTime.minusDays(period - 1);
         startDate = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0, 0);
 
-        Page<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
+        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
 
         if (planList.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
@@ -139,7 +139,7 @@ public class PlanService {
     public List<ShowRecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
-        Page<Plan> searchResult = planRepository.findAllByUserIdAndPlanNameContaining(userId, word, pageRequest);
+        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(userId, word, pageRequest);
         if (searchResult.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }

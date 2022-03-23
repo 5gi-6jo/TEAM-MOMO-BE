@@ -33,8 +33,8 @@ public class Plan extends TimeStamped {
     private LocalDateTime noticeTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     @Builder
     public Plan(String planName, String contents, LocalDateTime planDate, LocalDateTime noticeTime) {
@@ -51,8 +51,8 @@ public class Plan extends TimeStamped {
         this.noticeTime = requestDto.toLocalDateTIme(requestDto.getNoticeTime());
     }
 
-    public void addPlan(User user) {
-        this.user = user;
-        user.getPlanList().add(this);
+    public void addPlan(Account account) {
+        this.account = account;
+        account.getPlanList().add(this);
     }
 }

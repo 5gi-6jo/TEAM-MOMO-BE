@@ -13,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,9 +20,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import sparta.team6.momo.dto.KakaoUserInfoDto;
 import sparta.team6.momo.dto.TokenDto;
-import sparta.team6.momo.model.User;
+import sparta.team6.momo.model.Account;
 import sparta.team6.momo.model.UserRole;
-import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.repository.AccountRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class OAuthService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
@@ -44,17 +43,17 @@ public class OAuthService {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
         String email = kakaoUserInfo.getEmail();
-        User kakaoUser = userRepository.findByEmail(email)
+        Account kakaoAccount = accountRepository.findByEmail(email)
                 .orElse(null);
-        if (kakaoUser == null) {
+        if (kakaoAccount == null) {
             String nickname = kakaoUserInfo.getNickname();
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
-            kakaoUser = new User(email, encodedPassword, nickname, UserRole.ROLE_USER);
-            userRepository.save(kakaoUser);
+            kakaoAccount = new Account(email, encodedPassword, nickname, UserRole.ROLE_USER);
+            accountRepository.save(kakaoAccount);
         }
-            MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+            MoMoUser user = new MoMoUser(kakaoAccount.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
