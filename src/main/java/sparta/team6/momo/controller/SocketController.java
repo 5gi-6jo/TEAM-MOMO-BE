@@ -25,7 +25,7 @@ public class SocketController {
     @MessageMapping("/enter") // maps/enter
     public void enter(@Payload EnterDto enterDto, SimpMessageHeaderAccessor headerAccessor) {
         ChatDto chatDto = ChatDto.from(enterDto);
-        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
+        chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
         Map<String, Object> attributes = headerAccessor.getSessionAttributes();
         if (attributes != null) {
@@ -34,8 +34,8 @@ public class SocketController {
         }
         //TODO 목적지 위도 경도 세팅
         MapDto mapDto = MapDto.from(enterDto);
-        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
-        simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
+        simpMessagingTemplate.convertAndSend("topic/chat/1", chatDto);
+        simpMessagingTemplate.convertAndSend("topic/map/1", mapDto);
     }
 //
 //    @MessageMapping("/map.enter")
@@ -52,12 +52,12 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-        simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
+        simpMessagingTemplate.convertAndSend("topic/map/1", mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
-        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
+        simpMessagingTemplate.convertAndSend("topic/chat/1", chatDto);
     }
 
 //    @MessageMapping("/chat.addUser")
