@@ -12,11 +12,14 @@ public class ShowRecordResponseDto {
     private Long planId;
     private LocalDateTime planDate;
     private String planName;
+    private String destination;
     private boolean isFinished;
+
     public ShowRecordResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planDate = plan.getPlanDate();
         this.planName = plan.getPlanName();
+        this.destination = plan.getDestination();
         this.isFinished = finishCheck(plan.getPlanDate());
     }
 
