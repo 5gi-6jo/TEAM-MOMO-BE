@@ -9,7 +9,6 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class Meet {
 
     @Id
@@ -23,5 +22,8 @@ public class Meet {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private Plan plan;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Account> accounts;
 
 }

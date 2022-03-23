@@ -11,23 +11,11 @@ import static sparta.team6.momo.model.UserRole.ROLE_GUEST;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Guest {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "guest_id")
-    private Long id;
-
-    @Column(nullable = false)
-    private String nickname;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private final UserRole userRole = ROLE_GUEST;
+@PrimaryKeyJoinColumn(name = "guest_id")
+public class Guest extends Account {
 
     public Guest(String nickname) {
-        this.nickname = nickname;
+        super(nickname, ROLE_GUEST);
     }
-
 
 }
