@@ -7,10 +7,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.model.Plan;
+import sparta.team6.momo.repository.PlanRepository;
 import sparta.team6.momo.service.PlanService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ import java.util.List;
 public class PlanController {
 
     private final PlanService planService;
+    private final PlanRepository planRepository;
 
     /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping
@@ -56,5 +60,11 @@ public class PlanController {
         Long userId = Long.parseLong(authentication.getName());
         List<ShowMainResponseDto> dtoList = planService.showMain(requestDto.getDate(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        Optional<Plan> plan = planRepository.findById(1L);
+        return plan.get().getUrl();
     }
 }
