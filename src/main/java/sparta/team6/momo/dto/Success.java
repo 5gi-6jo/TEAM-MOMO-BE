@@ -27,8 +27,8 @@ public class Success<T> {
         return new Success<>(tokenDto);
     }
 
-    public static Success<UserResponseDto> of(UserResponseDto userResponseDto) {
-        return new Success<>(userResponseDto);
+    public static Success<AccountResponseDto> of(AccountResponseDto accountResponseDto) {
+        return new Success<>(accountResponseDto);
     }
 }
 

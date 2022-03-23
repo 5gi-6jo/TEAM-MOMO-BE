@@ -1,29 +1,27 @@
 package sparta.team6.momo.model;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Meet {
+public class Participant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "meet_id")
+    @Column(name = "part_id")
     private Long id;
 
-    @Column(nullable = false)
-    private String url;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Account> accounts;
-
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
 }

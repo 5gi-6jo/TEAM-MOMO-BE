@@ -5,19 +5,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import sparta.team6.momo.exception.CustomException;
-import sparta.team6.momo.model.User;
-import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.model.Account;
+import sparta.team6.momo.repository.AccountRepository;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
 
 import static sparta.team6.momo.exception.ErrorCode.ONLY_LOGIN_ACCESS;
 
 @Component
 @RequiredArgsConstructor
-public class UserUtils {
+public class AccountUtils {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     public long getCurUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -28,7 +27,7 @@ public class UserUtils {
 
     public String getCurNickname() {
         long userId = getCurUserId();
-        Optional<User> user = userRepository.findById(userId);
-        return user.map(User::getNickname).orElse(null);
+        Optional<Account> user = accountRepository.findById(userId);
+        return user.map(Account::getNickname).orElse(null);
     }
 }
