@@ -33,6 +33,7 @@ public class SocketController {
             attributes.put("planId", chatDto.getPlanId());
         }
         //TODO 목적지 위도 경도 세팅
+        log.info("enter로 접속하였습니다!");
         MapDto mapDto = MapDto.from(enterDto);
         simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
         simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
@@ -52,6 +53,7 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
+        log.info("info");
         simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
 
