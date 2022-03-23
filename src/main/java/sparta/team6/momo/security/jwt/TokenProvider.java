@@ -1,56 +1,60 @@
 package sparta.team6.momo.security.jwt;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import sparta.team6.momo.dto.TokenDto;
-import sparta.team6.momo.exception.DefaultException;
-import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.auth.MoMoUser;
 
 import java.security.Key;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class TokenProvider implements InitializingBean {
 
 
+    private final TokenInfo tokenInfo;
+
+    private long ACCESS_TOKEN_VALIDITY;
+
+    @Getter
+    private long REFRESH_TOKEN_VALIDITY;
+
     private static final String AUTHORITIES_KEY = "auth";
-    private final String SECRET;
-    private final long ACCESS_TOKEN_VALIDITY;
-    private final long REFRESH_TOKEN_VALIDITY;
+
     private Key key;
 
     @Autowired
     public TokenProvider(
-            @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
             @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds,
-            UserRepository userRepository) {
-        SECRET = secret;
+            TokenInfo tokenInfo) {
         ACCESS_TOKEN_VALIDITY = accessTokenValidityInSeconds * 1000;
         REFRESH_TOKEN_VALIDITY = refreshTokenValidityInSeconds * 1000;
+        this.tokenInfo = tokenInfo;
     }
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+        key = tokenInfo.getKey();
     }
 
 
@@ -63,41 +67,28 @@ public class TokenProvider implements InitializingBean {
 
     public Authentication getAuthentication(String accessToken) {
         Claims claims = getClaimsWithoutExpirationCheck(accessToken);
+        Collection<? extends GrantedAuthority> authorities = getAuthoritiesFrom(claims);
 
-//        Collection<? extends GrantedAuthority> authorities =
-//                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-//                        .map(SimpleGrantedAuthority::new)
-//                        .collect(Collectors.toList());
-
-        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-        return new UsernamePasswordAuthenticationToken(principal, accessToken, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        MoMoUser principal = new MoMoUser(Long.parseLong(claims.getSubject()), authorities);
+        return new UsernamePasswordAuthenticationToken(principal, accessToken, authorities);
     }
 
-
-    public boolean isTokenValidate(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, "잘못 구성된 JWT 서명입니다.");
-        } catch (ExpiredJwtException e) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, "지원되지 않는 형식의 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            throw new DefaultException(HttpStatus.BAD_REQUEST, "JWT 토큰이 잘못되었습니다.");
-        }
+    private String createAccessToken(Authentication authentication) {
+        String authorities = getAuthoritiesFrom(authentication);
+        String userId = authentication.getName();
+        return Jwts.builder()
+                .setSubject(userId)
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(getExpireDate(ACCESS_TOKEN_VALIDITY))
+                .compact();
     }
 
-    public Long getRemainExpiration(String token) {
-        Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
-        long now = new Date().getTime();
-        return (expiration.getTime() - now);
-    }
-
-
-    public long getRefreshTokenValidity() {
-        return REFRESH_TOKEN_VALIDITY;
+    private String createRefreshToken() {
+        return Jwts.builder()
+                .setExpiration(getExpireDate(REFRESH_TOKEN_VALIDITY))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
     }
 
     private Claims getClaimsWithoutExpirationCheck(String token) {
@@ -113,30 +104,16 @@ public class TokenProvider implements InitializingBean {
         }
     }
 
-
-
-    private String createAccessToken(Authentication authentication) {
-        String authorities = getAuthorities(authentication);
-        String userId = authentication.getName();
-        return Jwts.builder()
-                .setSubject(userId)
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(getExpireDate(ACCESS_TOKEN_VALIDITY))
-                .compact();
-    }
-
-    private String getAuthorities(Authentication authentication) {
+    private String getAuthoritiesFrom(Authentication authentication) {
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
     }
 
-    private String createRefreshToken() {
-        return Jwts.builder()
-                .setExpiration(getExpireDate(REFRESH_TOKEN_VALIDITY))
-                .signWith(key, SignatureAlgorithm.HS512)
-                .compact();
+    private Collection<? extends GrantedAuthority> getAuthoritiesFrom(Claims claims) {
+        return Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     private Date getExpireDate(long expireIn) {

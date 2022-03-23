@@ -37,7 +37,7 @@ public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccess
 
         TokenDto jwt = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
-                .set(authentication.getName(), jwt.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
+                .set(authentication.getName(), jwt.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
         setResponseWithJwt(response, jwt);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }

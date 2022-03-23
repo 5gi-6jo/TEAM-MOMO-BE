@@ -36,6 +36,7 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
+    private final MapService mapService;
     private final UserRepository userRepository;
     private final DestinationRepository destinationRepository;
 
@@ -48,6 +49,8 @@ public class PlanService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         savedPlan.addPlan(user);
+
+        mapService.createMapRoom(savedPlan.getId());
         return savedPlan.getId();
     }
 

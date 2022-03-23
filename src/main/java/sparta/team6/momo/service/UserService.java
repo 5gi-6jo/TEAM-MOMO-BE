@@ -21,6 +21,7 @@ import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.User;
 import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
+import sparta.team6.momo.security.jwt.TokenUtils;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
+import static sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -39,13 +41,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final TokenUtils tokenUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public String registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname());
+        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), ROLE_USER);
         userRepository.save(user);
         return user.getNickname();
     }
@@ -69,7 +72,7 @@ public class UserService {
 
         redisTemplate.delete(authentication.getName());
 
-        Long expiration = tokenProvider.getRemainExpiration(accessToken);
+        Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
    }
@@ -99,13 +102,13 @@ public class UserService {
     private TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
-                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getRefreshTokenValidity(), TimeUnit.MILLISECONDS);
+                .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
         return tokenDto;
     }
 
 
     private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken, ErrorCode errorCode) {
-        if (!tokenProvider.isTokenValidate(validateToken)) {
+        if (!tokenUtils.isTokenValidate(validateToken)) {
             throw new CustomException(errorCode);
         }
         return tokenProvider.getAuthentication(accessToken);
