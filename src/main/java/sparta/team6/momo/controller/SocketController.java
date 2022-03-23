@@ -24,7 +24,6 @@ public class SocketController {
 
     @MessageMapping("/enter") // maps/enter
     public void enter(@Payload EnterDto enterDto, SimpMessageHeaderAccessor headerAccessor) {
-        log.info("Socket /enter");
         ChatDto chatDto = ChatDto.from(enterDto);
         chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
@@ -42,13 +41,11 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-        log.info("Socket /map.send");
         simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
-        log.info("Socket /chat.send");
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
 
