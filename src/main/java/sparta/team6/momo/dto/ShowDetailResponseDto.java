@@ -15,29 +15,28 @@ public class ShowDetailResponseDto {
 
     private String planName;
 
-    private DestinationDto destination;
+    private String destination;
 
     private List<ImageDto> imageList;
 
     private String contents;
 
     @Builder
-    public ShowDetailResponseDto(LocalDateTime planDate, String planName, DestinationDto destination, List<ImageDto> imageList, String contents) {
+    public ShowDetailResponseDto(LocalDateTime planDate, String planName, String destination, List<ImageDto> imageList, String contents) {
         this.planDate = planDate;
         this.planName = planName;
         this.destination = destination;
-        this.imageList = imageList;
         this.contents = contents;
+        this.imageList = imageList;
     }
 
-    public static ShowDetailResponseDto of(Plan plan, List<ImageDto> imageList, DestinationDto destinationDto) {
+    public static ShowDetailResponseDto of(Plan plan, List<ImageDto> imageList) {
         return ShowDetailResponseDto.builder()
                 .planDate(plan.getPlanDate())
                 .planName(plan.getPlanName())
-                .destination(destinationDto)
-                .destination(destinationDto)
-                .imageList(imageList)
+                .destination(plan.getDestination())
                 .contents(plan.getContents())
+                .imageList(imageList)
                 .build();
     }
 }
