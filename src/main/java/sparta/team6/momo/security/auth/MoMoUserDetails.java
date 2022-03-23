@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import sparta.team6.momo.model.User;
+import sparta.team6.momo.model.Account;
 
 import java.util.Collection;
 import java.util.Map;
@@ -14,16 +14,16 @@ import java.util.Map;
 @Getter
 public class MoMoUserDetails implements UserDetails, OAuth2User {
 
-    private final User user;
+    private final Account account;
     private Map<String, Object> attributes;
 
-    public MoMoUserDetails(User user, Map<String, Object> attributes) {
-        this.user = user;
+    public MoMoUserDetails(Account account, Map<String, Object> attributes) {
+        this.account = account;
         this.attributes = attributes;
     }
 
     public Long getUserId() {
-        return user.getId();
+        return account.getId();
     }
 
     @Override
@@ -33,12 +33,12 @@ public class MoMoUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return account.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return account.getEmail();
     }
 
     @Override

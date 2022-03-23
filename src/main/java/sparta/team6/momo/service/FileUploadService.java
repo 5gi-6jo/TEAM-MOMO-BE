@@ -47,7 +47,7 @@ public class FileUploadService {
             }
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
-            if (plan.isPresent() && userId.equals(plan.get().getUser().getId())) {
+            if (plan.isPresent() && userId.equals(plan.get().getAccount().getId())) {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
@@ -75,7 +75,7 @@ public class FileUploadService {
     public List<ImageDto> showImage(Long planId, Long userId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         try {
-            if (userId.equals(imageList.get(0).getPlan().getUser().getId())) {
+            if (userId.equals(imageList.get(0).getPlan().getAccount().getId())) {
                 List<ImageDto> dtoList = new ArrayList<>();
                 for (Image image : imageList) {
                     dtoList.add(new ImageDto(image.getId(), image.getImage()));
@@ -92,7 +92,7 @@ public class FileUploadService {
 
     public void deleteImageS3(Long imageId, Long userId) {
         Optional<Image> image = imageRepository.findById(imageId);
-        if (image.isPresent() && userId.equals(image.get().getPlan().getUser().getId())) {
+        if (image.isPresent() && userId.equals(image.get().getPlan().getAccount().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
         } else {
