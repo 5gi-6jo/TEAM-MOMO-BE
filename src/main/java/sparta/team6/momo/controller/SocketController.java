@@ -25,18 +25,22 @@ public class SocketController {
     @MessageMapping("/enter") // maps/enter
     public void enter(@Payload EnterDto enterDto, SimpMessageHeaderAccessor headerAccessor) {
         ChatDto chatDto = ChatDto.from(enterDto);
-        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
+        chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
-        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
-        if (attributes != null) {
-            attributes.put("nickname", chatDto.getSender());
-            attributes.put("planId", chatDto.getPlanId());
-        }
+//        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
+//        if (attributes != null) {
+//            attributes.put("nickname", chatDto.getSender());
+//            attributes.put("planId", chatDto.getPlanId());
+//        }
         //TODO 목적지 위도 경도 세팅
+        log.info("enter로 접속하였습니다!");
         MapDto mapDto = MapDto.from(enterDto);
-        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
-        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
+//        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
+//        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
+
 //
 //    @MessageMapping("/map.enter")
 //    public void enterMap(@Payload MapDto mapDto) {
@@ -52,12 +56,15 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
+//        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
+        log.info("info");
+        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
-        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
+//        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
     }
 
 //    @MessageMapping("/chat.addUser")

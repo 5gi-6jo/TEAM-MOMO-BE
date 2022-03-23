@@ -1,8 +1,6 @@
 package sparta.team6.momo.dto;
 
 import lombok.*;
-import net.bytebuddy.asm.Advice;
-import org.springframework.stereotype.Service;
 import sparta.team6.momo.model.MessageType;
 
 @Getter
@@ -12,7 +10,7 @@ public class ChatDto {
     private Long planId;
     private MessageType type;
     private String sender;
-    private String message;
+    private String content;
 
     public static ChatDto from(EnterDto enterDto) {
         return ChatDto.builder()
@@ -23,10 +21,10 @@ public class ChatDto {
     }
 
     @Builder
-    public ChatDto(Long planId, MessageType type, String sender, String message) {
+    public ChatDto(Long planId, MessageType type, String sender, String content) {
         this.planId = planId;
         this.type = type;
         this.sender = sender;
-        this.message = message;
+        this.content = content;
     }
 }
