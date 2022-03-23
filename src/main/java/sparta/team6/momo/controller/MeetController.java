@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sparta.team6.momo.dto.MeetResponseDto;
 import sparta.team6.momo.dto.Success;
 import sparta.team6.momo.service.MeetService;
 
@@ -19,6 +20,6 @@ public class MeetController {
     @GetMapping("/{randomUrl}") // planId
     public ResponseEntity<?> getPlanIdFromUrl(@PathVariable("randomUrl") String url) {
         Long planId = meetService.getPlanId(url);
-        return ResponseEntity.ok().body(new Success<>(planId));
+        return ResponseEntity.ok().body(new Success<>(new MeetResponseDto(planId)));
     }
 }

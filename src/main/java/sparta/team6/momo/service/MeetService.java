@@ -19,15 +19,15 @@ import static sparta.team6.momo.exception.ErrorCode.INVALID_MAP_URL;
 public class MeetService {
 
     private final PlanRepository planRepository;
+//    private final String prefix = "http://localhost:3000/planmap/";
 
     public Long getPlanId(String url) {
-        Optional<Plan> plan = planRepository.findPlanByUrl(url);
-        return 0L;
-//        return plan.map(Plan::getId).orElseThrow(new CustomException(INVALID_MAP_URL));
+        return planRepository.findPlanByUrl(url).
+                orElseThrow(() -> new CustomException(INVALID_MAP_URL)).
+                getId();
     }
 
     public String createRandomUrl() {
-        String prefix = "https://www.seoultaste.click/map/";
-        return prefix + UUID.randomUUID();
+        return UUID.randomUUID().toString();
     }
 }
