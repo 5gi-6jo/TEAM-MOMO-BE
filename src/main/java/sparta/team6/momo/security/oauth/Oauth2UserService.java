@@ -7,8 +7,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import sparta.team6.momo.model.User;
-import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.model.Account;
+import sparta.team6.momo.repository.AccountRepository;
 import sparta.team6.momo.security.auth.MoMoUserDetails;
 
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class Oauth2UserService extends DefaultOAuth2UserService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -29,19 +29,19 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
     }
 
     private MoMoUserDetails createPrincipalDetails(OAuth2User oAuth2User) {
-        Optional<User> findUser = findUserByEmail(oAuth2User);
+        Optional<Account> findUser = findUserByEmail(oAuth2User);
 
         if (findUser.isEmpty()) {
-            User user = User.fromKakao(oAuth2User);
-            return new MoMoUserDetails(userRepository.save(user), oAuth2User.getAttributes());
+            Account account = Account.fromKakao(oAuth2User);
+            return new MoMoUserDetails(accountRepository.save(account), oAuth2User.getAttributes());
         } else {
             return new MoMoUserDetails(findUser.get(), oAuth2User.getAttributes());
         }
     }
 
-    private Optional<User> findUserByEmail(OAuth2User oAuth2User) {
+    private Optional<Account> findUserByEmail(OAuth2User oAuth2User) {
         Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
         String email = String.valueOf(kakaoAccount.get("email"));
-        return userRepository.findByEmail(email);
+        return accountRepository.findByEmail(email);
     }
 }

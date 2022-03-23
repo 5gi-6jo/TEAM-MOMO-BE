@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
-    List<Plan> findAllByUserIdAndPlanDateBetween(Long userId, LocalDateTime monthStart, LocalDateTime monthEnd);
+    List<Plan> findAllByAccountIdAndPlanDateBetween(Long userId, LocalDateTime monthStart, LocalDateTime monthEnd);
 
-    Page<Plan> findAllByUserIdAndPlanDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    Page<Plan> findAllByAccountIdAndPlanDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-    Page<Plan> findAllByUserIdAndPlanNameContaining(Long userId, String word, Pageable pageable);
+    Page<Plan> findAllByAccountIdAndPlanNameContaining(Long userId, String word, Pageable pageable);
 }

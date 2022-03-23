@@ -14,8 +14,8 @@ import sparta.team6.momo.annotation.LogoutCheck;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.OAuthService;
-import sparta.team6.momo.service.UserService;
-import sparta.team6.momo.utils.UserUtils;
+import sparta.team6.momo.service.AccountService;
+import sparta.team6.momo.utils.AccountUtils;
 
 import javax.validation.Valid;
 
@@ -26,9 +26,9 @@ import javax.validation.Valid;
 @Slf4j
 public class UserController {
 
-    private final UserService userService;
+    private final AccountService accountService;
     private final OAuthService oAuthService;
-    private final UserUtils userUtils;
+    private final AccountUtils accountUtils;
 
 
     // 회원가입
@@ -36,7 +36,7 @@ public class UserController {
     @PostMapping("/signup")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        userService.registerUser(requestDto);
+        accountService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>());
     }
 
@@ -45,8 +45,8 @@ public class UserController {
     @PostMapping("/login")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-        TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        String nickname = userService.getNickname(requestDto.getEmail());
+        TokenDto jwt = accountService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        String nickname = accountService.getNickname(requestDto.getEmail());
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
 
 
@@ -62,7 +62,7 @@ public class UserController {
             @RequestBody TokenDto tokenDto,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        userService.logout(tokenDto.getAccessToken(), refreshToken);
+        accountService.logout(tokenDto.getAccessToken(), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
     }
 
@@ -72,7 +72,7 @@ public class UserController {
             @RequestBody TokenDto tokenDto,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        TokenDto reissueTokenDto = userService.reissue(tokenDto.getAccessToken(), refreshToken);
+        TokenDto reissueTokenDto = accountService.reissue(tokenDto.getAccessToken(), refreshToken);
         ResponseCookie cookie = createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -83,7 +83,7 @@ public class UserController {
     @GetMapping("/login")
     public ResponseEntity<?> getUserInfo() {
         log.info("ok");
-        UserResponseDto userInfo = userService.getUserInfo(userUtils.getCurUserId());
+        AccountResponseDto userInfo = accountService.getUserInfo(accountUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 

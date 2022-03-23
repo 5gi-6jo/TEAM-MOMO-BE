@@ -15,15 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.dto.TokenDto;
-import sparta.team6.momo.dto.UserResponseDto;
+import sparta.team6.momo.dto.AccountResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
-import sparta.team6.momo.model.User;
-import sparta.team6.momo.repository.UserRepository;
+import sparta.team6.momo.model.Account;
+import sparta.team6.momo.repository.AccountRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 import sparta.team6.momo.security.jwt.TokenUtils;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -34,11 +33,11 @@ import static sparta.team6.momo.model.UserRole.ROLE_USER;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserService {
+public class AccountService {
 
 
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
@@ -48,9 +47,9 @@ public class UserService {
     @Transactional
     public String registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), ROLE_USER);
-        userRepository.save(user);
-        return user.getNickname();
+        Account account = new Account(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), ROLE_USER);
+        accountRepository.save(account);
+        return account.getNickname();
     }
 
 
@@ -87,16 +86,16 @@ public class UserService {
         return createAndSaveToken(authentication);
     }
 
-    public UserResponseDto getUserInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
+    public AccountResponseDto getUserInfo(Long userId) {
+        Account account = accountRepository.findById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("유저를 찾을 수 없습니다")
         );
-        return UserResponseDto.of(user);
+        return AccountResponseDto.of(account);
     }
 
     public String getNickname(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.map(User::getNickname).orElse(null);
+        Optional<Account> user = accountRepository.findByEmail(email);
+        return user.map(Account::getNickname).orElse(null);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {
@@ -122,7 +121,7 @@ public class UserService {
 
 
     private void duplicateEmailCheck(SignupRequestDto requestDto) {
-        if (userRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
+        if (accountRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
             throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
         }
     }
