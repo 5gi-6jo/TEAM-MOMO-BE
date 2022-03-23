@@ -23,7 +23,6 @@ import sparta.team6.momo.repository.UserRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 import sparta.team6.momo.security.jwt.TokenUtils;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 

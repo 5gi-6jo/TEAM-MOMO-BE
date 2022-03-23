@@ -12,7 +12,7 @@ import sparta.team6.momo.security.jwt.JwtFilter;
 import sparta.team6.momo.service.GuestService;
 
 @RestController
-@RequestMapping("/guest")
+@RequestMapping("/guests")
 @RequiredArgsConstructor
 @Slf4j
 public class GuestController {
