@@ -45,11 +45,10 @@ public class AccountService {
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public String registerUser(SignupRequestDto requestDto) {
+    public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
         Account account = new Account(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), ROLE_USER);
         accountRepository.save(account);
-        return account.getNickname();
     }
 
 
