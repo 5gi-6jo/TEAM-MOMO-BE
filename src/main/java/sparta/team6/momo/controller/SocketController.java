@@ -27,11 +27,11 @@ public class SocketController {
         ChatDto chatDto = ChatDto.from(enterDto);
         chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
-        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
-        if (attributes != null) {
-            attributes.put("nickname", chatDto.getSender());
-            attributes.put("planId", chatDto.getPlanId());
-        }
+//        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
+//        if (attributes != null) {
+//            attributes.put("nickname", chatDto.getSender());
+//            attributes.put("planId", chatDto.getPlanId());
+//        }
         //TODO 목적지 위도 경도 세팅
         log.info("enter로 접속하였습니다!");
         MapDto mapDto = MapDto.from(enterDto);
