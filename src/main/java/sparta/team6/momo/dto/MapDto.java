@@ -1,6 +1,7 @@
 package sparta.team6.momo.dto;
 
 import lombok.*;
+import sparta.team6.momo.model.MessageType;
 
 @Getter
 @Setter
@@ -10,6 +11,7 @@ public class MapDto {
     private String sender;
     private String lat;
     private String lng;
+    private MessageType type;
     private String destLat;
     private String destLng;
 

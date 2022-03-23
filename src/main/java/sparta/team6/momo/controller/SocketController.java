@@ -52,7 +52,6 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-        log.info("check");
         simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
 
