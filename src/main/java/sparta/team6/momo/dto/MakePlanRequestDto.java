@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
-import sparta.team6.momo.model.Destination;
 import sparta.team6.momo.model.Plan;
 
 import javax.validation.constraints.NotBlank;
@@ -20,8 +19,8 @@ public class MakePlanRequestDto {
     @NotBlank(message = "모임 이름을 입력해주세요")
     private String planName;
 
-    @NotBlank(message = "장소를 입력해주세요")
-    private String address;
+    @NotBlank(message = "약속 장소를 입력해주세요")
+    private String destination;
 
     @NotNull(message = "위도(lat) 정보가 없습니다")
     private Double lat;
@@ -51,16 +50,9 @@ public class MakePlanRequestDto {
                 .contents(contents)
                 .planDate(planDate)
                 .noticeTime(toLocalDateTIme(noticeTime))
+                .destination(destination)
+                .lat(lat)
+                .lng(lng)
                 .build();
     }
-
-    public Destination toEntityDestination(Plan plan, MakePlanRequestDto requestDto) {
-        return Destination.builder()
-                .plan(plan)
-                .address(requestDto.getAddress())
-                .lat(requestDto.getLat())
-                .lng(requestDto.getLng())
-                .build();
-    }
-
 }

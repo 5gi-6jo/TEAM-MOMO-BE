@@ -6,18 +6,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import sparta.team6.momo.model.Account;
-import sparta.team6.momo.model.Destination;
-import sparta.team6.momo.repository.DestinationRepository;
-import sparta.team6.momo.utils.amazonS3.UploadService;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
+import sparta.team6.momo.model.Account;
 import sparta.team6.momo.model.Image;
 import sparta.team6.momo.model.Plan;
+import sparta.team6.momo.repository.AccountRepository;
 import sparta.team6.momo.repository.ImageRepository;
 import sparta.team6.momo.repository.PlanRepository;
-import sparta.team6.momo.repository.AccountRepository;
+import sparta.team6.momo.utils.amazonS3.UploadService;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -38,13 +36,11 @@ public class PlanService {
     private final UploadService uploadService;
     private final MapService mapService;
     private final AccountRepository accountRepository;
-    private final DestinationRepository destinationRepository;
 
 
     @Transactional
     public Long savePlan(MakePlanRequestDto request, Long userId) {
         Plan savedPlan = planRepository.save(request.toEntityPlan());
-        destinationRepository.save(request.toEntityDestination(savedPlan,request));
         Account account = accountRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -92,10 +88,7 @@ public class PlanService {
             for (Image image : imageList) {
                 imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
             }
-            Destination destination = destinationRepository.findByPlanId(planId);
-            DestinationDto destinationDto = new DestinationDto(destination);
-
-            return ShowDetailResponseDto.of(plan, imageDtoList, destinationDto);
+            return ShowDetailResponseDto.of(plan, imageDtoList);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
