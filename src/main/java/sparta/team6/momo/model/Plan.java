@@ -70,4 +70,8 @@ public class Plan extends TimeStamped {
         this.account = account;
         account.getPlanList().add(this);
     }
+
+    public void addUrl(String url) {
+        this.url = url;
+    }
 }

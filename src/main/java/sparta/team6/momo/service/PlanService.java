@@ -34,9 +34,8 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
-    private final MapService mapService;
     private final AccountRepository accountRepository;
-
+    private final MeetService meetService;
 
     @Transactional
     public Long savePlan(MakePlanRequestDto request, Long userId) {
@@ -45,8 +44,7 @@ public class PlanService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         savedPlan.addPlan(account);
-
-        mapService.createMapRoom(savedPlan.getId());
+        savedPlan.addUrl(meetService.createRandomUrl());
         return savedPlan.getId();
     }
 

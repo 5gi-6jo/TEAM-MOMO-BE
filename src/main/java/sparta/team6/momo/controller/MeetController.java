@@ -7,18 +7,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sparta.team6.momo.dto.Success;
-import sparta.team6.momo.service.MapService;
+import sparta.team6.momo.service.MeetService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/maps")
-public class MapController {
+@RequestMapping("/meets")
+public class MeetController {
 
-    private final MapService mapService;
+    private final MeetService meetService;
 
     @GetMapping("/{randomUrl}") // planId
-    public ResponseEntity<?> getPlanId(@PathVariable("randomUrl") String url) {
-        Long planId = mapService.getPlanId(url);
+    public ResponseEntity<?> getPlanIdFromUrl(@PathVariable("randomUrl") String url) {
+        Long planId = meetService.getPlanId(url);
         return ResponseEntity.ok().body(new Success<>(planId));
     }
 }

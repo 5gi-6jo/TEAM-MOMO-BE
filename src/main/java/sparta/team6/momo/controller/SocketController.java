@@ -37,8 +37,8 @@ public class SocketController {
         MapDto mapDto = MapDto.from(enterDto);
 //        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
 //        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
-        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
-        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/1", enterDto);
+        simpMessagingTemplate.convertAndSend("/topic/map/1", enterDto);
     }
 
 //
