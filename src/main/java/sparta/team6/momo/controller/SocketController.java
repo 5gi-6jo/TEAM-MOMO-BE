@@ -34,8 +34,8 @@ public class SocketController {
         }
         //TODO 목적지 위도 경도 세팅
         MapDto mapDto = MapDto.from(enterDto);
-        simpMessagingTemplate.convertAndSend("topic/chat/1", chatDto);
-        simpMessagingTemplate.convertAndSend("topic/map/1", mapDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
 //
 //    @MessageMapping("/map.enter")
@@ -52,12 +52,13 @@ public class SocketController {
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-        simpMessagingTemplate.convertAndSend("topic/map/1", mapDto);
+        log.info("check");
+        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
-        simpMessagingTemplate.convertAndSend("topic/chat/1", chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
     }
 
 //    @MessageMapping("/chat.addUser")
