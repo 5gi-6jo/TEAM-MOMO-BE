@@ -9,14 +9,14 @@ import sparta.team6.momo.model.MessageType;
 public class MapDto {
     private Long planId;
     private String sender;
-    private Double lat;
-    private Double lng;
+    private String lat;
+    private String lng;
     private MessageType type;
-    private Double destLat;
-    private Double destLng;
+    private String destLat;
+    private String destLng;
 
     @Builder
-    public MapDto(Long planId, String sender, Double lat, Double lng, Double destLat, Double destLng, MessageType type) {
+    public MapDto(Long planId, String sender, String lat, String lng, String destLat, String destLng, MessageType type) {
         this.planId = planId;
         this.sender = sender;
         this.lat = lat;

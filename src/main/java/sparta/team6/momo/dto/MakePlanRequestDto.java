@@ -23,10 +23,10 @@ public class MakePlanRequestDto {
     private String destination;
 
     @NotNull(message = "위도(lat) 정보가 없습니다")
-    private Double lat;
+    private String lat;
 
     @NotNull(message = "경도(lng) 정보가 없습니다")
-    private Double lng;
+    private String lng;
 
     @Length(max = 50, message = "50자 이내로 입력해주세요")
     private String contents;

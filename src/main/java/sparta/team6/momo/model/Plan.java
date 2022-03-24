@@ -33,10 +33,10 @@ public class Plan extends TimeStamped {
     private String destination;
 
     @Column(nullable = false)
-    private Double lat;
+    private String lat;
 
     @Column(nullable = false)
-    private Double lng;
+    private String lng;
 
     @Column
     private String url;
@@ -46,7 +46,7 @@ public class Plan extends TimeStamped {
     private Account account;
 
     @Builder
-    public Plan(String planName, String contents, LocalDateTime planDate, LocalDateTime noticeTime, String destination, Double lat, Double lng) {
+    public Plan(String planName, String contents, LocalDateTime planDate, LocalDateTime noticeTime, String destination, String lat, String lng) {
         this.planName = planName;
         this.contents = contents;
         this.planDate = planDate;

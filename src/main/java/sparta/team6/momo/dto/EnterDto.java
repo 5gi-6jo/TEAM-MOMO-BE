@@ -8,7 +8,7 @@ public class EnterDto {
     private Long planId;
     private MessageType type;
     private String sender;
-    private Double lat;
-    private Double lng;
+    private String lat;
+    private String lng;
 
 }
