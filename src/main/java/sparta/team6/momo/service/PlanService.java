@@ -29,7 +29,6 @@ import static sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
 @RequiredArgsConstructor
 public class PlanService {
 
-    public static final int PAGE_SIZE = 5;
 
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
@@ -105,41 +104,6 @@ public class PlanService {
         List<ShowMainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new ShowMainResponseDto(plan));
-        }
-        return dtoList;
-    }
-
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
-        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-
-        LocalDateTime currentTime = LocalDateTime.now();
-        LocalDateTime startDate = currentTime.minusDays(period - 1);
-        startDate = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0, 0);
-
-        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
-
-        if (planList.getTotalPages() <= pageNumber) {
-            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
-        }
-
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
-        for (Plan plan : planList) {
-            dtoList.add(new ShowRecordResponseDto(plan));
-        }
-        return dtoList;
-    }
-
-    public List<ShowRecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
-        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-
-        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(userId, word, pageRequest);
-        if (searchResult.getTotalPages() <= pageNumber) {
-            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
-        }
-
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
-        for (Plan result : searchResult) {
-            dtoList.add(new ShowRecordResponseDto(result));
         }
         return dtoList;
     }

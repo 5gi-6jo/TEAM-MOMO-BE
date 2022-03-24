@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.service.PlanService;
+import sparta.team6.momo.service.RecordService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -17,12 +18,12 @@ import java.util.List;
 @RequestMapping("/records")
 public class RecordController {
 
-    private final PlanService planService;
+    private final RecordService recordService;
 
     @PostMapping
     public ResponseEntity<Object> showRecord(@RequestBody ShowRecordRequestDto requestDto, Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
-        List<ShowRecordResponseDto> dtoList = planService.showRecord(requestDto.getPageNumber(), requestDto.getPeriod(), userId);
+        List<ShowRecordResponseDto> dtoList = recordService.showRecord(requestDto.getPageNumber(), requestDto.getPeriod(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 
@@ -30,7 +31,7 @@ public class RecordController {
     @DTOValid
     public ResponseEntity<Object> searchRecord(@Valid @RequestBody SearchRecordRequestDto requestDto, BindingResult bindingResult, Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
-        List<ShowRecordResponseDto> dtoList = planService.searchRecord(requestDto.getWord(), requestDto.getPageNumber(), userId);
+        List<ShowRecordResponseDto> dtoList = recordService.searchRecord(requestDto.getWord(), requestDto.getPageNumber(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 
