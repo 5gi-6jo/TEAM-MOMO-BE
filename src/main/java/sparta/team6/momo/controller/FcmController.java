@@ -19,10 +19,21 @@ public class FcmController {
 
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
-//        @PostMapping("/fcm")
+    @PostMapping("/fcm")
+    public ResponseEntity<Object> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
+        System.out.println(requestDto.getTargetToken() + " " + requestDto.getTitle() + " " + requestDto.getBody());
+
+        firebaseCloudMessageService.sendMessageTo(
+                requestDto.getTargetToken(),
+                requestDto.getTitle(),
+                requestDto.getBody(),
+                requestDto.getPath());
+
+        return ResponseEntity.ok().body(new Success<>("전송 완료", requestDto));
+    }
+//    @PostMapping("/fcm")
 //    public ResponseEntity<Object> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
-//        System.out.println(requestDto.getTargetToken() + " " + requestDto.getTitle() + " " + requestDto.getBody());
-//
+//        //TODO: 디바이스 토큰 정보를 받는 api. 토큰 정보를 받아서 user db에 저장한다
 //        firebaseCloudMessageService.sendMessageTo(
 //                requestDto.getTargetToken(),
 //                requestDto.getTitle(),
@@ -30,14 +41,4 @@ public class FcmController {
 //
 //        return ResponseEntity.ok().body(new Success<>("전송 완료", requestDto));
 //    }
-    @PostMapping("/fcm")
-    public ResponseEntity<Object> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
-        //TODO: 디바이스 토큰 정보를 받는 api. 토큰 정보를 받아서 user db에 저장한다
-        firebaseCloudMessageService.sendMessageTo(
-                requestDto.getTargetToken(),
-                requestDto.getTitle(),
-                requestDto.getBody());
-
-        return ResponseEntity.ok().body(new Success<>("전송 완료", requestDto));
-    }
 }

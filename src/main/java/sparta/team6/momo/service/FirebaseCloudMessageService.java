@@ -8,11 +8,20 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import sparta.team6.momo.dto.FcmMessage;
+import sparta.team6.momo.model.Plan;
+import sparta.team6.momo.repository.PlanRepository;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -20,13 +29,17 @@ import java.util.stream.IntStream;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@EnableScheduling
 public class FirebaseCloudMessageService {
-    //    private final String API_URL = "https://fcm.googleapis.com/v1/projects/momo-cbc21/message:send";
+    //    private final String API_URL = "https://fcm.googleapis.com/v1/projects/momo-cbc21/messages:send";
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/test-pwa-b91b2/messages:send";
     private final ObjectMapper objectMapper;
+    private final PlanRepository planRepository;
 
-    public void sendMessageTo(String targetToken, String title, String body) throws IOException {
-        String message = makeMessage(targetToken, title, body);
+    public void sendMessageTo(String targetToken, String title, String body, String path) throws IOException {
+
+
+        String message = makeMessage(targetToken, title, body, path);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -41,8 +54,24 @@ public class FirebaseCloudMessageService {
         log.info(response.body().string());
     }
 
+    @Scheduled(cron = "0 0/1 * * * *")
+    @Transactional
+    public void test() throws Exception {
+        log.info(new Date() + "스케쥴러 실행");
+//        LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+//        LocalDateTime end = start.plusMinutes(5);
+        LocalDateTime start = LocalDateTime.now().minusYears(1);
+        LocalDateTime end = LocalDateTime.now().plusYears(1);
+        List<Plan> planList = planRepository.findAllByNoticeTimeBetween(start, end);
 
-    private String makeMessage(String targetToken, String title, String body) throws JsonProcessingException {
+        for (Plan plan : planList) {
+            sendMessageTo(plan.getAccount().getToken(), "테스트", "테스트", plan.getUrl());
+        }
+    }
+
+
+    private String makeMessage(String targetToken, String title, String body, String path) throws JsonProcessingException {
+
 //        List<String> tokenList = IntStream.rangeClosed(1, 20).mapToObj(index
 //                -> push.getRegistrationToken()).collect(Collectors.toList());
 
@@ -55,11 +84,16 @@ public class FirebaseCloudMessageService {
                                 .image(null)
                                 .build()
                         )
+                        .data(FcmMessage.FcmData.builder()
+                                .path(path)
+                                .build()
+                        )
                         .build()
                 )
                 .validateOnly(false)
                 .build();
 
+        log.info(objectMapper.writeValueAsString(fcmMessage));
         return objectMapper.writeValueAsString(fcmMessage);
     }
 
