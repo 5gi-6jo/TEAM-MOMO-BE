@@ -60,6 +60,7 @@ public class Account extends TimeStamped {
 
     private static final String prefix = "GUEST_";
     private static final String suffix = "@MOMO.COM";
+
     public static Account createGuest(String nickname) {
         String pw = UUID.randomUUID().toString();
         String email = prefix + nickname + suffix;
@@ -74,5 +75,9 @@ public class Account extends TimeStamped {
         String password = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
         String nickname = properties.get("nickname");
         return new Account(email, password, nickname, ROLE_USER);
+    }
+
+    public void update(String token) {
+        this.token = token;
     }
 }

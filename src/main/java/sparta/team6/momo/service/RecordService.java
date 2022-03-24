@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import sparta.team6.momo.dto.ShowRecordResponseDto;
+import sparta.team6.momo.dto.RecordResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.Plan;
@@ -25,7 +25,7 @@ public class RecordService {
     private static PlanRepository planRepository;
 
 
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
+    public List<RecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
         LocalDateTime currentTime = LocalDateTime.now();
@@ -38,14 +38,14 @@ public class RecordService {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }
 
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
+        List<RecordResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
-            dtoList.add(new ShowRecordResponseDto(plan));
+            dtoList.add(new RecordResponseDto(plan));
         }
         return dtoList;
     }
 
-    public List<ShowRecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
+    public List<RecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
         Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(userId, word, pageRequest);
@@ -53,9 +53,9 @@ public class RecordService {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }
 
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
+        List<RecordResponseDto> dtoList = new ArrayList<>();
         for (Plan result : searchResult) {
-            dtoList.add(new ShowRecordResponseDto(result));
+            dtoList.add(new RecordResponseDto(result));
         }
         return dtoList;
     }

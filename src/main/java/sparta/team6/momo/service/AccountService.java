@@ -13,12 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import sparta.team6.momo.dto.DeviceTokenRequestDto;
 import sparta.team6.momo.dto.SignupRequestDto;
 import sparta.team6.momo.dto.TokenDto;
 import sparta.team6.momo.dto.AccountResponseDto;
 import sparta.team6.momo.exception.CustomException;
 import sparta.team6.momo.exception.ErrorCode;
 import sparta.team6.momo.model.Account;
+import sparta.team6.momo.model.Plan;
 import sparta.team6.momo.repository.AccountRepository;
 import sparta.team6.momo.security.jwt.TokenProvider;
 import sparta.team6.momo.security.jwt.TokenUtils;
@@ -26,15 +28,13 @@ import sparta.team6.momo.security.jwt.TokenUtils;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
-import static sparta.team6.momo.exception.ErrorCode.INVALID_REFRESH_TOKEN;
+import static sparta.team6.momo.exception.ErrorCode.*;
 import static sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AccountService {
-
 
 
     private final AccountRepository accountRepository;
@@ -73,7 +73,7 @@ public class AccountService {
         Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-   }
+    }
 
 
     public TokenDto reissue(String accessToken, String refreshToken) {
@@ -95,6 +95,14 @@ public class AccountService {
     public String getNickname(String email) {
         Optional<Account> user = accountRepository.findByEmail(email);
         return user.map(Account::getNickname).orElse(null);
+    }
+
+    @Transactional
+    public void updateDeviceToken(String token, Long userId) {
+        Account savedAccount = accountRepository.findById(userId).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        savedAccount.update(token);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {

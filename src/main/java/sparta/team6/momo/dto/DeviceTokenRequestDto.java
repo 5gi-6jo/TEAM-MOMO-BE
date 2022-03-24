@@ -7,11 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-public class SearchRecordRequestDto {
-
-    private Long pageNumber = 0L;
-
-    @NotBlank(message = "검색어를 입력해주세요")
-    private String word;
-
+public class DeviceTokenRequestDto {
+    @NotBlank
+    private String token;
 }
