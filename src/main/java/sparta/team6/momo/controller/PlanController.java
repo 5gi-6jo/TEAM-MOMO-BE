@@ -61,4 +61,9 @@ public class PlanController {
         List<ShowMainResponseDto> dtoList = planService.showMain(requestDto.getDate(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
+
+    @GetMapping("/test")
+    public Long test() {
+
+    }
 }
