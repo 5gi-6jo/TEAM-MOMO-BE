@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class ShowMainResponseDto {
+public class MainResponseDto {
     private Long planId;
     private String planName;
     private LocalDateTime planDate;
     private boolean isFinished;
 
-    public ShowMainResponseDto(Plan plan) {
+    public MainResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planDate = plan.getPlanDate();
         this.planName = plan.getPlanName();

@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class ShowRecordResponseDto {
+public class RecordResponseDto {
     private Long planId;
     private LocalDateTime planDate;
     private String planName;
     private String destination;
     private boolean isFinished;
 
-    public ShowRecordResponseDto(Plan plan) {
+    public RecordResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planDate = plan.getPlanDate();
         this.planName = plan.getPlanName();
