@@ -37,7 +37,7 @@ public class UserController {
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
         accountService.registerUser(requestDto);
-        return ResponseEntity.ok().body(new Success<>());
+        return ResponseEntity.ok().body(new Success<>("회원가입 성공"));
     }
 
 
@@ -53,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>(new LoginResponseDto(nickname)));
+                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname)));
     }
 
     // 로그아웃

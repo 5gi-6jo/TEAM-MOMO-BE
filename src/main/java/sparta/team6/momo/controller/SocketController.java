@@ -48,11 +48,4 @@ public class SocketController {
     public void sendChat(@Payload ChatDto chatDto) {
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
-
-//    @MessageMapping("/chat.addUser")
-//    @SendTo("/topic/public")
-//    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor){
-//        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-//        return chatMessage;
-//    }
 }
