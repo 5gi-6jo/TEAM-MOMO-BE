@@ -21,7 +21,7 @@ public class SocketService {
     public void setDestination(Long planId, MapDto mapDto) {
         Plan plan = planRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(PLAN_NOT_FOUND));
-        mapDto.setDestLat(String.valueOf(plan.getLat()));
-        mapDto.setDestLng(String.valueOf(plan.getLng()));
+        mapDto.setDestLat(plan.getLat());
+        mapDto.setDestLng(plan.getLng());
     }
 }
