@@ -49,7 +49,6 @@ public class Account extends TimeStamped {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Plan> planList = new ArrayList<>();
 
-    @Column
     private String token;
 
     public Account(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {
