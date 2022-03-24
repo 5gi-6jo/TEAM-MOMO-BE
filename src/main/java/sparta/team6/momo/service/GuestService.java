@@ -1,6 +1,7 @@
 package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.type.UUIDCharType;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import sparta.team6.momo.security.auth.MoMoUser;
 import sparta.team6.momo.security.jwt.TokenProvider;
 
 import java.util.Collections;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static sparta.team6.momo.model.UserRole.ROLE_GUEST;
@@ -29,9 +31,9 @@ public class GuestService {
     private final RedisTemplate<String, String> redisTemplate;
 
     public TokenDto connectGuest(String nickname) {
-        //TODO: GUEST 유저 강제 회원가입
-        Account account = new Account("TODO", "TODO", nickname, ROLE_GUEST);
+        Account account = Account.createGuest(nickname);
         Account savedGuest = accountRepository.save(account);
+
 
 
         MoMoUser principal = new MoMoUser(savedGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(Authority.GUEST)));
@@ -42,4 +44,6 @@ public class GuestService {
                 .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
         return tokenDto;
     }
+
+
 }

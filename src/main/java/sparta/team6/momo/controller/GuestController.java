@@ -21,7 +21,6 @@ public class GuestController {
 
     @PostMapping
     public ResponseEntity<?> connectGuest(@RequestBody GuestRequestDto requestDto) {
-        log.info("connect");
         TokenDto tokenDto = guestService.connectGuest(requestDto.getNickname());
         return ResponseEntity.ok()
                 .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())

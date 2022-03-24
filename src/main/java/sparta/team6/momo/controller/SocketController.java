@@ -32,45 +32,20 @@ public class SocketController {
 //            attributes.put("nickname", chatDto.getSender());
 //            attributes.put("planId", chatDto.getPlanId());
 //        }
-        //TODO 목적지 위도 경도 세팅
-        log.info("enter로 접속하였습니다!");
         MapDto mapDto = MapDto.from(enterDto);
-//        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
-//        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
-        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
-        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
-    }
+        socketService.setDestination(enterDto.getPlanId(), mapDto);
 
-//
-//    @MessageMapping("/map.enter")
-//    public void enterMap(@Payload MapDto mapDto) {
-//        //TODO 목적지 위도 경도 세팅
-//        simpMessagingTemplate.convertAndSend("topic/map/" + mapDto.getPlanId(), mapDto);
-//    }
-//
-//    @MessageMapping("/chat.enter")
-//    public void enterChat(@Payload ChatDto chatDto) {
-//        chatDto.setMessage(chatDto.getSender() + "님이 입장하셨습니다");
-//        simpMessagingTemplate.convertAndSend("topic/chat/" + chatDto.getPlanId(), chatDto);
-//    }
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
+    }
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
-//        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
-        log.info("info");
-        simpMessagingTemplate.convertAndSend("/topic/map/1", mapDto);
+        simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
-//        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
-        simpMessagingTemplate.convertAndSend("/topic/chat/1", chatDto);
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
-
-//    @MessageMapping("/chat.addUser")
-//    @SendTo("/topic/public")
-//    public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor){
-//        headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-//        return chatMessage;
-//    }
 }
