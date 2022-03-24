@@ -7,11 +7,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sparta.team6.momo.annotation.DTOValid;
 import sparta.team6.momo.dto.*;
+import sparta.team6.momo.model.Plan;
+import sparta.team6.momo.repository.PlanRepository;
 import sparta.team6.momo.service.PlanService;
 import sparta.team6.momo.utils.AccountUtils;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class PlanController {
 
     private final PlanService planService;
     private final AccountUtils accountUtils;
+
 
     /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping

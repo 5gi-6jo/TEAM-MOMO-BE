@@ -16,13 +16,14 @@ public class MapDto {
     private String destLng;
 
     @Builder
-    public MapDto(Long planId, String sender, String lat, String lng, String destLat, String destLng) {
+    public MapDto(Long planId, String sender, String lat, String lng, String destLat, String destLng, MessageType type) {
         this.planId = planId;
         this.sender = sender;
         this.lat = lat;
         this.lng = lng;
         this.destLat = destLat;
         this.destLng = destLng;
+        this.type = type;
     }
 
 
@@ -32,6 +33,7 @@ public class MapDto {
                 .sender(enterDto.getSender())
                 .lat(enterDto.getLat())
                 .lng(enterDto.getLng())
+                .type(MessageType.DEST)
                 .build();
     }
 }
