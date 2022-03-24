@@ -61,10 +61,4 @@ public class PlanController {
         List<ShowMainResponseDto> dtoList = planService.showMain(requestDto.getDate(), userId);
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
-
-    @GetMapping("/test")
-    public String test() {
-        Optional<Plan> plan = planRepository.findById(1L);
-        return plan.get().getUrl();
-    }
 }
