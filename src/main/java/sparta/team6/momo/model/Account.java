@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static sparta.team6.momo.model.UserRole.ROLE_GUEST;
 import static sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Entity
@@ -48,6 +49,7 @@ public class Account extends TimeStamped {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Plan> planList = new ArrayList<>();
 
+    @Column
     private String token;
 
     public Account(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {
@@ -56,6 +58,15 @@ public class Account extends TimeStamped {
         this.nickname = nickname;
         this.userRole = userRole;
     }
+
+    private static final String prefix = "GUEST_";
+    private static final String suffix = "@MOMO.COM";
+    public static Account createGuest(String nickname) {
+        String pw = UUID.randomUUID().toString();
+        String email = prefix + nickname + suffix;
+        return new Account(email, pw, nickname, ROLE_GUEST);
+    }
+
 
     public static Account fromKakao(OAuth2User oAuth2User) {
         Map<String, String> kakao_account = oAuth2User.getAttribute("kakao_account");
