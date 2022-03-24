@@ -54,14 +54,14 @@ public class FirebaseCloudMessageService {
         log.info(response.body().string());
     }
 
-    @Scheduled(cron = "0 0/1 * * * *")
+    @Scheduled(cron = "0 0/5 * * * *")
     @Transactional
     public void test() throws Exception {
         log.info(new Date() + "스케쥴러 실행");
 //        LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 //        LocalDateTime end = start.plusMinutes(5);
-        LocalDateTime start = LocalDateTime.now().minusYears(1);
-        LocalDateTime end = LocalDateTime.now().plusYears(1);
+        LocalDateTime start = LocalDateTime.now().minusMonths(1);
+        LocalDateTime end = LocalDateTime.now().plusMonths(1);
         List<Plan> planList = planRepository.findAllByNoticeTimeBetween(start, end);
 
         for (Plan plan : planList) {
