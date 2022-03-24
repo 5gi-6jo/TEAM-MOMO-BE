@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ShowRecordRequestDto {
+public class RecordRequestDto {
 
     private Long pageNumber = 0L;
 

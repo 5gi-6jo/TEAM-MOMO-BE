@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
-public class MakePlanRequestDto {
+public class PlanRequestDto {
 
     @Length(max = 20, message = "20자 이내로 입력해주세요")
     @NotBlank(message = "모임 이름을 입력해주세요")
@@ -44,7 +44,7 @@ public class MakePlanRequestDto {
         return planDate.minusMinutes(noticeTime);
     }
 
-    public Plan toEntityPlan() {
+    public Plan toEntity() {
         return Plan.builder()
                 .planName(planName)
                 .contents(contents)

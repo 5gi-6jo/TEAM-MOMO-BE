@@ -34,7 +34,8 @@ public class UserController {
     // 회원가입
     @Operation(summary = "회원가입", description = "")
     @PostMapping("/signup")
-    @LogoutCheck @DTOValid
+    @LogoutCheck
+    @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
         accountService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>("회원가입 성공"));
@@ -43,7 +44,8 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    @LogoutCheck @DTOValid
+    @LogoutCheck
+    @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
         TokenDto jwt = accountService.loginUser(requestDto.getEmail(), requestDto.getPassword());
         String nickname = accountService.getNickname(requestDto.getEmail());
@@ -98,6 +100,11 @@ public class UserController {
                 .body(new Success<>());
     }
 
+    @PostMapping("/device")
+    public ResponseEntity<Object> updateDeviceToken(@RequestBody @Valid DeviceTokenRequestDto requestDto, BindingResult bindingResult) {
+        accountService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
+        return ResponseEntity.ok().body(new Success<>("저장 완료"));
+    }
 
     private ResponseCookie createTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)
@@ -107,5 +114,4 @@ public class UserController {
                 .maxAge(6000000)
                 .build();
     }
-
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class ShowDetailResponseDto {
+public class DetailResponseDto {
     private LocalDateTime planDate;
 
     private String planName;
@@ -22,7 +22,7 @@ public class ShowDetailResponseDto {
     private String contents;
 
     @Builder
-    public ShowDetailResponseDto(LocalDateTime planDate, String planName, String destination, List<ImageDto> imageList, String contents) {
+    public DetailResponseDto(LocalDateTime planDate, String planName, String destination, List<ImageDto> imageList, String contents) {
         this.planDate = planDate;
         this.planName = planName;
         this.destination = destination;
@@ -30,8 +30,8 @@ public class ShowDetailResponseDto {
         this.imageList = imageList;
     }
 
-    public static ShowDetailResponseDto of(Plan plan, List<ImageDto> imageList) {
-        return ShowDetailResponseDto.builder()
+    public static DetailResponseDto of(Plan plan, List<ImageDto> imageList) {
+        return DetailResponseDto.builder()
                 .planDate(plan.getPlanDate())
                 .planName(plan.getPlanName())
                 .destination(plan.getDestination())

@@ -1,10 +1,6 @@
 package sparta.team6.momo.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import sparta.team6.momo.dto.*;
 import sparta.team6.momo.exception.CustomException;
@@ -29,7 +25,6 @@ import static sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
 @RequiredArgsConstructor
 public class PlanService {
 
-    public static final int PAGE_SIZE = 5;
 
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
@@ -38,8 +33,8 @@ public class PlanService {
     private final MeetService meetService;
 
     @Transactional
-    public Long savePlan(MakePlanRequestDto request, Long userId) {
-        Plan savedPlan = planRepository.save(request.toEntityPlan());
+    public Long savePlan(PlanRequestDto request, Long userId) {
+        Plan savedPlan = planRepository.save(request.toEntity());
         Account account = accountRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
@@ -65,18 +60,19 @@ public class PlanService {
     }
 
     @Transactional
-    public void updatePlan(Long planId, MakePlanRequestDto requestDto, Long userId) {
+    public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long userId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
         if (userId.equals(savedPlan.getAccount().getId())) {
             savedPlan.update(requestDto);
+            return PlanResponseDto.of(savedPlan);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
 
-    public ShowDetailResponseDto showDetail(Long planId, Long userId) {
+    public DetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
@@ -86,7 +82,7 @@ public class PlanService {
             for (Image image : imageList) {
                 imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
             }
-            return ShowDetailResponseDto.of(plan, imageDtoList);
+            return DetailResponseDto.of(plan, imageDtoList);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
@@ -95,49 +91,14 @@ public class PlanService {
         // plan entity가 image entity를 참조하지 않기 때문에 join 불가능(단방향 연관관계)
     }
 
-    public List<ShowMainResponseDto> showMain(LocalDateTime date, Long userId) {
+    public List<MainResponseDto> showMain(LocalDateTime date, Long userId) {
         LocalDateTime monthStart = LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 
         List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, monthStart, monthEnd);
-        List<ShowMainResponseDto> dtoList = new ArrayList<>();
+        List<MainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
-            dtoList.add(new ShowMainResponseDto(plan));
-        }
-        return dtoList;
-    }
-
-    public List<ShowRecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
-        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-
-        LocalDateTime currentTime = LocalDateTime.now();
-        LocalDateTime startDate = currentTime.minusDays(period - 1);
-        startDate = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0, 0);
-
-        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
-
-        if (planList.getTotalPages() <= pageNumber) {
-            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
-        }
-
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
-        for (Plan plan : planList) {
-            dtoList.add(new ShowRecordResponseDto(plan));
-        }
-        return dtoList;
-    }
-
-    public List<ShowRecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
-        Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-
-        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(userId, word, pageRequest);
-        if (searchResult.getTotalPages() <= pageNumber) {
-            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
-        }
-
-        List<ShowRecordResponseDto> dtoList = new ArrayList<>();
-        for (Plan result : searchResult) {
-            dtoList.add(new ShowRecordResponseDto(result));
+            dtoList.add(new MainResponseDto(plan));
         }
         return dtoList;
     }
