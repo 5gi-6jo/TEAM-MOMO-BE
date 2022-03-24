@@ -9,11 +9,11 @@ import sparta.team6.momo.model.Plan;
 @NoArgsConstructor
 public class PlanResponseDto {
     Long planId;
-    Double lat;
-    Double lng;
+    String lat;
+    String lng;
 
     @Builder
-    public PlanResponseDto(Long planId, Double lat, Double lng) {
+    public PlanResponseDto(Long planId, String lat, String lng) {
         this.planId = planId;
         this.lat = lat;
         this.lng = lng;
