@@ -34,6 +34,7 @@ public class SocketController {
 //        }
         MapDto mapDto = MapDto.from(enterDto);
         socketService.setDestination(enterDto.getPlanId(), mapDto);
+        log.info("enter");
 
         simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
