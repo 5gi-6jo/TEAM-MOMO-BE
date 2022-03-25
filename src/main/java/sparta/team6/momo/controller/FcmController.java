@@ -27,7 +27,7 @@ public class FcmController {
                 requestDto.getTargetToken(),
                 requestDto.getTitle(),
                 requestDto.getBody(),
-                requestDto.getPath());
+                requestDto.getUrl());
 
         return ResponseEntity.ok().body(new Success<>("push message 전송 완료"));
     }
