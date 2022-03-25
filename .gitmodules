@@ -1,0 +1,3 @@
+[submodule "config"]
+	path = config
+	url = https://github.com/5gi-6jo/BE_PROPERTIES.git
