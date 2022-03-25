@@ -34,6 +34,6 @@ public class FcmMessage {
     @AllArgsConstructor
     @Getter
     public static class FcmData {
-        private String path;
+        private String url;
     }
 }

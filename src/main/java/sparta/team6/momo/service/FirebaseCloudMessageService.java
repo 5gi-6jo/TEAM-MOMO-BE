@@ -36,10 +36,10 @@ public class FirebaseCloudMessageService {
     private final ObjectMapper objectMapper;
     private final PlanRepository planRepository;
 
-    public void sendMessageTo(String targetToken, String title, String body, String path) throws IOException {
+    public void sendMessageTo(String targetToken, String title, String body, String url) throws IOException {
 
 
-        String message = makeMessage(targetToken, title, body, path);
+        String message = makeMessage(targetToken, title, body, url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -70,7 +70,7 @@ public class FirebaseCloudMessageService {
     }
 
 
-    private String makeMessage(String targetToken, String title, String body, String path) throws JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body, String url) throws JsonProcessingException {
 
 //        List<String> tokenList = IntStream.rangeClosed(1, 20).mapToObj(index
 //                -> push.getRegistrationToken()).collect(Collectors.toList());
@@ -85,7 +85,7 @@ public class FirebaseCloudMessageService {
                                 .build()
                         )
                         .data(FcmMessage.FcmData.builder()
-                                .path(path)
+                                .url(url)
                                 .build()
                         )
                         .build()
