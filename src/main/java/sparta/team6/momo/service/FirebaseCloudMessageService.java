@@ -31,8 +31,8 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 @EnableScheduling
 public class FirebaseCloudMessageService {
-        private final String API_URL = "https://fcm.googleapis.com/v1/projects/momo-cbc21/messages:send";
-//    private final String API_URL = "https://fcm.googleapis.com/v1/projects/test-pwa-b91b2/messages:send";
+    private final String API_URL = "https://fcm.googleapis.com/v1/projects/momo-cbc21/messages:send";
+    //    private final String API_URL = "https://fcm.googleapis.com/v1/projects/test-pwa-b91b2/messages:send";
     private final ObjectMapper objectMapper;
     private final PlanRepository planRepository;
 
@@ -82,10 +82,10 @@ public class FirebaseCloudMessageService {
                                 .title(title)
                                 .body(body)
                                 .image(null)
-                                .build()
-                        )
-                        .data(FcmMessage.FcmData.builder()
-                                .url(url)
+                                .data(FcmMessage.FcmData.builder()
+                                        .url(url)
+                                        .build()
+                                )
                                 .build()
                         )
                         .build()
