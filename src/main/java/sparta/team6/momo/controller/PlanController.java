@@ -21,9 +21,6 @@ public class PlanController {
     private final PlanService planService;
     private final AccountUtils accountUtils;
 
-    //test용
-    private final PlanRepository planRepository;
-
 
     /* @Valid 파라미터 바로 뒤에 무조건 BindingResult 파라미터가 위치해야함 */
     @PostMapping
@@ -58,10 +55,4 @@ public class PlanController {
         List<MainResponseDto> dtoList = planService.showMain(requestDto.getDate(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
-
-    @GetMapping("/test")
-    public String test() {
-        return planRepository.findById(6L).get().getUrl();
-    }
-
 }
