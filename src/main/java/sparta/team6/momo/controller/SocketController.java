@@ -34,19 +34,20 @@ public class SocketController {
 //        }
         MapDto mapDto = MapDto.from(enterDto);
         socketService.setDestination(enterDto.getPlanId(), mapDto);
-        log.info("enter");
-
+        log.info("enter에 접속");
         simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
 
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
+        log.info("map에 접속");
         simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
+        log.info("chat에 접속");
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
 }
