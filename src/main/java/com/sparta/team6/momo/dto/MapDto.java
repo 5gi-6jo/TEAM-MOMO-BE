@@ -30,7 +30,7 @@ public class MapDto {
     public static MapDto from(EnterDto enterDto) {
         return MapDto.builder()
                 .planId(enterDto.getPlanId())
-                .sender(enterDto.getSender())
+                .sender(null)
                 .lat(enterDto.getLat())
                 .lng(enterDto.getLng())
                 .type(MessageType.DEST)
