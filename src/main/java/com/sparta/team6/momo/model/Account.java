@@ -47,7 +47,7 @@ public class Account extends TimeStamped {
     private final List<Plan> planList = new ArrayList<>();
 
     @Column
-    private String token = "fTSptHOorKscQxBl3TsbJr:APA91bGCx0LEVyoAwaZQ8-GdLceYanJqab-qUqbsBIiHwO47xlNmC6Npa0FopOZ4q7kAoGcsDFnsBqVakLrut-hk8h8eTXYCv4ojB4It68AlZEm02c432nAFegAKOjnKrUCfgPrdLvkn";
+    private String token;
 
     public Account(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {
         this.email = email;
