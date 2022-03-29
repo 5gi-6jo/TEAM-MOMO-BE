@@ -33,7 +33,7 @@ public class SwaggerConfig {
                 .securitySchemes(Collections.singletonList(apiKey()))
                 .useDefaultResponseMessages(false)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("sparta.team6.momo.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.sparta.team6.momo.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
