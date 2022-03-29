@@ -22,17 +22,15 @@ public class RecordService {
 
     public static final int PAGE_SIZE = 5;
 
-    private static PlanRepository planRepository;
+    private final PlanRepository planRepository;
 
-
-    public List<RecordResponseDto> showRecord(Long pageNumber, Long period, Long userId) {
+    public List<RecordResponseDto> showRecord(Long pageNumber, Long period, Long accountId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
         LocalDateTime currentTime = LocalDateTime.now();
-        LocalDateTime startDate = currentTime.minusDays(period - 1);
-        startDate = LocalDateTime.of(startDate.getYear(), startDate.getMonth(), startDate.getDayOfMonth(), 0, 0, 0);
-
-        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, startDate, currentTime, pageRequest);
+        LocalDateTime tempDate = currentTime.minusDays(period - 1);
+        LocalDateTime startDate = LocalDateTime.of(tempDate.getYear(), tempDate.getMonth(), tempDate.getDayOfMonth(), 0, 0, 0);
+        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(accountId, startDate, currentTime, pageRequest);
 
         if (planList.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
@@ -45,10 +43,10 @@ public class RecordService {
         return dtoList;
     }
 
-    public List<RecordResponseDto> searchRecord(String word, Long pageNumber, Long userId) {
+    public List<RecordResponseDto> searchRecord(String keyword, Long pageNumber, Long accountId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
-        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(userId, word, pageRequest);
+        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(accountId, keyword, pageRequest);
         if (searchResult.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }

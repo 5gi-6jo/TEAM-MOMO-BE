@@ -15,6 +15,7 @@ import com.sparta.team6.momo.repository.PlanRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +34,9 @@ public class PlanService {
     private final MeetService meetService;
 
     @Transactional
-    public Long savePlan(PlanRequestDto request, Long userId) {
+    public Long savePlan(PlanRequestDto request, Long accountId) {
         Plan savedPlan = planRepository.save(request.toEntity());
-        Account account = accountRepository.findById(userId).orElseThrow(
+        Account account = accountRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
         savedPlan.addPlan(account);
@@ -44,11 +45,11 @@ public class PlanService {
     }
 
     @Transactional
-    public void deletePlan(Long planId, Long userId) {
+    public void deletePlan(Long planId, Long accountId) {
         Plan result = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(result.getAccount().getId())) {
+        if (accountId.equals(result.getAccount().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
@@ -60,11 +61,11 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long userId) {
+    public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long accountId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(savedPlan.getAccount().getId())) {
+        if (accountId.equals(savedPlan.getAccount().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
         } else {
@@ -72,11 +73,11 @@ public class PlanService {
         }
     }
 
-    public DetailResponseDto showDetail(Long planId, Long userId) {
+    public DetailResponseDto showDetail(Long planId, Long accountId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (userId.equals(plan.getAccount().getId())) {
+        if (accountId.equals(plan.getAccount().getId())) {
             List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : imageList) {
@@ -86,16 +87,16 @@ public class PlanService {
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
-        //TODO: 쿼리2번 조회하지말고 테이블 join해서 쿼리 한번에 가져오게 하기
-        // 시도해봤으나, image가 비어있는 경우에 plan 데이터를 받아오지못해서 에러 발생함
-        // plan entity가 image entity를 참조하지 않기 때문에 join 불가능(단방향 연관관계)
     }
 
-    public List<MainResponseDto> showMain(LocalDateTime date, Long userId) {
-        LocalDateTime monthStart = LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0, 0);
+    public List<MainResponseDto> showMain(String date, Long accountId) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        System.out.println(dateTime);
+        LocalDateTime monthStart = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 
-        List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(userId, monthStart, monthEnd);
+        List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(accountId, monthStart, monthEnd);
         List<MainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new MainResponseDto(plan));

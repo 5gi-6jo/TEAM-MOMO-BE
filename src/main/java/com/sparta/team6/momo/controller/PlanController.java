@@ -4,6 +4,7 @@ import com.sparta.team6.momo.annotation.DTOValid;
 import com.sparta.team6.momo.dto.*;
 import com.sparta.team6.momo.service.PlanService;
 import com.sparta.team6.momo.utils.AccountUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -48,10 +49,10 @@ public class PlanController {
         return ResponseEntity.ok().body(new Success<>("조회 완료", responseDto));
     }
 
-    @PostMapping("/main")
-    @DTOValid
-    public ResponseEntity<Object> showMain(@Valid @RequestBody MainRequestDto requestDto, BindingResult bindingResult) {
-        List<MainResponseDto> dtoList = planService.showMain(requestDto.getDate(), accountUtils.getCurUserId());
+    //    /plans?date=2022-03-29T00:00:00
+    @GetMapping
+    public ResponseEntity<Object> showMain(@RequestParam("date") String date) {
+        List<MainResponseDto> dtoList = planService.showMain(date, accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }
