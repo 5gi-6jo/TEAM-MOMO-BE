@@ -20,7 +20,7 @@ public class GuestController {
     private final GuestService guestService;
 
     @PostMapping
-    public ResponseEntity<?> connectGuest(@RequestBody GuestRequestDto requestDto) {
+    public ResponseEntity<Object> connectGuest(@RequestBody GuestRequestDto requestDto) {
         TokenDto tokenDto = guestService.connectGuest(requestDto.getNickname());
         return ResponseEntity.ok()
                 .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())

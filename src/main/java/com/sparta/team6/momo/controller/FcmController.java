@@ -16,7 +16,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class FcmController {
-
+    // 배포 시 삭제할 controller 입니다(테스트용)
     private final FirebaseCloudMessageService firebaseCloudMessageService;
 
     @PostMapping("/fcm")

@@ -82,7 +82,7 @@ public class UserController {
                 .body(new Success<>());
     }
 
-    @GetMapping("/login")
+    @GetMapping
     public ResponseEntity<?> getUserInfo() {
         log.info("ok");
         AccountResponseDto userInfo = accountService.getUserInfo(accountUtils.getCurUserId());

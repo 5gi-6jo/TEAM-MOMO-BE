@@ -23,17 +23,19 @@ public class RecordController {
     private final RecordService recordService;
     private final AccountUtils accountUtils;
 
-    @PostMapping
-    public ResponseEntity<Object> showRecord(@RequestBody RecordRequestDto requestDto) {
-        List<RecordResponseDto> dtoList = recordService.showRecord(requestDto.getPageNumber(), requestDto.getPeriod(), accountUtils.getCurUserId());
+    //    @PostMapping
+    @GetMapping
+    public ResponseEntity<Object> showRecord(@RequestParam("pageNumber") Long pageNumber, @RequestParam("period") Long period) {
+        List<RecordResponseDto> dtoList = recordService.showRecord(pageNumber, period, accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 
-    @PostMapping("/search")
-    @DTOValid
-    public ResponseEntity<Object> searchRecord(@Valid @RequestBody RecordSearchRequestDto requestDto, BindingResult bindingResult) {
-        List<RecordResponseDto> dtoList = recordService.searchRecord(requestDto.getWord(), requestDto.getPageNumber(), accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
+    //    @PostMapping("/search")
+    @GetMapping("/search")
+//    public ResponseEntity<Object> searchRecord(@RequestBody RecordSearchRequestDto requestDto) {
+    public ResponseEntity<Object> searchRecord(@RequestParam("pageNumber") Long pageNumber, @RequestParam("keyword") String keyword) {
+        List<RecordResponseDto> dtoList = recordService.searchRecord(keyword, pageNumber, accountUtils.getCurUserId());
+        return ResponseEntity.ok().body(new Success<>("검색 완료", dtoList));
     }
 
 }

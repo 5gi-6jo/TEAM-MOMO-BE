@@ -31,7 +31,7 @@ public class FileUploadService {
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
     @Transactional
-    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long userId) {
+    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long accountId) {
         List<ImageDto> imageDtoList = new ArrayList<>();
 
         for (MultipartFile multipartFile : files) {
@@ -47,7 +47,7 @@ public class FileUploadService {
             }
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
-            if (plan.isPresent() && userId.equals(plan.get().getAccount().getId())) {
+            if (plan.isPresent() && accountId.equals(plan.get().getAccount().getId())) {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
@@ -72,10 +72,10 @@ public class FileUploadService {
         }
     }
 
-    public List<ImageDto> showImage(Long planId, Long userId) {
+    public List<ImageDto> showImage(Long planId, Long accountId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         try {
-            if (userId.equals(imageList.get(0).getPlan().getAccount().getId())) {
+            if (accountId.equals(imageList.get(0).getPlan().getAccount().getId())) {
                 List<ImageDto> dtoList = new ArrayList<>();
                 for (Image image : imageList) {
                     dtoList.add(new ImageDto(image.getId(), image.getImage()));
@@ -90,9 +90,9 @@ public class FileUploadService {
 
     }
 
-    public void deleteImageS3(Long imageId, Long userId) {
+    public void deleteImageS3(Long imageId, Long accountId) {
         Optional<Image> image = imageRepository.findById(imageId);
-        if (image.isPresent() && userId.equals(image.get().getPlan().getAccount().getId())) {
+        if (image.isPresent() && accountId.equals(image.get().getPlan().getAccount().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
         } else {
