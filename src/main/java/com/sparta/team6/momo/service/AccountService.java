@@ -94,11 +94,19 @@ public class AccountService {
     }
 
     @Transactional
-    public void updateDeviceToken(String token, Long userId) {
-        Account savedAccount = accountRepository.findById(userId).orElseThrow(
+    public void updateDeviceToken(String token, Long accountId) {
+        Account savedAccount = accountRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        savedAccount.update(token);
+        savedAccount.updateToken(token);
+    }
+
+    @Transactional
+    public void updateNickname(String nickname, Long accountId) {
+        Account savedAccount = accountRepository.findById(accountId).orElseThrow(
+                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+        );
+        savedAccount.updateNickname(nickname);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {
