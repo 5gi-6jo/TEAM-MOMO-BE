@@ -42,8 +42,8 @@ public class Plan extends TimeStamped {
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Builder
     public Plan(String planName, String contents, LocalDateTime planDate, LocalDateTime noticeTime, String destination, String lat, String lng) {
@@ -66,9 +66,9 @@ public class Plan extends TimeStamped {
         this.lng = requestDto.getLng();
     }
 
-    public void addPlan(Account account) {
-        this.account = account;
-        account.getPlanList().add(this);
+    public void addPlan(User user) {
+        this.user = user;
+        user.getPlanList().add(this);
     }
 
     public void addUrl(String url) {

@@ -73,7 +73,7 @@ public class FirebaseCloudMessageService {
             log.info("planId:" + plan.getId());
             int delayMinutes = plan.getNoticeTime().getMinute() - start.getMinute();
             Long lastMinutes = ChronoUnit.MINUTES.between(plan.getNoticeTime(), plan.getPlanDate());
-            executor.schedule(task(plan.getAccount().getToken(), plan.getUrl(), lastMinutes), delayMinutes, TimeUnit.MINUTES);
+            executor.schedule(task(plan.getUser().getToken(), plan.getUrl(), lastMinutes), delayMinutes, TimeUnit.MINUTES);
         }
     }
 
@@ -124,11 +124,11 @@ public class FirebaseCloudMessageService {
         return googleCredential.getAccessToken().getTokenValue();
     }
 
-    public FcmResponseDto manualPush(Long planId, Long accountId) {
+    public FcmResponseDto manualPush(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(ErrorCode.PLAN_NOT_FOUND)
         );
-        if (accountId.equals(plan.getAccount().getId())) {
+        if (userId.equals(plan.getUser().getId())) {
             return FcmResponseDto.of(plan);
         } else {
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);

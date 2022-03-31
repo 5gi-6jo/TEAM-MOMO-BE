@@ -25,7 +25,7 @@ public class RecordService {
 
     public List<RecordResponseDto> showRecord(Long pageNumber, Long accountId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
-        Page<Plan> planList = planRepository.findAllByAccount_Id(accountId, pageRequest);
+        Page<Plan> planList = planRepository.findAllByUser_Id(accountId, pageRequest);
 
         if (planList.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
@@ -36,4 +36,5 @@ public class RecordService {
         }
         return dtoList;
     }
+
 }

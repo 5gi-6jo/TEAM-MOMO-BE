@@ -24,11 +24,6 @@ public class GuestController {
         TokenDto tokenDto = guestService.connectGuest(requestDto.getNickname());
         return ResponseEntity.ok()
                 .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())
-                .body(new Success<>());
-    }
-
-    @GetMapping
-    public void test(Authentication authentication) {
-        System.out.println(authentication);
+                .body(new Success<>("게스트 로그인 성공"));
     }
 }

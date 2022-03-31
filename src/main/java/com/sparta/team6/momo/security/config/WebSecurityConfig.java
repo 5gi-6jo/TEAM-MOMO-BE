@@ -1,9 +1,6 @@
 package com.sparta.team6.momo.security.config;
 
-import com.sparta.team6.momo.security.jwt.JwtAccessDeniedHandler;
-import com.sparta.team6.momo.security.jwt.JwtAuthenticationEntryPoint;
-import com.sparta.team6.momo.security.jwt.JwtFilter;
-import com.sparta.team6.momo.security.jwt.JwtSecurityConfig;
+import com.sparta.team6.momo.security.jwt.*;
 import com.sparta.team6.momo.security.oauth.OAuth2SuccessHandler;
 import com.sparta.team6.momo.security.oauth.Oauth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtFilter jwtFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
     private final Oauth2UserService oauth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
@@ -65,10 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-
                 .and()
                 .authorizeRequests()
-                .antMatchers("/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/maps/**").permitAll()
                 .antMatchers("/topic/**").permitAll()
@@ -84,7 +80,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 
                 .and()
-                .apply(new JwtSecurityConfig(jwtFilter));
+                .apply(new JwtSecurityConfig(jwtFilter, jwtExceptionFilter));
 
 //                .and()
 //                .oauth2Login()

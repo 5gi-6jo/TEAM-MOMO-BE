@@ -1,9 +1,9 @@
 package com.sparta.team6.momo.dto;
 
+import com.sparta.team6.momo.model.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import com.sparta.team6.momo.model.Account;
 
 @Getter
 @Setter
@@ -20,11 +20,11 @@ public class AccountResponseDto {
     }
 
 
-    public static AccountResponseDto of(Account account) {
+    public static AccountResponseDto of(User user) {
         return AccountResponseDto.builder()
-                .userId(account.getId())
-                .email(account.getEmail())
-                .nickname(account.getNickname())
+                .userId(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
                 .build();
     }
 }

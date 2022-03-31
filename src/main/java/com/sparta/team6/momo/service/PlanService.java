@@ -1,15 +1,15 @@
 package com.sparta.team6.momo.service;
 
 import com.sparta.team6.momo.dto.*;
+import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
-import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.Image;
 import com.sparta.team6.momo.model.Plan;
-import com.sparta.team6.momo.repository.AccountRepository;
+import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.repository.ImageRepository;
 import com.sparta.team6.momo.repository.PlanRepository;
 
@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.sparta.team6.momo.exception.ErrorCode.MEMBER_NOT_FOUND;
 import static com.sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
@@ -30,17 +31,16 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
-    private final AccountRepository accountRepository;
-    private final MeetService meetService;
+    private final UserRepository userRepository;
 
     @Transactional
     public Long savePlan(PlanRequestDto request, Long accountId) {
         Plan savedPlan = planRepository.save(request.toEntity());
-        Account account = accountRepository.findById(accountId).orElseThrow(
+        User user = userRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-        savedPlan.addPlan(account);
-        savedPlan.addUrl(meetService.createRandomUrl());
+        savedPlan.addPlan(user);
+        savedPlan.addUrl(UUID.randomUUID().toString());
         return savedPlan.getId();
     }
 
@@ -49,7 +49,7 @@ public class PlanService {
         Plan result = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (accountId.equals(result.getAccount().getId())) {
+        if (accountId.equals(result.getUser().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
@@ -65,7 +65,7 @@ public class PlanService {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (accountId.equals(savedPlan.getAccount().getId())) {
+        if (accountId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
         } else {
@@ -77,7 +77,7 @@ public class PlanService {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> new CustomException(PLAN_NOT_FOUND)
         );
-        if (accountId.equals(plan.getAccount().getId())) {
+        if (accountId.equals(plan.getUser().getId())) {
             List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : imageList) {
@@ -96,7 +96,7 @@ public class PlanService {
         LocalDateTime monthStart = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 
-        List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(accountId, monthStart, monthEnd);
+        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(accountId, monthStart, monthEnd);
         List<MainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new MainResponseDto(plan));

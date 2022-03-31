@@ -25,8 +25,4 @@ public class MeetService {
                 .planeName(plan.getPlanName())
                 .build();
     }
-
-    public String createRandomUrl() {
-        return UUID.randomUUID().toString();
-    }
 }

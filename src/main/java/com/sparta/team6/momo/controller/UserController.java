@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.team6.momo.annotation.DTOValid;
 import com.sparta.team6.momo.annotation.LogoutCheck;
 import com.sparta.team6.momo.dto.*;
-import com.sparta.team6.momo.service.AccountService;
+import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.utils.AccountUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,34 +23,29 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Slf4j
 public class UserController {
 
-    private final AccountService accountService;
+    private final UserService userService;
     private final OAuthService oAuthService;
     private final AccountUtils accountUtils;
 
 
     // 회원가입
-    @Operation(summary = "회원가입", description = "")
     @PostMapping("/signup")
-    @LogoutCheck
-    @DTOValid
+    @LogoutCheck @DTOValid
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        accountService.registerUser(requestDto);
+        userService.registerUser(requestDto);
         return ResponseEntity.ok().body(new Success<>("회원가입 성공"));
     }
 
 
     // 로그인
     @PostMapping("/login")
-    @LogoutCheck
-    @DTOValid
+    @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-        TokenDto jwt = accountService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        String nickname = accountService.getNickname(requestDto.getEmail());
+        TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        String nickname = userService.getNickname(requestDto.getEmail());
         ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
-
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -64,7 +59,7 @@ public class UserController {
             @RequestBody TokenDto tokenDto,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        accountService.logout(tokenDto.getAccessToken(), refreshToken);
+        userService.logout(tokenDto.getAccessToken(), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
     }
 
@@ -74,7 +69,7 @@ public class UserController {
             @RequestBody TokenDto tokenDto,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        TokenDto reissueTokenDto = accountService.reissue(tokenDto.getAccessToken(), refreshToken);
+        TokenDto reissueTokenDto = userService.reissue(tokenDto.getAccessToken(), refreshToken);
         ResponseCookie cookie = createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -85,8 +80,7 @@ public class UserController {
     //로그인 유저 정보
     @GetMapping
     public ResponseEntity<?> getUserInfo() {
-        log.info("ok");
-        AccountResponseDto userInfo = accountService.getUserInfo(accountUtils.getCurUserId());
+        AccountResponseDto userInfo = userService.getUserInfo(accountUtils.getCurUserId());
         return ResponseEntity.ok().body(Success.of(userInfo));
     }
 
@@ -104,13 +98,13 @@ public class UserController {
     //device token 저장
     @PostMapping("/devices")
     public ResponseEntity<Object> updateDeviceToken(@RequestBody @Valid DeviceTokenRequestDto requestDto, BindingResult bindingResult) {
-        accountService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
+        userService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
     }
 
     @PatchMapping("/nicknames")
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
-        accountService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
+        userService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("변경 완료"));
     }
 

@@ -1,10 +1,13 @@
 package com.sparta.team6.momo.exception;
 
+import com.sparta.team6.momo.exception.custom.NeedLoginException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,8 +27,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {MissingRequestCookieException.class})
     protected ResponseEntity<ErrorResponse> handleMissingCookieException(MissingRequestCookieException e) {
+        final String missingCookie = "필요한 쿠키가 존재하지 않습니다: " + e.getCookieName();
         log.error("handleMissingCookieException throw Exception : {}", e.toString());
-        return ErrorResponse.toResponseDefault(new DefaultException(HttpStatus.BAD_REQUEST, e.getMessage()));
+        return ErrorResponse.toResponseEntity(DefaultException.fromException(HttpStatus.BAD_REQUEST, missingCookie, e));
+    }
+
+    @ExceptionHandler(value = {BadCredentialsException.class})
+    protected ResponseEntity<ErrorResponse> handleAuthenticationException(BadCredentialsException e) {
+        final String badCredentials = "아이디와 비밀번호를 확인하십시오";
+        return ErrorResponse.toResponseEntity(DefaultException.fromException(HttpStatus.BAD_REQUEST, badCredentials, e));
+    }
+
+    @ExceptionHandler(value = {NeedLoginException.class})
+    protected ResponseEntity<ErrorResponse> handleNeedLoginException(NeedLoginException e) {
+        return ErrorResponse.toResponseEntity(e);
     }
 
     @ExceptionHandler(value = {ConstraintViolationException.class, DataIntegrityViolationException.class})
@@ -48,8 +63,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {DefaultException.class})
     protected ResponseEntity<ErrorResponse> handleDefaultException(DefaultException e) {
-        log.error("handleDefaulException throw DefaultException : {} {}", e.getHttpStatus(), e.getMessage());
-        return ErrorResponse.toResponseDefault(e);
+        log.error("handleDefaultException throw DefaultException : {} {}", e.getHttpStatus(), e.getMessage());
+        return ErrorResponse.toResponseEntity(e);
     }
 
 }
