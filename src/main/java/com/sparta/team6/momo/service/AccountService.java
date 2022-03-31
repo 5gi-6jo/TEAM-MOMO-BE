@@ -98,7 +98,7 @@ public class AccountService {
         Account savedAccount = accountRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        savedAccount.update(token);
+        savedAccount.updateToken(token);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {

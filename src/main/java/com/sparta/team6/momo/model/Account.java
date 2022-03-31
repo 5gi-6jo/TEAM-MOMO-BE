@@ -27,14 +27,6 @@ public class Account extends TimeStamped {
     @Column(name = "account_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @NotEmpty
-    private String email;
-
-    @Column(nullable = false)
-    @NotEmpty
-    private String password;
-
     @Column(nullable = false)
     @NotEmpty
     private String nickname;
@@ -43,38 +35,15 @@ public class Account extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<Plan> planList = new ArrayList<>();
-
     @Column
     private String token;
 
-    public Account(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {
-        this.email = email;
-        this.password = password;
+    public Account(@NonNull String nickname, @NonNull UserRole userRole) {
         this.nickname = nickname;
         this.userRole = userRole;
     }
 
-    private static final String prefix = "GUEST_";
-    private static final String suffix = "@MOMO.COM";
-    public static Account createGuest(String nickname) {
-        String pw = UUID.randomUUID().toString();
-        String email = prefix + nickname + suffix;
-        return new Account(email, pw, nickname, UserRole.ROLE_GUEST);
-    }
-
-
-    public static Account fromKakao(OAuth2User oAuth2User) {
-        Map<String, String> kakao_account = oAuth2User.getAttribute("kakao_account");
-        Map<String, String> properties = oAuth2User.getAttribute("properties");
-        String email = String.valueOf(kakao_account.get("email"));
-        String password = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
-        String nickname = properties.get("nickname");
-        return new Account(email, password, nickname, UserRole.ROLE_USER);
-    }
-
-    public void update(String token) {
+    public void updateToken(String token) {
         this.token = token;
     }
 }
