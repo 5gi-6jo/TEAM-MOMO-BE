@@ -1,7 +1,7 @@
 package com.sparta.team6.momo.security.oauth;
 
-import com.sparta.team6.momo.model.Account;
-import com.sparta.team6.momo.repository.AccountRepository;
+import com.sparta.team6.momo.model.User;
+import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.auth.MoMoUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class Oauth2UserService extends DefaultOAuth2UserService {
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -29,19 +29,19 @@ public class Oauth2UserService extends DefaultOAuth2UserService {
     }
 
     private MoMoUserDetails createPrincipalDetails(OAuth2User oAuth2User) {
-        Optional<Account> findUser = findUserByEmail(oAuth2User);
+        Optional<User> findUser = findUserByEmail(oAuth2User);
 
         if (findUser.isEmpty()) {
-            Account account = Account.fromKakao(oAuth2User);
-            return new MoMoUserDetails(accountRepository.save(account), oAuth2User.getAttributes());
+            User user = User.fromKakao(oAuth2User);
+            return new MoMoUserDetails(userRepository.save(user), oAuth2User.getAttributes());
         } else {
             return new MoMoUserDetails(findUser.get(), oAuth2User.getAttributes());
         }
     }
 
-    private Optional<Account> findUserByEmail(OAuth2User oAuth2User) {
+    private Optional<User> findUserByEmail(OAuth2User oAuth2User) {
         Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
         String email = String.valueOf(kakaoAccount.get("email"));
-        return accountRepository.findByEmail(email);
+        return userRepository.findByEmail(email);
     }
 }

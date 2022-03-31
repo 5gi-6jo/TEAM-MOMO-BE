@@ -15,6 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 
 @Aspect
 @Slf4j
@@ -38,8 +40,8 @@ public class GlobalAspect {
         for (Object arg : args) {
             if (arg instanceof Errors) {
                 Errors e = (Errors) arg;
-                if (e.hasErrors())
-                    throw new DefaultException(HttpStatus.BAD_REQUEST, e.getAllErrors().get(0).getDefaultMessage());
+                if (e.hasFieldErrors())
+                    throw DefaultException.fromFieldError(HttpStatus.BAD_REQUEST, e.getFieldError());
             }
         }
         return joinPoint.proceed();

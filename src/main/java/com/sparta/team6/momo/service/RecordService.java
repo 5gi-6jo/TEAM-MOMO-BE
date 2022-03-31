@@ -30,7 +30,7 @@ public class RecordService {
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDateTime tempDate = currentTime.minusDays(period - 1);
         LocalDateTime startDate = LocalDateTime.of(tempDate.getYear(), tempDate.getMonth(), tempDate.getDayOfMonth(), 0, 0, 0);
-        Page<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(accountId, startDate, currentTime, pageRequest);
+        Page<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(accountId, startDate, currentTime, pageRequest);
 
         if (planList.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
@@ -46,7 +46,7 @@ public class RecordService {
     public List<RecordResponseDto> searchRecord(String keyword, Long pageNumber, Long accountId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
 
-        Page<Plan> searchResult = planRepository.findAllByAccountIdAndPlanNameContaining(accountId, keyword, pageRequest);
+        Page<Plan> searchResult = planRepository.findAllByUserIdAndPlanNameContaining(accountId, keyword, pageRequest);
         if (searchResult.getTotalPages() <= pageNumber) {
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }

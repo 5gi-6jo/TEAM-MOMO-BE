@@ -75,7 +75,7 @@ public class FirebaseCloudMessageService {
     public Runnable task(Plan plan) {
         return () -> {
             try {
-                sendMessageTo(plan.getAccount().getToken(), "제목", "내용", plan.getUrl());
+                sendMessageTo(plan.getUser().getToken(), "제목", "내용", plan.getUrl());
                 log.info("push message 전송 완료 :" + LocalDateTime.now());
             } catch (IOException e) {
                 e.printStackTrace();

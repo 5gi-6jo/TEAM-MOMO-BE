@@ -1,7 +1,7 @@
 package com.sparta.team6.momo.security.auth;
 
-import com.sparta.team6.momo.model.Account;
-import com.sparta.team6.momo.repository.AccountRepository;
+import com.sparta.team6.momo.model.User;
+import com.sparta.team6.momo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,17 +16,17 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-       return  accountRepository.findByEmail(email)
+       return  userRepository.findByEmail(email)
                 .map(this::createUser)
                 .orElseThrow(() -> new UsernameNotFoundException(email + "을 찾을 수 없습니다"));
     }
 
-    private MoMoUser createUser(Account account) {
-        return new MoMoUser(account.getId(), account.getPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+    private MoMoUser createUser(User user) {
+        return new MoMoUser(user.getId(), user.getPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }
