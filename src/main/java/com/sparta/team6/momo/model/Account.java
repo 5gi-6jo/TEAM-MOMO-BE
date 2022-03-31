@@ -18,22 +18,15 @@ import java.util.UUID;
 
 @Entity
 @Getter
-@Validated
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn
 public class Account extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private Long id;
-
-    @Column(nullable = false, unique = true)
-    @NotEmpty
-    private String email;
-
-    @Column(nullable = false)
-    @NotEmpty
-    private String password;
 
     @Column(nullable = false)
     @NotEmpty
