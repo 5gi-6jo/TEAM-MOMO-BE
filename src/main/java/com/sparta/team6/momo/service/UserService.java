@@ -5,8 +5,10 @@ import com.sparta.team6.momo.dto.SignupRequestDto;
 import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
+import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.model.UserRole;
+import com.sparta.team6.momo.repository.AccountRepository;
 import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,7 @@ public class UserService {
     private final TokenUtils tokenUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AccountRepository accountRepository;
 
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
@@ -95,10 +98,10 @@ public class UserService {
 
     @Transactional
     public void updateDeviceToken(String token, Long userId) {
-        User savedUser = userRepository.findById(userId).orElseThrow(
+        Account savedAccount = accountRepository.findById(userId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
-        savedUser.updateToken(token);
+        savedAccount.updateToken(token);
     }
 
     private TokenDto createAndSaveToken(Authentication authentication) {
