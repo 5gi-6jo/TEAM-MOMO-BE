@@ -1,8 +1,12 @@
 package com.sparta.team6.momo.exception.custom;
 
-public class NeedLoginException extends RuntimeException{
+import org.springframework.security.core.AuthenticationException;
 
-    public NeedLoginException(String message) {
+
+public class NeedLoginException extends AuthenticationException {
+
+    private static final String message = "로그인이 필요합니다";
+    public NeedLoginException() {
         super(message);
     }
 

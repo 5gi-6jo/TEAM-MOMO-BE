@@ -20,7 +20,7 @@ public class AccountUtils {
     public long getCurUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null)
-            throw new NeedLoginException("로그인이 필요합니다");
+            throw new NeedLoginException();
         return Long.parseLong(authentication.getName());
     }
 

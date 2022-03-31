@@ -35,11 +35,11 @@ public class ErrorResponse {
     public static ResponseEntity<ErrorResponse> toResponseEntity(NeedLoginException e) {
         String wwwAuthenticateValue = "Go to login page and login";
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.UNAUTHORIZED)
                 .header("WWW-Authenticate", wwwAuthenticateValue)
                 .body(ErrorResponse.builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .error(HttpStatus.BAD_REQUEST.name())
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .error(HttpStatus.UNAUTHORIZED.name())
                         .code(e.getClass().getSimpleName())
                         .message(e.getMessage())
                         .build()

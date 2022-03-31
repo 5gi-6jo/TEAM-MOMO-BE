@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -39,13 +40,15 @@ public class TokenUtils implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "잘못된 JWT 서명입니다.", e);
+            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "구조적 문제가 있는 JWT 입니다.", e);
         } catch (ExpiredJwtException e) {
-            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "만료된 JWT 토큰입니다.", e);
+            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "만료된 JWT 입니다.", e);
         } catch (UnsupportedJwtException e) {
-            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "지원되지 않는 형식의 JWT 토큰입니다.", e);
+            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "지원되지 않는 형식의 JWT 입니다.", e);
+        } catch (SignatureException e) {
+            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "잘못된 서명을 가진 JWT 입니다.", e);
         } catch (IllegalArgumentException e) {
-            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "JWT 토큰이 잘못되었습니다.", e);
+            throw DefaultException.fromException(HttpStatus.BAD_REQUEST, "JWT 가 잘못되었습니다.", e);
         }
     }
 
