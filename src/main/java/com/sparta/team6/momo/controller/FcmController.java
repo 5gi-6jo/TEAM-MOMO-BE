@@ -1,6 +1,8 @@
 package com.sparta.team6.momo.controller;
 
+import com.sparta.team6.momo.dto.FcmResponseDto;
 import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,16 +20,16 @@ import java.io.IOException;
 public class FcmController {
     // 배포 시 삭제할 controller 입니다(테스트용)
     private final FirebaseCloudMessageService firebaseCloudMessageService;
+    private final AccountUtils accountUtils;
 
     @PostMapping("/fcm")
     public ResponseEntity<Object> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
-        System.out.println(requestDto.getTargetToken() + " " + requestDto.getTitle() + " " + requestDto.getBody());
-
+        FcmResponseDto responseDto = firebaseCloudMessageService.manualPush(requestDto.getPlanId(), accountUtils.getCurUserId());
         firebaseCloudMessageService.sendMessageTo(
-                requestDto.getTargetToken(),
-                requestDto.getTitle(),
-                requestDto.getBody(),
-                requestDto.getUrl());
+                responseDto.getToken(),
+                responseDto.getTitle(),
+                responseDto.getBody(),
+                responseDto.getUrl());
 
         return ResponseEntity.ok().body(new Success<>("push message 전송 완료"));
     }

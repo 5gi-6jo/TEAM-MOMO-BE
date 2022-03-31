@@ -23,9 +23,6 @@ import org.springframework.validation.ObjectError;
 @Component
 public class GlobalAspect {
 
-    @Pointcut("execution(public * com.sparta.team6.momo.controller.UserController.getUserInfo(..))")
-    private void getUserInfo(){}
-
     @Before("@annotation(com.sparta.team6.momo.annotation.LogoutCheck)")
     public void onlyLogoutAccess() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();

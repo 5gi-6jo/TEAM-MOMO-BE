@@ -13,11 +13,9 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Optional<Plan> findPlanByUrl(String url);
 
-    List<Plan> findAllByUserIdAndPlanDateBetween(Long accountId, LocalDateTime monthStart, LocalDateTime monthEnd);
+    List<Plan> findAllByUserIdAndPlanDateBetween(Long userId, LocalDateTime monthStart, LocalDateTime monthEnd);
 
-    Page<Plan> findAllByUserIdAndPlanDateBetween(Long accountId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
-
-    Page<Plan> findAllByUserIdAndPlanNameContaining(Long accountId, String word, Pageable pageable);
+    Page<Plan> findAllByUser_Id(Long userId, Pageable pageable);
 
     List<Plan> findAllByNoticeTimeBetween(LocalDateTime start, LocalDateTime end);
 }

@@ -36,7 +36,12 @@ public class Account extends TimeStamped {
         this.userRole = userRole;
     }
 
+
     public void updateToken(String token) {
         this.token = token;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

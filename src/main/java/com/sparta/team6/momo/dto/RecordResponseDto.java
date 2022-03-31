@@ -24,6 +24,6 @@ public class RecordResponseDto {
     }
 
     public boolean finishCheck(LocalDateTime planDate) {
-        return LocalDateTime.now().isAfter(planDate.plusHours(6));
+        return LocalDateTime.now().isAfter(planDate.plusHours(1));
     }
 }
