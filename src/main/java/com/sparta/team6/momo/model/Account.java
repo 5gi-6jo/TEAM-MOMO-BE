@@ -58,6 +58,7 @@ public class Account extends TimeStamped {
 
     private static final String prefix = "GUEST_";
     private static final String suffix = "@MOMO.COM";
+
     public static Account createGuest(String nickname) {
         String pw = UUID.randomUUID().toString();
         String email = prefix + nickname + suffix;
