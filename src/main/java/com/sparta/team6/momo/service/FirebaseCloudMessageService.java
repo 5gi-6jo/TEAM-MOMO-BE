@@ -3,6 +3,9 @@ package com.sparta.team6.momo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.sparta.team6.momo.dto.FcmResponseDto;
+import com.sparta.team6.momo.exception.CustomException;
+import com.sparta.team6.momo.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -119,5 +122,17 @@ public class FirebaseCloudMessageService {
 
         googleCredential.refreshIfExpired();
         return googleCredential.getAccessToken().getTokenValue();
+    }
+
+    public FcmResponseDto manualPush(Long planId, Long accountId) {
+        Plan plan = planRepository.findById(planId).orElseThrow(
+                () -> new CustomException(ErrorCode.PLAN_NOT_FOUND)
+        );
+        if (accountId.equals(plan.getAccount().getId())) {
+            return FcmResponseDto.of(plan);
+        } else {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+
     }
 }
