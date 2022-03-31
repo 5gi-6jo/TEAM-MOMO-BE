@@ -58,7 +58,7 @@ public class FirebaseCloudMessageService {
     public void noticeScheduler() throws InterruptedException {
         log.info(new Date() + "스케쥴러 실행");
         LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime end = start.plusMinutes(1);
+        LocalDateTime end = start.plusMinutes(4);
         List<Plan> planList = planRepository.findAllByNoticeTimeBetween(start, end);
 
         log.info("DB 조회 완료 : " + LocalDateTime.now());
@@ -67,19 +67,22 @@ public class FirebaseCloudMessageService {
         // DB 조회 완료할 때까지의 대기 시간
         Thread.sleep(5000);
         for (Plan plan : planList) {
+            log.info("planId:" + plan.getId());
             int delayMinutes = plan.getNoticeTime().getMinute() - start.getMinute();
-            executor.schedule(task(plan), delayMinutes, TimeUnit.MINUTES);
+            Long lastMinutes = ChronoUnit.MINUTES.between(plan.getNoticeTime(), plan.getPlanDate());
+            executor.schedule(task(plan.getAccount().getToken(), plan.getUrl(), lastMinutes), delayMinutes, TimeUnit.MINUTES);
         }
     }
 
-    public Runnable task(Plan plan) {
+    public Runnable task(String token, String url, Long lastMinutes) {
         return () -> {
             try {
-                sendMessageTo(plan.getAccount().getToken(), "제목", "내용", plan.getUrl());
+                String body = String.format("모임시간 %d분 전입니다!\n%s", lastMinutes, url);
+                sendMessageTo(token, "모두모여(Momo)", body, url);
                 log.info("push message 전송 완료 :" + LocalDateTime.now());
             } catch (IOException e) {
                 e.printStackTrace();
-                log.error("push message 전송 실패" + plan.getId());
+                log.error("push message 전송 실패");
             }
         };
     }

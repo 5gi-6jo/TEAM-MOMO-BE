@@ -82,6 +82,7 @@ public class UserController {
                 .body(new Success<>());
     }
 
+    //로그인 유저 정보
     @GetMapping
     public ResponseEntity<?> getUserInfo() {
         log.info("ok");
@@ -100,10 +101,17 @@ public class UserController {
                 .body(new Success<>());
     }
 
+    //device token 저장
     @PostMapping("/devices")
     public ResponseEntity<Object> updateDeviceToken(@RequestBody @Valid DeviceTokenRequestDto requestDto, BindingResult bindingResult) {
         accountService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
+    }
+
+    @PatchMapping("/nicknames")
+    public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
+        accountService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
+        return ResponseEntity.ok().body(new Success<>("변경 완료"));
     }
 
     private ResponseCookie createTokenCookie(String refreshToken) {
