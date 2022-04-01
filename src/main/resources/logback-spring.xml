@@ -17,7 +17,7 @@
 
     <springProfile name="prod">
         <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>./log/info/info-${BY_DATE}.log</file>
+            <file>/home/ubuntu/app/log/info/info-${BY_DATE}.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
                 <level>INFO</level>
                 <onMatch>ACCEPT</onMatch>
@@ -27,7 +27,7 @@
                 <pattern>${LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>./backup/info/info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/home/ubuntu/app/backup/info/info-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <maxFileSize>100MB</maxFileSize>
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>3GB</totalSizeCap>
@@ -35,7 +35,7 @@
         </appender>
 
         <appender name="FILE-WARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>./log/warn/warn-${BY_DATE}.log</file>
+            <file>/home/ubuntu/app/log/warn/warn-${BY_DATE}.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
                 <level>WARN</level>
                 <onMatch>ACCEPT</onMatch>
@@ -45,7 +45,7 @@
                 <pattern>${LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>./backup/warn/warn-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/home/ubuntu/app/backup/warn/warn-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <maxFileSize>100MB</maxFileSize>
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>3GB</totalSizeCap>
@@ -53,7 +53,7 @@
         </appender>
 
         <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>./log/error/error-${BY_DATE}.log</file>
+            <file>/home/ubuntu/app/log/error/error-${BY_DATE}.log</file>
             <filter class="ch.qos.logback.classic.filter.LevelFilter">
                 <level>ERROR</level>
                 <onMatch>ACCEPT</onMatch>
@@ -63,7 +63,7 @@
                 <pattern>${LOG_PATTERN}</pattern>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>./backup/error/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/home/ubuntu/app/backup/error/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <maxFileSize>100MB</maxFileSize>
                 <maxHistory>30</maxHistory>
                 <totalSizeCap>3GB</totalSizeCap>
