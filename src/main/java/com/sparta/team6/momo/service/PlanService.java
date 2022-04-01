@@ -1,16 +1,16 @@
 package com.sparta.team6.momo.service;
 
 import com.sparta.team6.momo.dto.*;
+import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
-import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.Image;
 import com.sparta.team6.momo.model.Plan;
-import com.sparta.team6.momo.repository.AccountRepository;
+import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.repository.ImageRepository;
 import com.sparta.team6.momo.repository.PlanRepository;
 
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.sparta.team6.momo.exception.ErrorCode.MEMBER_NOT_FOUND;
 import static com.sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
@@ -32,31 +33,29 @@ public class PlanService {
     private final PlanRepository planRepository;
     private final ImageRepository imageRepository;
     private final UploadService uploadService;
-    private final AccountRepository accountRepository;
-    private final MeetService meetService;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Long savePlan(PlanRequestDto request, Long accountId) {
+    public Long savePlan(PlanRequestDto request, Long userId) {
         Plan savedPlan = planRepository.save(request.toEntity());
-        Account account = accountRepository.findById(accountId).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> {
                     log.info("해당 Account 정보가 존재하지 않습니다");
                     throw new CustomException(MEMBER_NOT_FOUND);
                 });
-
-        savedPlan.addPlan(account);
-        savedPlan.addUrl(meetService.createRandomUrl());
+        savedPlan.addPlan(user);
+        savedPlan.addUrl(UUID.randomUUID().toString());
         return savedPlan.getId();
     }
 
     @Transactional
-    public void deletePlan(Long planId, Long accountId) {
+    public void deletePlan(Long planId, Long userId) {
         Plan result = planRepository.findById(planId).orElseThrow(
                 () -> {
                     log.info("해당 모임 정보가 존재하지 않습니다");
                     throw new CustomException(PLAN_NOT_FOUND);
                 });
-        if (accountId.equals(result.getAccount().getId())) {
+        if (userId.equals(result.getUser().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
@@ -69,13 +68,13 @@ public class PlanService {
     }
 
     @Transactional
-    public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long accountId) {
+    public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long userId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
                 () -> {
                     log.info("해당 모임 정보가 존재하지 않습니다");
                     throw new CustomException(PLAN_NOT_FOUND);
                 });
-        if (accountId.equals(savedPlan.getAccount().getId())) {
+        if (userId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
         } else {
@@ -84,13 +83,13 @@ public class PlanService {
         }
     }
 
-    public DetailResponseDto showDetail(Long planId, Long accountId) {
+    public DetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> {
                     log.info("해당 모임 정보가 존재하지 않습니다");
                     throw new CustomException(PLAN_NOT_FOUND);
                 });
-        if (accountId.equals(plan.getAccount().getId())) {
+        if (userId.equals(plan.getUser().getId())) {
             List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
             List<ImageDto> imageDtoList = new ArrayList<>();
             for (Image image : imageList) {
@@ -103,13 +102,13 @@ public class PlanService {
         }
     }
 
-    public List<MainResponseDto> showMain(String date, Long accountId) {
+    public List<MainResponseDto> showMain(String date, Long userId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
         LocalDateTime monthStart = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 
-        List<Plan> planList = planRepository.findAllByAccountIdAndPlanDateBetween(accountId, monthStart, monthEnd);
+        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, monthStart, monthEnd);
         List<MainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new MainResponseDto(plan));

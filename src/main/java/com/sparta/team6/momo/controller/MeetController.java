@@ -18,8 +18,8 @@ public class MeetController {
     private final MeetService meetService;
 
     @GetMapping("/{randomUrl}") // planId
-    public ResponseEntity<Object> getPlanIdFromUrl(@PathVariable("randomUrl") String url) {
-        Long planId = meetService.getPlanId(url);
-        return ResponseEntity.ok().body(new Success<>(new MeetResponseDto(planId)));
+    public ResponseEntity<Success<MeetResponseDto>> getPlanIdFromUrl(@PathVariable("randomUrl") String url) {
+        MeetResponseDto responseDto = meetService.getPlanInfo(url);
+        return ResponseEntity.ok().body(new Success<>(responseDto));
     }
 }

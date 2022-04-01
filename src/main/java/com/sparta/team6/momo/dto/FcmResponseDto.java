@@ -30,7 +30,7 @@ public class FcmResponseDto {
 
     public static FcmResponseDto of(Plan plan) {
         return FcmResponseDto.builder()
-                .token(plan.getAccount().getToken())
+                .token(plan.getUser().getToken())
                 .title("모두모여(Momo")
                 .body(FcmResponseDto.reformBody(plan))
                 .url(plan.getUrl())

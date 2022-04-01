@@ -6,13 +6,13 @@ import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
+import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.AccountRepository;
+import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -27,24 +27,27 @@ import com.sparta.team6.momo.security.jwt.TokenProvider;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static com.sparta.team6.momo.exception.ErrorCode.DUPLICATE_EMAIL;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
-public class AccountService {
+@Transactional(readOnly = true)
+public class UserService {
 
 
-    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AccountRepository accountRepository;
 
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        Account account = new Account(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), UserRole.ROLE_USER);
-        accountRepository.save(account);
+        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), UserRole.ROLE_USER);
+        userRepository.save(user);
     }
 
 
@@ -82,15 +85,15 @@ public class AccountService {
     }
 
     public AccountResponseDto getUserInfo(Long userId) {
-        Account account = accountRepository.findById(userId).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("유저를 찾을 수 없습니다")
         );
-        return AccountResponseDto.of(account);
+        return AccountResponseDto.of(user);
     }
 
     public String getNickname(String email) {
-        Optional<Account> user = accountRepository.findByEmail(email);
-        return user.map(Account::getNickname).orElse(null);
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.map(User::getNickname).orElse(null);
     }
 
     @Transactional
@@ -132,9 +135,8 @@ public class AccountService {
 
 
     private void duplicateEmailCheck(SignupRequestDto requestDto) {
-        if (accountRepository.findByEmail(requestDto.getEmail()).orElse(null) != null) {
-            throw new AccessDeniedException("이미 가입되어 있는 유저입니다.");
-        }
+        if (userRepository.existsByEmail(requestDto.getEmail()))
+            throw new CustomException(DUPLICATE_EMAIL);
     }
 
 }
