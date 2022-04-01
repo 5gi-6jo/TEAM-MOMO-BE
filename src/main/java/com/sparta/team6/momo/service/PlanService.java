@@ -3,6 +3,7 @@ package com.sparta.team6.momo.service;
 import com.sparta.team6.momo.dto.*;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
@@ -22,6 +23,7 @@ import java.util.List;
 import static com.sparta.team6.momo.exception.ErrorCode.MEMBER_NOT_FOUND;
 import static com.sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlanService {
@@ -37,8 +39,11 @@ public class PlanService {
     public Long savePlan(PlanRequestDto request, Long accountId) {
         Plan savedPlan = planRepository.save(request.toEntity());
         Account account = accountRepository.findById(accountId).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+                () -> {
+                    log.info("해당 Account 정보가 존재하지 않습니다");
+                    throw new CustomException(MEMBER_NOT_FOUND);
+                });
+
         savedPlan.addPlan(account);
         savedPlan.addUrl(meetService.createRandomUrl());
         return savedPlan.getId();
@@ -47,8 +52,10 @@ public class PlanService {
     @Transactional
     public void deletePlan(Long planId, Long accountId) {
         Plan result = planRepository.findById(planId).orElseThrow(
-                () -> new CustomException(PLAN_NOT_FOUND)
-        );
+                () -> {
+                    log.info("해당 모임 정보가 존재하지 않습니다");
+                    throw new CustomException(PLAN_NOT_FOUND);
+                });
         if (accountId.equals(result.getAccount().getId())) {
             List<Image> imageList = imageRepository.deleteAllByPlanId(planId);
             for (Image image : imageList) {
@@ -56,6 +63,7 @@ public class PlanService {
             }
             planRepository.deleteById(planId);
         } else {
+            log.info("Account 정보가 일치하지 않습니다");
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
@@ -63,20 +71,25 @@ public class PlanService {
     @Transactional
     public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long accountId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
-                () -> new CustomException(PLAN_NOT_FOUND)
-        );
+                () -> {
+                    log.info("해당 모임 정보가 존재하지 않습니다");
+                    throw new CustomException(PLAN_NOT_FOUND);
+                });
         if (accountId.equals(savedPlan.getAccount().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
         } else {
+            log.info("Account 정보가 일치하지 않습니다");
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
 
     public DetailResponseDto showDetail(Long planId, Long accountId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
-                () -> new CustomException(PLAN_NOT_FOUND)
-        );
+                () -> {
+                    log.info("해당 모임 정보가 존재하지 않습니다");
+                    throw new CustomException(PLAN_NOT_FOUND);
+                });
         if (accountId.equals(plan.getAccount().getId())) {
             List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
             List<ImageDto> imageDtoList = new ArrayList<>();
@@ -85,6 +98,7 @@ public class PlanService {
             }
             return DetailResponseDto.of(plan, imageDtoList);
         } else {
+            log.info("Account 정보가 일치하지 않습니다");
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
     }
@@ -92,7 +106,6 @@ public class PlanService {
     public List<MainResponseDto> showMain(String date, Long accountId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-        System.out.println(dateTime);
         LocalDateTime monthStart = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), 1, 0, 0, 0);
         LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
 

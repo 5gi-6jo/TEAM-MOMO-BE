@@ -3,6 +3,7 @@ package com.sparta.team6.momo.service;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import com.sparta.team6.momo.repository.PlanRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RecordService {
@@ -28,6 +30,7 @@ public class RecordService {
         Page<Plan> planList = planRepository.findAllByAccount_Id(accountId, pageRequest);
 
         if (planList.getTotalPages() <= pageNumber) {
+            log.info("모임 정보가 존재하지 않습니다(마지막 페이지)");
             throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
         }
         List<RecordResponseDto> dtoList = new ArrayList<>();
