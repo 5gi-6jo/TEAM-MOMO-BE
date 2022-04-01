@@ -7,6 +7,7 @@ import com.sparta.team6.momo.repository.ImageRepository;
 import com.sparta.team6.momo.repository.PlanRepository;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.sparta.team6.momo.dto.ImageDto;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileUploadService {
@@ -43,6 +45,7 @@ public class FileUploadService {
             try (InputStream inputStream = multipartFile.getInputStream()) {
                 uploadService.uploadFile(inputStream, objectMetadata, fileName);
             } catch (IOException e) {
+                log.info("이미지 파일 변환 실패");
                 throw new CustomException(ErrorCode.FILE_CONVERT_ERROR);
             }
             // DB에 저장
@@ -52,6 +55,7 @@ public class FileUploadService {
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
             } else {
+                log.info("조건에 맞는 모임이 존재하지 않습니다");
                 throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
             }
         }
@@ -68,6 +72,7 @@ public class FileUploadService {
         try {
             return fileName.substring(fileName.lastIndexOf("."));
         } catch (Exception e) {
+            log.info("잘못된 형식의 확장자입니다");
             throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
         }
     }
@@ -82,9 +87,11 @@ public class FileUploadService {
                 }
                 return dtoList;
             } else {
+                log.info("Account 정보가 일치하지 않습니다");
                 throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
             }
-        } catch (IndexOutOfBoundsException e) {
+        } catch (Exception e) {
+            log.info("해당 이미지가 존재하지 않습니다");
             throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
         }
 
@@ -96,6 +103,7 @@ public class FileUploadService {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
         } else {
+            log.info("해당 이미지가 존재하지 않습니다");
             throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
         }
     }

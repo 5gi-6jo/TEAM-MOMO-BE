@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,7 +41,6 @@ public class FirebaseCloudMessageService {
 
     public void sendMessageTo(String targetToken, String title, String body, String url) throws IOException {
 
-
         String message = makeMessage(targetToken, title, body, url);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
@@ -63,8 +63,8 @@ public class FirebaseCloudMessageService {
         LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         LocalDateTime end = start.plusMinutes(4);
         List<Plan> planList = planRepository.findAllByNoticeTimeBetween(start, end);
+        log.info("DB 조회 완료");
 
-        log.info("DB 조회 완료 : " + LocalDateTime.now());
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
 
         // DB 조회 완료할 때까지의 대기 시간
@@ -82,7 +82,7 @@ public class FirebaseCloudMessageService {
             try {
                 String body = String.format("모임시간 %d분 전입니다!\n%s", lastMinutes, url);
                 sendMessageTo(token, "모두모여(Momo)", body, url);
-                log.info("push message 전송 완료 :" + LocalDateTime.now());
+                log.info("push message 전송 요쳥");
             } catch (IOException e) {
                 e.printStackTrace();
                 log.error("push message 전송 실패");
@@ -121,6 +121,7 @@ public class FirebaseCloudMessageService {
                 .getInputStream()).createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
 
         googleCredential.refreshIfExpired();
+        log.info("FCM access token 발급 성공");
         return googleCredential.getAccessToken().getTokenValue();
     }
 
@@ -131,6 +132,7 @@ public class FirebaseCloudMessageService {
         if (userId.equals(plan.getUser().getId())) {
             return FcmResponseDto.of(plan);
         } else {
+            log.info("Account 정보가 일치하지 않습니다");
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
 
