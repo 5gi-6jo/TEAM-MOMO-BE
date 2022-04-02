@@ -27,7 +27,7 @@ import com.sparta.team6.momo.security.jwt.TokenProvider;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.team6.momo.exception.ErrorCode.DUPLICATE_EMAIL;
+import static com.sparta.team6.momo.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -50,17 +50,21 @@ public class UserService {
         userRepository.save(user);
     }
 
-
+    @Transactional
     public TokenDto loginUser(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        if (user.isLogin()) throw new CustomException(ALREADY_LOGIN_ACCOUNT);
+        else user.setLoginTrue();
+
         return createAndSaveToken(authentication);
     }
 
-
+    @Transactional
     public void logout(String accessToken, String refreshToken) {
         Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, ErrorCode.INVALID_ACCESS_TOKEN);
 
@@ -72,6 +76,10 @@ public class UserService {
         Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        User user = userRepository.findById(Long.valueOf(authentication.getName()))
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        user.setLoginFalse();
     }
 
 

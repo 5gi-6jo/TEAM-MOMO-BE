@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @PrimaryKeyJoinColumn(name = "user_id")
 public class User extends Account {
+
     @Column(nullable = false, unique = true)
     @NotEmpty
     private String email;
@@ -32,6 +34,10 @@ public class User extends Account {
     @NotEmpty
     private String password;
 
+    @Column(name = "isLogin")
+    @NotNull
+    private boolean isLogin;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Plan> planList = new ArrayList<>();
 
@@ -39,6 +45,7 @@ public class User extends Account {
         super(nickname, userRole);
         this.email = email;
         this.password = password;
+        this.isLogin = false;
     }
 
     public static User fromKakao(OAuth2User oAuth2User) {
@@ -49,4 +56,13 @@ public class User extends Account {
         String nickname = properties.get("nickname");
         return new User(email, password, nickname, ROLE_USER);
     }
+
+    public void setLoginTrue() {
+        this.isLogin = true;
+    }
+
+    public void setLoginFalse() {
+        this.isLogin = false;
+    }
+
 }
