@@ -4,6 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.sparta.team6.momo.model.Plan;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,9 +15,11 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Optional<Plan> findPlanByUrl(String url);
 
-    List<Plan> findAllByUserIdAndPlanDateBetween(Long userId, LocalDateTime monthStart, LocalDateTime monthEnd);
+    List<Plan> findAllByUserIdAndPlanDateBetweenOrderByPlanDateDesc(Long userId, LocalDateTime monthStart, LocalDateTime monthEnd);
 
     Page<Plan> findAllByUser_Id(Long userId, Pageable pageable);
 
-    List<Plan> findAllByNoticeTimeBetween(LocalDateTime start, LocalDateTime end);
+    @Query(value = "select p from Plan p where p.user.token is not null and p.noticeTime=:dateTime")
+    List<Plan> findAllByNoticeTime(@Param(value = "dateTime") LocalDateTime dateTime);
+
 }

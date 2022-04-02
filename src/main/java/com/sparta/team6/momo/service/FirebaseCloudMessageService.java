@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,9 +24,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 @Service
@@ -60,20 +57,16 @@ public class FirebaseCloudMessageService {
     @Scheduled(cron = "0 0/5 * * * *")
     public void noticeScheduler() throws InterruptedException {
         log.info(new Date() + "스케쥴러 실행");
-        LocalDateTime start = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        LocalDateTime end = start.plusMinutes(4);
-        List<Plan> planList = planRepository.findAllByNoticeTimeBetween(start, end);
+        LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        List<Plan> planList = planRepository.findAllByNoticeTime(dateTime);
         log.info("DB 조회 완료");
-
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(10);
-
+        ExecutorService executorService = Executors.newCachedThreadPool();
+//        ExecutorService executorService = Executors.newFixedThreadPool(5);
         // DB 조회 완료할 때까지의 대기 시간
         Thread.sleep(5000);
         for (Plan plan : planList) {
-            log.info("planId:" + plan.getId());
-            int delayMinutes = plan.getNoticeTime().getMinute() - start.getMinute();
             Long lastMinutes = ChronoUnit.MINUTES.between(plan.getNoticeTime(), plan.getPlanDate());
-            executor.schedule(task(plan.getUser().getToken(), plan.getUrl(), lastMinutes), delayMinutes, TimeUnit.MINUTES);
+            executorService.execute(task(plan.getUser().getToken(), plan.getUrl(), lastMinutes));
         }
     }
 
@@ -131,10 +124,8 @@ public class FirebaseCloudMessageService {
         );
         if (userId.equals(plan.getUser().getId())) {
             return FcmResponseDto.of(plan);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
-
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 }

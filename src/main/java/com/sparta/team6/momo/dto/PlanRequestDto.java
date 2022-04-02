@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.sparta.team6.momo.model.Plan;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -39,6 +40,16 @@ public class PlanRequestDto {
     @Positive
     @NotNull(message = "모두모여 시간을 설정해주세요")
     private Long noticeTime;
+
+    @AssertTrue(message = "현재 시간 이후에만 모임을 생성할 수 있습니다")
+    private boolean isValidDate() {
+        return planDate.isAfter(LocalDateTime.now());
+    }
+
+    @AssertTrue(message = "현재 시간 이전으로 알림시간을 설정할 수 없습니다")
+    private boolean isValidNoticeTime() {
+        return planDate.minusMinutes(noticeTime).isAfter(LocalDateTime.now());
+    }
 
     public LocalDateTime toLocalDateTIme(Long noticeTime) {
         return planDate.minusMinutes(noticeTime);
