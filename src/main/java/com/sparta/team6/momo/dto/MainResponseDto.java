@@ -12,12 +12,14 @@ public class MainResponseDto {
     private Long planId;
     private String planName;
     private LocalDateTime planDate;
+    private String url;
     private boolean isFinished;
 
     public MainResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planDate = plan.getPlanDate();
         this.planName = plan.getPlanName();
+        this.url = plan.getUrl();
         this.isFinished = finishCheck(plan.getPlanDate());
     }
 
