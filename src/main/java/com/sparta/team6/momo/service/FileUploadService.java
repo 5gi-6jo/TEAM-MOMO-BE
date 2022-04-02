@@ -54,10 +54,9 @@ public class FileUploadService {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
-            } else {
-                log.info("조건에 맞는 모임이 존재하지 않습니다");
-                throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
             }
+            log.info("조건에 맞는 모임이 존재하지 않습니다");
+            throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
         }
         return imageDtoList;
     }
@@ -86,10 +85,10 @@ public class FileUploadService {
                     dtoList.add(new ImageDto(image.getId(), image.getImage()));
                 }
                 return dtoList;
-            } else {
-                log.info("Account 정보가 일치하지 않습니다");
-                throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
             }
+            log.info("Account 정보가 일치하지 않습니다");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+
         } catch (Exception e) {
             log.info("해당 이미지가 존재하지 않습니다");
             throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
@@ -102,9 +101,8 @@ public class FileUploadService {
         if (image.isPresent() && accountId.equals(image.get().getPlan().getUser().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
-        } else {
-            log.info("해당 이미지가 존재하지 않습니다");
-            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
         }
+        log.info("해당 이미지가 존재하지 않습니다");
+        throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
     }
 }

@@ -61,10 +61,9 @@ public class PlanService {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
             }
             planRepository.deleteById(planId);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
     @Transactional
@@ -77,10 +76,9 @@ public class PlanService {
         if (userId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
     public DetailResponseDto showDetail(Long planId, Long userId) {
@@ -96,19 +94,18 @@ public class PlanService {
                 imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
             }
             return DetailResponseDto.of(plan, imageDtoList);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
     public List<MainResponseDto> showMain(String date, Long userId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter).minusMonths(1);
         LocalDateTime monthStart = LocalDateTime.of(dateTime.getYear(), dateTime.getMonth(), 1, 0, 0, 0);
-        LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
-
-        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, monthStart, monthEnd);
+        LocalDateTime monthEnd = monthStart.plusMonths(2).minusSeconds(1);
+        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetweenOrderByPlanDateDesc(userId, monthStart, monthEnd);
+//        List<Plan> planList = planRepository.findAllByUserIdAndPlanDateBetween(userId, monthStart, monthEnd);
         List<MainResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
             dtoList.add(new MainResponseDto(plan));
