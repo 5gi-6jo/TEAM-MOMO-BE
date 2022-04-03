@@ -2,29 +2,24 @@ package com.sparta.team6.momo.dto;
 
 import com.sparta.team6.momo.model.User;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
+@Builder
 public class AccountResponseDto {
     private Long userId;
     private String email;
     private String nickname;
-
-    @Builder
-    public AccountResponseDto(Long userId, String email, String nickname) {
-        this.userId = userId;
-        this.email = email;
-        this.nickname = nickname;
-    }
-
+    private boolean isNoticeAllowed;
 
     public static AccountResponseDto from(User user) {
         return AccountResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .isNoticeAllowed(user.isNoticeAllowed())
                 .build();
     }
 }

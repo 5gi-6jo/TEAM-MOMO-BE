@@ -19,6 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -74,8 +76,9 @@ public class UserController {
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
-            @CookieValue(name = "refresh_token") String refreshToken) {
+            @CookieValue(value = "refreshToken") String refreshToken) {
 
+        System.out.println("refreshToken = " + refreshToken);
         TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()

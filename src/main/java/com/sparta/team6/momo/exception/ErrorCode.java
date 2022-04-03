@@ -47,6 +47,9 @@ public enum ErrorCode {
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
 
+    // 410
+    MEET_URI_GONE(GONE, "모임시간이 만료되어 사라진 주소 입니다.")
+
     ;
 
     private final HttpStatus httpStatus;
