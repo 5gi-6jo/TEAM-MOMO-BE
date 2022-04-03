@@ -68,10 +68,10 @@ public class UserController {
     // 토큰 재발행
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(
-            @RequestBody TokenDto tokenDto,
+            @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        TokenDto reissueTokenDto = userService.reissue(tokenDto.getAccessToken(), refreshToken);
+        TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
