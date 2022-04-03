@@ -21,7 +21,6 @@ public class Account extends TimeStamped {
     private Long id;
 
     @Column(nullable = false)
-    @NotEmpty
     private String nickname;
 
     @Column(nullable = false)

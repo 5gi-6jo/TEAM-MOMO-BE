@@ -25,19 +25,19 @@ import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 public class User extends Account {
 
     @Column(nullable = false, unique = true)
-    @NotEmpty
     private String email;
 
     @Column(nullable = false)
-    @NotEmpty
     private String password;
 
-    @Column(name = "isLogin")
-    @NotNull
+    @Column(name = "isLogin", nullable = false)
     private boolean isLogin;
 
+    @Column(name = "isNoticeAllowed", nullable = false)
+    private boolean isNoticeAllowed;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @NotNull
     private Provider provider;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -49,6 +49,7 @@ public class User extends Account {
         this.email = email;
         this.password = password;
         this.isLogin = false;
+        this.isNoticeAllowed = false;
         this.provider = provider;
     }
 
@@ -75,4 +76,7 @@ public class User extends Account {
         this.isLogin = false;
     }
 
+    public void setNoticeAllowedTrue() {
+        this.isNoticeAllowed = true;
+    }
 }

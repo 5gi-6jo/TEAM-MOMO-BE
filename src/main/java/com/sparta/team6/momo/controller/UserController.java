@@ -14,11 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 
 @RestController
@@ -45,14 +47,17 @@ public class UserController {
     @PostMapping("/login")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-        TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        String nickname = userService.getNickname(requestDto.getEmail());
+
+        Map<String, Object> userInfo = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        TokenDto jwt = (TokenDto) userInfo.get("tokenDto");
+        String nickname = (String) userInfo.get("nickname");
+        boolean isNoticeAllowed = (boolean) userInfo.get("isNoticeAllowed");
         ResponseCookie cookie = tokenUtils.createTokenCookie(jwt.getRefreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname)));
+                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname, isNoticeAllowed)));
     }
 
     // 로그아웃
@@ -68,10 +73,10 @@ public class UserController {
     // 토큰 재발행
     @PostMapping("/reissue")
     public ResponseEntity<?> reissueToken(
-            @RequestBody TokenDto tokenDto,
+            @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
 
-        TokenDto reissueTokenDto = userService.reissue(tokenDto.getAccessToken(), refreshToken);
+        TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())

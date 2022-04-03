@@ -9,6 +9,7 @@ import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.repository.AccountRepository;
 import com.sparta.team6.momo.repository.UserRepository;
+import com.sparta.team6.momo.security.jwt.TokenProvider;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,8 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import com.sparta.team6.momo.security.jwt.TokenProvider;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +42,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
     private final AccountRepository accountRepository;
@@ -49,7 +52,7 @@ public class UserService {
         duplicateEmailCheck(requestDto);
         User user = User.builder()
                 .email(requestDto.getEmail())
-                .password(requestDto.getPassword())
+                .password(passwordEncoder.encode(requestDto.getPassword()))
                 .nickname(requestDto.getNickname())
                 .userRole(ROLE_USER)
                 .provider(MOMO)
@@ -58,7 +61,7 @@ public class UserService {
     }
 
     @Transactional
-    public TokenDto loginUser(String email, String password) {
+    public Map<String, Object> loginUser(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -67,8 +70,14 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
         if (user.isLogin()) throw new CustomException(ALREADY_LOGIN_ACCOUNT);
         else user.setLoginTrue();
+        TokenDto tokenDto = createAndSaveToken(authentication);
 
-        return createAndSaveToken(authentication);
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("nickname", user.getNickname());
+        userInfo.put("isNoticeAllowed", user.isNoticeAllowed());
+        userInfo.put("tokenDto", tokenDto);
+
+        return userInfo;
     }
 
     @Transactional
@@ -116,6 +125,12 @@ public class UserService {
         Account savedAccount = accountRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
+
+        if (savedAccount instanceof User) {
+            User user = (User) savedAccount;
+            user.setNoticeAllowedTrue();
+        }
+
         savedAccount.updateToken(token);
     }
 
