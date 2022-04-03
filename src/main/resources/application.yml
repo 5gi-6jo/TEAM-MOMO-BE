@@ -73,11 +73,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-server:
-  port: 8080
-  tomcat:
-    uri-encoding: UTF-8
-
 jwt:
   header: Authorization
   refresh-token-validity-in-seconds: '3600'

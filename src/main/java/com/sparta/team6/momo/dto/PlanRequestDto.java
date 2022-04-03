@@ -41,13 +41,8 @@ public class PlanRequestDto {
     @NotNull(message = "모두모여 시간을 설정해주세요")
     private Long noticeTime;
 
-    @AssertTrue(message = "현재 시간 이후에만 모임을 생성할 수 있습니다")
+    @AssertTrue(message = "모임 시간과 모두모여 시간을 현재 시간 이후로 설정해주세요")
     private boolean isValidDate() {
-        return planDate.isAfter(LocalDateTime.now());
-    }
-
-    @AssertTrue(message = "현재 시간 이전으로 알림시간을 설정할 수 없습니다")
-    private boolean isValidNoticeTime() {
         return planDate.minusMinutes(noticeTime).isAfter(LocalDateTime.now());
     }
 
