@@ -1,9 +1,6 @@
 package com.sparta.team6.momo.model;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.sparta.team6.momo.model.Provider.KAKAO;
 import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Entity
@@ -38,14 +36,20 @@ public class User extends Account {
     @NotNull
     private boolean isLogin;
 
+    @Enumerated(EnumType.STRING)
+    @NotEmpty
+    private Provider provider;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<Plan> planList = new ArrayList<>();
 
-    public User(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole) {
+    @Builder
+    public User(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole, @NonNull Provider provider) {
         super(nickname, userRole);
         this.email = email;
         this.password = password;
         this.isLogin = false;
+        this.provider = provider;
     }
 
     public static User fromKakao(OAuth2User oAuth2User) {
@@ -54,7 +58,13 @@ public class User extends Account {
         String email = String.valueOf(kakao_account.get("email"));
         String password = new BCryptPasswordEncoder().encode(UUID.randomUUID().toString());
         String nickname = properties.get("nickname");
-        return new User(email, password, nickname, ROLE_USER);
+        return User.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .userRole(ROLE_USER)
+                .provider(KAKAO)
+                .build();
     }
 
     public void setLoginTrue() {

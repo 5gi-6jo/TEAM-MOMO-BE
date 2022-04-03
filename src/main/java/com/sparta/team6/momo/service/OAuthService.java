@@ -30,6 +30,10 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.sparta.team6.momo.model.Provider.KAKAO;
+import static com.sparta.team6.momo.model.Provider.MOMO;
+import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
+
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -50,8 +54,17 @@ public class OAuthService {
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
-            kakaoUser = new User(email, encodedPassword, nickname, UserRole.ROLE_USER);
+            kakaoUser =User.builder()
+                    .email(email)
+                    .password(encodedPassword)
+                    .nickname(nickname)
+                    .userRole(ROLE_USER)
+                    .provider(KAKAO)
+                    .build();
             userRepository.save(kakaoUser);
+        }
+        if (kakaoUser.getProvider() == MOMO) {
+            throw new
         }
             MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());

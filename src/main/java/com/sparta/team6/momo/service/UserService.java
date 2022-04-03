@@ -6,6 +6,7 @@ import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
+import com.sparta.team6.momo.model.Provider;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.AccountRepository;
@@ -28,6 +29,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.sparta.team6.momo.exception.ErrorCode.*;
+import static com.sparta.team6.momo.model.Provider.MOMO;
+import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +49,13 @@ public class UserService {
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), UserRole.ROLE_USER);
+        User user = User.builder()
+                .email(requestDto.getEmail())
+                .password(requestDto.getPassword())
+                .nickname(requestDto.getNickname())
+                .userRole(ROLE_USER)
+                .provider(MOMO)
+                .build();
         userRepository.save(user);
     }
 
