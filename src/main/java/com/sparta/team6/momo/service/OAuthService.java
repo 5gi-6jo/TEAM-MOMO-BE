@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.team6.momo.dto.KakaoUserInfoDto;
 import com.sparta.team6.momo.dto.TokenDto;
+import com.sparta.team6.momo.exception.CustomException;
+import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.UserRepository;
@@ -30,6 +32,7 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.sparta.team6.momo.exception.ErrorCode.SAME_EMAIL_OTHER_ACCOUNT_EXIST;
 import static com.sparta.team6.momo.model.Provider.KAKAO;
 import static com.sparta.team6.momo.model.Provider.MOMO;
 import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
@@ -49,6 +52,7 @@ public class OAuthService {
         String email = kakaoUserInfo.getEmail();
         User kakaoUser = userRepository.findByEmail(email)
                 .orElse(null);
+
         if (kakaoUser == null) {
             String nickname = kakaoUserInfo.getNickname();
             String password = UUID.randomUUID().toString();
@@ -63,9 +67,11 @@ public class OAuthService {
                     .build();
             userRepository.save(kakaoUser);
         }
+
         if (kakaoUser.getProvider() == MOMO) {
-            throw new
+            throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
         }
+
             MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
             Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

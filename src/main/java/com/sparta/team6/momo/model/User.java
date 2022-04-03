@@ -37,7 +37,7 @@ public class User extends Account {
     private boolean isLogin;
 
     @Enumerated(EnumType.STRING)
-    @NotEmpty
+    @NotNull
     private Provider provider;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

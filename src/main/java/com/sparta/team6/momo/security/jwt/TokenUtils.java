@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -56,6 +57,20 @@ public class TokenUtils implements InitializingBean {
         Date expiration = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
         long now = new Date().getTime();
         return (expiration.getTime() - now);
+    }
+
+    public ResponseCookie createTokenCookie(String refreshToken) {
+        return ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(6000000)
+                .build();
+    }
+
+    public ResponseCookie delTokenCookie() {
+        return ResponseCookie.from("refresh_token", "")
+                .build();
     }
 
 

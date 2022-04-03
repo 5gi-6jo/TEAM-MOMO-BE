@@ -20,7 +20,7 @@ public class AccountResponseDto {
     }
 
 
-    public static AccountResponseDto of(User user) {
+    public static AccountResponseDto from(User user) {
         return AccountResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())

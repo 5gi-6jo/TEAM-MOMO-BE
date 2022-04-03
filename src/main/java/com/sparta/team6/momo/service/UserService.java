@@ -6,9 +6,7 @@ import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
-import com.sparta.team6.momo.model.Provider;
 import com.sparta.team6.momo.model.User;
-import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.AccountRepository;
 import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
@@ -29,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.sparta.team6.momo.exception.ErrorCode.*;
+import static com.sparta.team6.momo.model.Provider.KAKAO;
 import static com.sparta.team6.momo.model.Provider.MOMO;
 import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 
@@ -39,7 +38,6 @@ public class UserService {
 
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -75,10 +73,10 @@ public class UserService {
 
     @Transactional
     public void logout(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, ErrorCode.INVALID_ACCESS_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, INVALID_ACCESS_TOKEN);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
 
         redisTemplate.delete(authentication.getName());
 
@@ -93,10 +91,10 @@ public class UserService {
 
 
     public TokenDto reissue(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, ErrorCode.INVALID_REFRESH_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
 
         return createAndSaveToken(authentication);
     }
@@ -105,7 +103,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("유저를 찾을 수 없습니다")
         );
-        return AccountResponseDto.of(user);
+        return AccountResponseDto.from(user);
     }
 
     public String getNickname(String email) {
@@ -152,8 +150,12 @@ public class UserService {
 
 
     private void duplicateEmailCheck(SignupRequestDto requestDto) {
-        if (userRepository.existsByEmail(requestDto.getEmail()))
-            throw new CustomException(DUPLICATE_EMAIL);
+        userRepository.findByEmail(requestDto.getEmail())
+                .ifPresent( (user) -> {
+                    if (user.getProvider() == KAKAO) throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
+                    else throw new CustomException(DUPLICATE_EMAIL);
+                });
+
     }
 
 }

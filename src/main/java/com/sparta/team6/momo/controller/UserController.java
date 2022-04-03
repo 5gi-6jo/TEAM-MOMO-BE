@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.team6.momo.annotation.DTOValid;
 import com.sparta.team6.momo.annotation.LogoutCheck;
 import com.sparta.team6.momo.dto.*;
+import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.utils.AccountUtils;
@@ -28,6 +29,7 @@ public class UserController {
     private final UserService userService;
     private final OAuthService oAuthService;
     private final AccountUtils accountUtils;
+    private final TokenUtils tokenUtils;
 
 
     // 회원가입
@@ -45,7 +47,7 @@ public class UserController {
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
         TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
         String nickname = userService.getNickname(requestDto.getEmail());
-        ResponseCookie cookie = createTokenCookie(jwt.getRefreshToken());
+        ResponseCookie cookie = tokenUtils.createTokenCookie(jwt.getRefreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -70,7 +72,7 @@ public class UserController {
             @CookieValue(name = "refresh_token") String refreshToken) {
 
         TokenDto reissueTokenDto = userService.reissue(tokenDto.getAccessToken(), refreshToken);
-        ResponseCookie cookie = createTokenCookie(reissueTokenDto.getRefreshToken());
+        ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, reissueTokenDto.getAccessToken())
@@ -87,7 +89,7 @@ public class UserController {
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
         TokenDto tokenDto = oAuthService.kakaoLogin(code);
-        ResponseCookie cookie = createTokenCookie(tokenDto.getRefreshToken());
+        ResponseCookie cookie = tokenUtils.createTokenCookie(tokenDto.getRefreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -106,14 +108,5 @@ public class UserController {
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
         userService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("변경 완료"));
-    }
-
-    private ResponseCookie createTokenCookie(String refreshToken) {
-        return ResponseCookie.from("refresh_token", refreshToken)
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(6000000)
-                .build();
     }
 }
