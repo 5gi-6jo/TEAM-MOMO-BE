@@ -62,7 +62,7 @@ public class UserService {
 
 
     public void logout(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, ErrorCode.INVALID_ACCESS_TOKEN);
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
