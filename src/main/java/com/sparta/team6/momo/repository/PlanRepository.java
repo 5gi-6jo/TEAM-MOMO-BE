@@ -19,8 +19,7 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
 
     Page<Plan> findAllByUser_Id(Long userId, Pageable pageable);
 
-    // isNoticeAllowed
-    @Query(value = "select p from Plan p join fetch p.user u where u.token is not null and p.noticeTime=:dateTime")
+    @Query(value = "select p from Plan p join fetch p.user u where u.isNoticeAllowed is true and p.noticeTime=:dateTime")
     List<Plan> findAllByNoticeTime(@Param(value = "dateTime") LocalDateTime dateTime);
 
 }
