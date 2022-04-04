@@ -67,7 +67,7 @@ public class UserController {
     }
 
     // 토큰 재발행
-    @PostMapping("/reissue")
+    @GetMapping("/reissue")
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
