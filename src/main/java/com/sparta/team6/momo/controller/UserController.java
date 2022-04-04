@@ -59,8 +59,8 @@ public class UserController {
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @RequestBody TokenDto tokenDto,
-            @CookieValue(name = "refresh_token") String refreshToken) {
+            @RequestHeader("Authorization") String accessToken,
+            @CookieValue(name = "refreshToken") String refreshToken) {
 
         userService.logout(tokenDto.getAccessToken(), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
