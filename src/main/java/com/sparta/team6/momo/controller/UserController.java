@@ -24,6 +24,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -71,8 +72,8 @@ public class UserController {
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
         
-        System.out.println("accessToken = " + accessToken);
-        System.out.println("refreshToken = " + refreshToken);
+        log.error(accessToken);
+        log.error(refreshToken);
         TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
