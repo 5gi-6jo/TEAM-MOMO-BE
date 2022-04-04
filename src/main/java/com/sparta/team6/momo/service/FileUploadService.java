@@ -54,9 +54,10 @@ public class FileUploadService {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
+            } else {
+                log.info("조건에 맞는 모임이 존재하지 않습니다");
+                throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
             }
-            log.info("조건에 맞는 모임이 존재하지 않습니다");
-            throw new CustomException(ErrorCode.PLAN_NOT_FOUND);
         }
         return imageDtoList;
     }
