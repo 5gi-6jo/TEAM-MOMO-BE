@@ -65,6 +65,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
+                .antMatchers("/meets").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/maps/**").permitAll()
                 .antMatchers("/topic/**").permitAll()
