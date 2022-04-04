@@ -23,11 +23,11 @@ public class Success<T> {
         this.data = data;
     }
 
-    public static Success<TokenDto> of(TokenDto tokenDto) {
+    public static Success<TokenDto> from(TokenDto tokenDto) {
         return new Success<>(tokenDto);
     }
 
-    public static Success<AccountResponseDto> of(AccountResponseDto accountResponseDto) {
+    public static Success<AccountResponseDto> from(AccountResponseDto accountResponseDto) {
         return new Success<>(accountResponseDto);
     }
 }

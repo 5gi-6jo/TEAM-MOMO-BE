@@ -19,7 +19,7 @@ spring:
     url: jdbc:h2:mem:testdb
   redis:
     host: localhost
-    port: 6300
+    port: 6379
 
 ---
 

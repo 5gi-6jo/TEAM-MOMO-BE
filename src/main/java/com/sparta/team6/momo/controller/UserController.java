@@ -8,19 +8,15 @@ import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.utils.AccountUtils;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -69,7 +65,7 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             @RequestHeader("Authorization") String accessToken,
-            @CookieValue(name = "refreshToken") String refreshToken) {
+            @CookieValue(name = "refresh_token") String refreshToken) {
 
         userService.logout(accessToken.substring(7), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
@@ -79,7 +75,7 @@ public class UserController {
     @GetMapping("/reissue")
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
-            @CookieValue(value = "refreshToken") String refreshToken) {
+            @CookieValue(value = "refresh_token") String refreshToken) {
 
         TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
@@ -93,7 +89,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<?> getUserInfo() {
         AccountResponseDto userInfo = userService.getUserInfo(accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(Success.of(userInfo));
+        return ResponseEntity.ok().body(Success.from(userInfo));
     }
 
     @GetMapping("/kakao/callback")

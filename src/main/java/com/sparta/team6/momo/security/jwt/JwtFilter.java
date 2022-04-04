@@ -41,7 +41,8 @@ public class JwtFilter extends GenericFilterBean {
 
         if (StringUtils.hasText(jwt)) {
 
-            if (!httpServletRequest.getRequestURI().equals("/users/reissue"))
+            if (!httpServletRequest.getRequestURI().equals("/users/reissue") &&
+                    !httpServletRequest.getRequestURI().equals("/users/logout"))
                 tokenUtils.isTokenValidate(jwt);
 
             if (tokenUtils.isTokenBlackList(jwt))
