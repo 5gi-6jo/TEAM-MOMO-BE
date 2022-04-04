@@ -68,8 +68,8 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-        if (user.isLogin()) throw new CustomException(ALREADY_LOGIN_ACCOUNT);
-        else user.setLoginTrue();
+//        if (user.isLogin()) throw new CustomException(ALREADY_LOGIN_ACCOUNT);
+//        else user.setLoginTrue();
         TokenDto tokenDto = createAndSaveToken(authentication);
 
         Map<String, Object> userInfo = new HashMap<>();
