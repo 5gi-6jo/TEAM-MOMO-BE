@@ -76,9 +76,10 @@ public class PlanService {
         if (userId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
+        } else {
+            log.info("Account 정보가 일치하지 않습니다");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
-        log.info("Account 정보가 일치하지 않습니다");
-        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
     public DetailResponseDto showDetail(Long planId, Long userId) {
