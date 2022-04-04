@@ -62,7 +62,8 @@ public class TokenUtils implements InitializingBean {
     public ResponseCookie createTokenCookie(String refreshToken) {
         return ResponseCookie.from("refresh_token", refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
+                .sameSite("None")
                 .path("/")
                 .maxAge(6000000)
                 .build();
