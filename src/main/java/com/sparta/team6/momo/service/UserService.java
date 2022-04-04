@@ -82,7 +82,7 @@ public class UserService {
 
     @Transactional
     public void logout(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationWithCheckToken(accessToken, accessToken, INVALID_ACCESS_TOKEN);
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
             throw new CustomException(INVALID_REFRESH_TOKEN);

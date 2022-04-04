@@ -28,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -78,8 +79,7 @@ public class UserController {
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(value = "refreshToken") String refreshToken) {
 
-        System.out.println("refreshToken = " + refreshToken);
-        TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
+        TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -113,8 +113,15 @@ public class UserController {
     }
 
     @PatchMapping("/nicknames")
+    @DTOValid
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
         userService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("변경 완료"));
     }
+
+//    @PatchMapping("/password")
+//    @DTOValid
+//    public ResponseEntity<> changePassword(@RequestBody @Valid PasswordRequestDto requestDto, BindingResult bindingResult) {
+//
+//    }
 }
