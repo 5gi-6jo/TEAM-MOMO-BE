@@ -18,6 +18,7 @@ public class CorsConfig {
         config.addAllowedOriginPattern("*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.addAllowedOrigin("localhost:3000");
         config.addExposedHeader("Authorization");
         config.addExposedHeader("Set-Cookie");
 
