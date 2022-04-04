@@ -62,7 +62,7 @@ public class UserController {
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refreshToken") String refreshToken) {
 
-        userService.logout(tokenDto.getAccessToken(), refreshToken);
+        userService.logout(accessToken.substring(7), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
     }
 
@@ -71,9 +71,7 @@ public class UserController {
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
-        
-        log.error(refreshToken);
-        log.error(accessToken);
+      
         TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
