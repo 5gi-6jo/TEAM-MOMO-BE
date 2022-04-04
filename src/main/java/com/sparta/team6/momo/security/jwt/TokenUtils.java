@@ -69,4 +69,12 @@ public class TokenUtils implements InitializingBean {
                 .build();
     }
 
+
+    public ResponseCookie delTokenCookie() {
+        return ResponseCookie.from("refresh_token", "")
+                .build();
+    }
+
+
+
 }

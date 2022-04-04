@@ -7,9 +7,9 @@ import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.User;
-import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.AccountRepository;
 import com.sparta.team6.momo.repository.UserRepository;
+import com.sparta.team6.momo.security.jwt.TokenProvider;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,12 +22,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import com.sparta.team6.momo.security.jwt.TokenProvider;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.team6.momo.exception.ErrorCode.DUPLICATE_EMAIL;
+import static com.sparta.team6.momo.exception.ErrorCode.*;
+import static com.sparta.team6.momo.model.Provider.KAKAO;
+import static com.sparta.team6.momo.model.Provider.MOMO;
+import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +40,9 @@ public class UserService {
 
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
     private final AccountRepository accountRepository;
@@ -46,40 +50,60 @@ public class UserService {
     @Transactional
     public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
-        User user = new User(requestDto.getEmail(), passwordEncoder.encode(requestDto.getPassword()), requestDto.getNickname(), UserRole.ROLE_USER);
+        User user = User.builder()
+                .email(requestDto.getEmail())
+                .password(passwordEncoder.encode(requestDto.getPassword()))
+                .nickname(requestDto.getNickname())
+                .userRole(ROLE_USER)
+                .provider(MOMO)
+                .build();
         userRepository.save(user);
     }
 
-
-    public TokenDto loginUser(String email, String password) {
+    @Transactional
+    public Map<String, Object> loginUser(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return createAndSaveToken(authentication);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        if (user.isLogin()) throw new CustomException(ALREADY_LOGIN_ACCOUNT);
+        else user.setLoginTrue();
+        TokenDto tokenDto = createAndSaveToken(authentication);
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("nickname", user.getNickname());
+        userInfo.put("isNoticeAllowed", user.isNoticeAllowed());
+        userInfo.put("tokenDto", tokenDto);
+
+        return userInfo;
     }
 
-
+    @Transactional
     public void logout(String accessToken, String refreshToken) {
         Authentication authentication = tokenProvider.getAuthentication(accessToken);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
 
         redisTemplate.delete(authentication.getName());
 
         Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+        User user = userRepository.findById(Long.valueOf(authentication.getName()))
+                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
+        user.setLoginFalse();
     }
 
 
     public TokenDto reissue(String accessToken, String refreshToken) {
-        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, ErrorCode.INVALID_REFRESH_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
 
         return createAndSaveToken(authentication);
     }
@@ -88,7 +112,7 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new UsernameNotFoundException("유저를 찾을 수 없습니다")
         );
-        return AccountResponseDto.of(user);
+        return AccountResponseDto.from(user);
     }
 
     public String getNickname(String email) {
@@ -101,6 +125,12 @@ public class UserService {
         Account savedAccount = accountRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
         );
+
+        if (savedAccount instanceof User) {
+            User user = (User) savedAccount;
+            user.setNoticeAllowedTrue();
+        }
+
         savedAccount.updateToken(token);
     }
 
@@ -135,8 +165,12 @@ public class UserService {
 
 
     private void duplicateEmailCheck(SignupRequestDto requestDto) {
-        if (userRepository.existsByEmail(requestDto.getEmail()))
-            throw new CustomException(DUPLICATE_EMAIL);
+        userRepository.findByEmail(requestDto.getEmail())
+                .ifPresent( (user) -> {
+                    if (user.getProvider() == KAKAO) throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
+                    else throw new CustomException(DUPLICATE_EMAIL);
+                });
+
     }
 
 }

@@ -16,6 +16,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Objects;
+
+import static com.sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -42,7 +45,7 @@ public class JwtFilter extends GenericFilterBean {
                 tokenUtils.isTokenValidate(jwt);
 
             if (tokenUtils.isTokenBlackList(jwt))
-                throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+                throw new CustomException(INVALID_ACCESS_TOKEN);
 
             Authentication authentication = tokenProvider.getAuthentication(jwt);
             SecurityContextHolder.getContext().setAuthentication(authentication);
