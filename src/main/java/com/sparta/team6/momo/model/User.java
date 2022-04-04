@@ -1,5 +1,6 @@
 package com.sparta.team6.momo.model;
 
+import io.jsonwebtoken.lang.Assert;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -46,6 +47,7 @@ public class User extends Account {
     @Builder
     public User(@NonNull String email, @NonNull String password, @NonNull String nickname, @NonNull UserRole userRole, @NonNull Provider provider) {
         super(nickname, userRole);
+        Assert.notNull(email);
         this.email = email;
         this.password = password;
         this.isLogin = false;

@@ -18,6 +18,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
+import static com.sparta.team6.momo.exception.ErrorCode.ONLY_LOGOUT_ACCESS;
+
 @Aspect
 @Slf4j
 @Component
@@ -27,7 +29,7 @@ public class GlobalAspect {
     public void onlyLogoutAccess() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth.getPrincipal() instanceof UserDetails) {
-            throw new CustomException(ErrorCode.ONLY_LOGOUT_ACCESS);
+            throw new CustomException(ONLY_LOGOUT_ACCESS);
         }
     }
 

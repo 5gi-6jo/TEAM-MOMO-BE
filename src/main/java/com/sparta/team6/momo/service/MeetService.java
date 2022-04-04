@@ -23,7 +23,7 @@ public class MeetService {
         Plan plan = planRepository.findPlanByUrl(url).
                 orElseThrow(() -> new CustomException(INVALID_MAP_URL));
 
-        if (plan.getPlanDate().plusHours(6L).isBefore(LocalDateTime.now())) {
+        if (plan.getPlanDate().plusHours(1L).isBefore(LocalDateTime.now())) {
             throw new CustomException(MEET_URI_GONE);
         }
 
