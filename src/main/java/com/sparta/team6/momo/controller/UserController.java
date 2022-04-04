@@ -71,10 +71,8 @@ public class UserController {
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
             @CookieValue(name = "refresh_token") String refreshToken) {
-        
-        log.error(accessToken);
-        log.error(refreshToken);
-        TokenDto reissueTokenDto = userService.reissue(accessToken, refreshToken);
+            
+        TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
