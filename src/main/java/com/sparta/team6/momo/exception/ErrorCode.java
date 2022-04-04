@@ -13,6 +13,8 @@ import static org.springframework.http.HttpStatus.*;
 public enum ErrorCode {
 
 
+    SAME_EMAIL_OTHER_ACCOUNT_EXIST(BAD_REQUEST, "모모 계정이나 다른 소셜 로그인으로 이미 회원가입된 계정입니다"),
+    ALREADY_LOGIN_ACCOUNT(BAD_REQUEST, "이미 로그인된 계정입니다. 로그아웃 후 이용해주십시오"),
     DUPLICATE_EMAIL(BAD_REQUEST, "이메일이 이미 사용중입니다"),
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰이 유효하지 않습니다"),
     INVALID_ACCESS_TOKEN(BAD_REQUEST, "액세스 토큰이 유효하지 않습니다"),
@@ -44,6 +46,9 @@ public enum ErrorCode {
 
     /* 409 CONFLICT : Resource 의 현재 상태와 충돌. 보통 중복된 데이터 존재 */
     DUPLICATE_RESOURCE(CONFLICT, "데이터가 이미 존재합니다"),
+
+    // 410 Gone
+    MEET_URI_GONE(GONE, "모임시간이 만료되어 사라진 주소 입니다.")
 
     ;
 

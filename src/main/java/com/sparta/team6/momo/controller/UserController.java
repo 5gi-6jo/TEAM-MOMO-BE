@@ -8,7 +8,6 @@ import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.utils.AccountUtils;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 
 @RestController
@@ -46,21 +46,26 @@ public class UserController {
     @PostMapping("/login")
     @LogoutCheck @DTOValid
     public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-        TokenDto jwt = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        String nickname = userService.getNickname(requestDto.getEmail());
+
+
+        Map<String, Object> userInfo = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
+        TokenDto jwt = (TokenDto) userInfo.get("tokenDto");
+        String nickname = (String) userInfo.get("nickname");
+        boolean isNoticeAllowed = (boolean) userInfo.get("isNoticeAllowed");
+
         ResponseCookie cookie = tokenUtils.createTokenCookie(jwt.getRefreshToken());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname)));
+                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname, isNoticeAllowed)));
     }
 
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
             @RequestHeader("Authorization") String accessToken,
-            @CookieValue(name = "refreshToken") String refreshToken) {
+            @CookieValue(name = "refresh_token") String refreshToken) {
 
         userService.logout(accessToken.substring(7), refreshToken);
         return ResponseEntity.ok().body(new Success<>());
@@ -70,8 +75,8 @@ public class UserController {
     @GetMapping("/reissue")
     public ResponseEntity<?> reissueToken(
             @RequestHeader("Authorization") String accessToken,
-            @CookieValue(name = "refresh_token") String refreshToken) {
-      
+            @CookieValue(value = "refresh_token") String refreshToken) {
+
         TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
         ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
         return ResponseEntity.ok()
@@ -84,7 +89,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<?> getUserInfo() {
         AccountResponseDto userInfo = userService.getUserInfo(accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(Success.of(userInfo));
+        return ResponseEntity.ok().body(Success.from(userInfo));
     }
 
     @GetMapping("/kakao/callback")
@@ -106,8 +111,17 @@ public class UserController {
     }
 
     @PatchMapping("/nicknames")
+    @DTOValid
     public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
         userService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("변경 완료"));
     }
+
+
+//    @PatchMapping("/password")
+//    @DTOValid
+//    public ResponseEntity<> changePassword(@RequestBody @Valid PasswordRequestDto requestDto, BindingResult bindingResult) {
+//
+//    }
+
 }

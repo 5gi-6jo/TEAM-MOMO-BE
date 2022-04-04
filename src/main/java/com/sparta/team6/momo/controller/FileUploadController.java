@@ -23,21 +23,21 @@ public class FileUploadController {
     private final AccountUtils accountUtils;
 
     @PostMapping("/plans/{planId}/images")
-    public ResponseEntity<Object> uploadImage(@RequestParam("files") List<MultipartFile> files, @PathVariable Long planId, Authentication authentication) {
+    public ResponseEntity<Object> uploadImage(@RequestParam("files") List<MultipartFile> files, @PathVariable Long planId) {
         List<ImageDto> imageDtoList = fileUploadService.uploadImage(files, planId, accountUtils.getCurUserId());
         log.info("이미지 업로드 성공");
         return ResponseEntity.ok().body(new Success<>("업로드 성공", imageDtoList));
     }
 
     @GetMapping("/plans/{planId}/images")
-    public ResponseEntity<Object> showImage(@PathVariable Long planId, Authentication authentication) {
+    public ResponseEntity<Object> showImage(@PathVariable Long planId) {
         List<ImageDto> imageList = fileUploadService.showImage(planId, accountUtils.getCurUserId());
         log.info("이미지 조회 성공");
         return ResponseEntity.ok().body(new Success<>("이미지 조회 완료", imageList));
     }
 
     @DeleteMapping("/images/{imageId}")
-    public ResponseEntity<Object> deleteImageS3(@PathVariable Long imageId, Authentication authentication) {
+    public ResponseEntity<Object> deleteImageS3(@PathVariable Long imageId) {
         fileUploadService.deleteImageS3(imageId, accountUtils.getCurUserId());
         log.info("이미지 삭제 성공");
         return ResponseEntity.ok().body(new Success<>("이미지 삭제 완료"));

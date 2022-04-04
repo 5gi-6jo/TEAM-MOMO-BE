@@ -61,9 +61,10 @@ public class PlanService {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
             }
             planRepository.deleteById(planId);
+        } else {
+            log.info("Account 정보가 일치하지 않습니다");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
-        log.info("Account 정보가 일치하지 않습니다");
-        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
     @Transactional
