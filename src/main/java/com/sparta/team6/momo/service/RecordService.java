@@ -4,6 +4,7 @@ import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +22,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecordService {
 
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 100;
 
     private final PlanRepository planRepository;
 
+    @Cacheable(key = "#userId", value = "records")
     public List<RecordResponseDto> showRecord(Long pageNumber, Long userId) {
         Pageable pageRequest = PageRequest.of(pageNumber.intValue(), PAGE_SIZE, Sort.by("planDate", "createdAt").descending());
         Page<Plan> planList = planRepository.findAllByUser_Id(userId, pageRequest);
