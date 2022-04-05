@@ -73,7 +73,7 @@ public class OAuthService {
         }
 
             MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         TokenDto tokenDto = tokenProvider.createToken(authentication);
