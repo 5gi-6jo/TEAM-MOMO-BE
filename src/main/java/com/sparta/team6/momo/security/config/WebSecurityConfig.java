@@ -65,7 +65,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .authorizeRequests()
-                .antMatchers("/**").permitAll()
                 .antMatchers("ws://https://www.seoultaste.click/ws").permitAll()
                 .antMatchers("/meets").permitAll()
                 .antMatchers("/ws/**").permitAll()
