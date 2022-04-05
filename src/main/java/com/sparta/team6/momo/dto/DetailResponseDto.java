@@ -11,9 +11,9 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class DetailResponseDto {
-    private LocalDateTime planDate;
-    private LocalDateTime noticeTime;
-    private LocalDateTime finishTime;
+    private String planDate;
+    private String noticeTime;
+    private String finishTime;
     private String planName;
     private String destination;
     private List<ImageDto> imageList;
@@ -21,7 +21,7 @@ public class DetailResponseDto {
     private String url;
 
     @Builder
-    public DetailResponseDto(LocalDateTime planDate, LocalDateTime noticeTime, LocalDateTime finishTime, String planName, String destination, List<ImageDto> imageList, String contents, String url) {
+    public DetailResponseDto(String planDate, String noticeTime, String finishTime, String planName, String destination, List<ImageDto> imageList, String contents, String url) {
         this.planDate = planDate;
         this.noticeTime = noticeTime;
         this.finishTime = finishTime;
@@ -34,9 +34,9 @@ public class DetailResponseDto {
 
     public static DetailResponseDto of(Plan plan, List<ImageDto> imageList) {
         return DetailResponseDto.builder()
-                .planDate(plan.getPlanDate())
-                .noticeTime(plan.getNoticeTime())
-                .finishTime(plan.getPlanDate().plusHours(1))
+                .planDate(plan.getPlanDate().toString())
+                .noticeTime(plan.getNoticeTime().toString())
+                .finishTime(plan.getPlanDate().plusHours(1).toString())
                 .planName(plan.getPlanName())
                 .destination(plan.getDestination())
                 .contents(plan.getContents())

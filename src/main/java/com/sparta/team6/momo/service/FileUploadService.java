@@ -8,6 +8,8 @@ import com.sparta.team6.momo.repository.PlanRepository;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.sparta.team6.momo.dto.ImageDto;
@@ -32,8 +34,9 @@ public class FileUploadService {
     private final PlanRepository planRepository;
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
+    @CacheEvict(key = "#userId", value = "images")
     @Transactional
-    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long accountId) {
+    public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long userId) {
         List<ImageDto> imageDtoList = new ArrayList<>();
 
         for (MultipartFile multipartFile : files) {
@@ -50,7 +53,7 @@ public class FileUploadService {
             }
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
-            if (plan.isPresent() && accountId.equals(plan.get().getUser().getId())) {
+            if (plan.isPresent() && userId.equals(plan.get().getUser().getId())) {
                 Image image = new Image(plan.get(), uploadService.getFileUrl(fileName));
                 imageRepository.save(image);
                 imageDtoList.add(new ImageDto(image));
@@ -60,6 +63,36 @@ public class FileUploadService {
             }
         }
         return imageDtoList;
+    }
+
+    @Cacheable(key = "#userId", value = "images")
+    public List<ImageDto> showImage(Long planId, Long userId) {
+        List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
+        List<ImageDto> dtoList = new ArrayList<>();
+        try {
+            if (userId.equals(imageList.get(0).getPlan().getUser().getId())) {
+                for (Image image : imageList) {
+                    dtoList.add(new ImageDto(image.getId(), image.getImage()));
+                }
+                return dtoList;
+            }
+            log.info("Account 정보가 일치하지 않습니다");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        } catch (IndexOutOfBoundsException e) {
+            return dtoList;
+        }
+    }
+
+    @CacheEvict(key = "#userId", value = "images")
+    public void deleteImageS3(Long imageId, Long userId) {
+        Optional<Image> image = imageRepository.findById(imageId);
+        if (image.isPresent() && userId.equals(image.get().getPlan().getUser().getId())) {
+            uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
+            imageRepository.deleteById(imageId);
+            return;
+        }
+        log.info("해당 이미지가 존재하지 않습니다");
+        throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
     }
 
     // 기존 확장자명을 유지한 채, 유니크한 파일의 이름을 생성하는 메서드
@@ -75,35 +108,5 @@ public class FileUploadService {
             log.info("잘못된 형식의 확장자입니다");
             throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
         }
-    }
-
-    public List<ImageDto> showImage(Long planId, Long accountId) {
-        List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
-        try {
-            if (accountId.equals(imageList.get(0).getPlan().getUser().getId())) {
-                List<ImageDto> dtoList = new ArrayList<>();
-                for (Image image : imageList) {
-                    dtoList.add(new ImageDto(image.getId(), image.getImage()));
-                }
-                return dtoList;
-            }
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
-
-        } catch (Exception e) {
-            log.info("해당 이미지가 존재하지 않습니다");
-            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
-        }
-
-    }
-
-    public void deleteImageS3(Long imageId, Long accountId) {
-        Optional<Image> image = imageRepository.findById(imageId);
-        if (image.isPresent() && accountId.equals(image.get().getPlan().getUser().getId())) {
-            uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
-            imageRepository.deleteById(imageId);
-        }
-        log.info("해당 이미지가 존재하지 않습니다");
-        throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
     }
 }

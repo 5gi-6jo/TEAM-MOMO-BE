@@ -1,9 +1,11 @@
 package com.sparta.team6.momo.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import com.sparta.team6.momo.model.Plan;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,20 +13,20 @@ import java.time.LocalDateTime;
 public class MainResponseDto {
     private Long planId;
     private String planName;
-    private LocalDateTime planDate;
-    private LocalDateTime noticeTime;
-    private LocalDateTime finishTime;
+    private String planDate;
+    private String noticeTime;
+    private String finishTime;
     private String url;
-    private boolean isFinished;
+    private boolean finished;
 
     public MainResponseDto(Plan plan) {
         this.planId = plan.getId();
         this.planName = plan.getPlanName();
-        this.planDate = plan.getPlanDate();
-        this.noticeTime = plan.getNoticeTime();
-        this.finishTime = plan.getPlanDate().plusHours(1);
+        this.planDate = plan.getPlanDate().toString();
+        this.noticeTime = plan.getNoticeTime().toString();
+        this.finishTime = plan.getPlanDate().plusHours(1).toString();
         this.url = activeCheck(plan.getNoticeTime(), plan.getPlanDate().plusHours(1), plan.getUrl());
-        this.isFinished = finishCheck(plan.getPlanDate());
+        this.finished = finishCheck(plan.getPlanDate());
     }
 
     private boolean finishCheck(LocalDateTime planDate) {

@@ -10,17 +10,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class RecordResponseDto {
     private Long planId;
-    private LocalDateTime planDate;
+    private String planDate;
     private String planName;
     private String destination;
-    private boolean isFinished;
+    private boolean finished;
 
     public RecordResponseDto(Plan plan) {
         this.planId = plan.getId();
-        this.planDate = plan.getPlanDate();
+        this.planDate = plan.getPlanDate().toString();
         this.planName = plan.getPlanName();
         this.destination = plan.getDestination();
-        this.isFinished = finishCheck(plan.getPlanDate());
+        this.finished = finishCheck(plan.getPlanDate());
     }
 
     public boolean finishCheck(LocalDateTime planDate) {
