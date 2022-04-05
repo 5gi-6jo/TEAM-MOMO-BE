@@ -16,17 +16,21 @@ public class DetailResponseDto {
     private String finishTime;
     private String planName;
     private String destination;
+    private String lat;
+    private String lng;
     private List<ImageDto> imageList;
     private String contents;
     private String url;
 
     @Builder
-    public DetailResponseDto(String planDate, String noticeTime, String finishTime, String planName, String destination, List<ImageDto> imageList, String contents, String url) {
+    public DetailResponseDto(String planDate, String noticeTime, String finishTime, String planName, String destination, String lat, String lng, List<ImageDto> imageList, String contents, String url) {
         this.planDate = planDate;
         this.noticeTime = noticeTime;
         this.finishTime = finishTime;
         this.planName = planName;
         this.destination = destination;
+        this.lat = lat;
+        this.lng = lng;
         this.contents = contents;
         this.imageList = imageList;
         this.url = url;
@@ -39,6 +43,8 @@ public class DetailResponseDto {
                 .finishTime(plan.getPlanDate().plusHours(1).toString())
                 .planName(plan.getPlanName())
                 .destination(plan.getDestination())
+                .lat(plan.getLat())
+                .lng(plan.getLng())
                 .contents(plan.getContents())
                 .imageList(imageList)
                 .url(activeCheck(plan.getNoticeTime(), plan.getPlanDate().plusHours(1), plan.getUrl()))
