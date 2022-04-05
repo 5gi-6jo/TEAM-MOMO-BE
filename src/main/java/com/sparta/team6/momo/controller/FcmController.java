@@ -23,7 +23,7 @@ public class FcmController {
     private final AccountUtils accountUtils;
 
     @PostMapping("/fcm")
-    public ResponseEntity<Object> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
+    public ResponseEntity<Success<Object>> pushMessage(@RequestBody FcmRequestDto requestDto) throws IOException {
         FcmResponseDto responseDto = firebaseCloudMessageService.manualPush(requestDto.getPlanId(), accountUtils.getCurUserId());
         firebaseCloudMessageService.sendMessageTo(
                 responseDto.getToken(),

@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 
 @RestController
-@RequestMapping("/guests")
 @RequiredArgsConstructor
-@Slf4j
+@RequestMapping("/guests")
 public class GuestController {
 
     private final GuestService guestService;
 
+    // 게스트 생성
     @PostMapping
-    public ResponseEntity<Object> connectGuest(@RequestBody GuestRequestDto requestDto) {
+    public ResponseEntity<Success<Object>> connectGuest(@RequestBody GuestRequestDto requestDto) {
         TokenDto tokenDto = guestService.connectGuest(requestDto.getNickname());
         return ResponseEntity.ok()
                 .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())

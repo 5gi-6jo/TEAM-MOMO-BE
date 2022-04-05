@@ -17,7 +17,8 @@ public class MeetController {
 
     private final MeetService meetService;
 
-    @GetMapping("/{randomUrl}") // planId
+    // 지도 주소 접근시 해당 모임 id 반환
+    @GetMapping("/{randomUrl}")
     public ResponseEntity<Success<MeetResponseDto>> getPlanIdFromUrl(@PathVariable("randomUrl") String url) {
         MeetResponseDto responseDto = meetService.getPlanInfo(url);
         return ResponseEntity.ok().body(new Success<>(responseDto));

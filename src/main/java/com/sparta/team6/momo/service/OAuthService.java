@@ -11,6 +11,7 @@ import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.auth.MoMoUser;
 import com.sparta.team6.momo.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +37,7 @@ import static com.sparta.team6.momo.model.Provider.KAKAO;
 import static com.sparta.team6.momo.model.Provider.MOMO;
 import static com.sparta.team6.momo.model.UserRole.ROLE_USER;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthService {
@@ -72,9 +74,13 @@ public class OAuthService {
             throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
         }
 
-            MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.error("{}", kakaoUser);
+
+        MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        log.error("{}", authentication);
 
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()

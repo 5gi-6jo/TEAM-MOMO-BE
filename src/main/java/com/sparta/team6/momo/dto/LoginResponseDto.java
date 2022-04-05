@@ -1,5 +1,6 @@
 package com.sparta.team6.momo.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,5 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class LoginResponseDto {
     private String nickname;
+
+    @JsonProperty("isNoticeAllowed")
     private boolean isNoticeAllowed;
 }
