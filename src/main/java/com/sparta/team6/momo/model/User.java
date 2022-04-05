@@ -80,4 +80,8 @@ public class User extends Account {
     public void setNoticeAllowedTrue() {
         this.isNoticeAllowed = true;
     }
+
+    public void setNoticeAllowedFalse() {
+        this.isNoticeAllowed = false;
+    }
 }
