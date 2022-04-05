@@ -90,7 +90,6 @@ public class PlanService {
         }
     }
 
-    @Cacheable(key = "#userId", value = "single-plan")
     public DetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> {
