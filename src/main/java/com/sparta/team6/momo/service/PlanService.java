@@ -5,6 +5,9 @@ import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
@@ -35,8 +38,10 @@ public class PlanService {
     private final UploadService uploadService;
     private final UserRepository userRepository;
 
+    @CacheEvict(key = "#userId", value = {"plans", "records"})
     @Transactional
     public Long savePlan(PlanRequestDto request, Long userId) {
+
         Plan savedPlan = planRepository.save(request.toEntity());
         User user = userRepository.findById(userId).orElseThrow(
                 () -> {
@@ -48,6 +53,7 @@ public class PlanService {
         return savedPlan.getId();
     }
 
+    @CacheEvict(key = "#userId", value = {"plans", "records", "single-plan"})
     @Transactional
     public void deletePlan(Long planId, Long userId) {
         Plan result = planRepository.findById(planId).orElseThrow(
@@ -67,6 +73,7 @@ public class PlanService {
         }
     }
 
+    @CacheEvict(key = "#userId", value = {"plans", "records", "single-plan"})
     @Transactional
     public PlanResponseDto updatePlan(Long planId, PlanRequestDto requestDto, Long userId) {
         Plan savedPlan = planRepository.findById(planId).orElseThrow(
@@ -83,6 +90,7 @@ public class PlanService {
         }
     }
 
+    @Cacheable(key = "#userId", value = "single-plan")
     public DetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> {
@@ -101,6 +109,7 @@ public class PlanService {
         throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
     }
 
+    @Cacheable(key = "#userId", value = "plans")
     public List<MainResponseDto> showMain(String date, Long userId) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter).minusMonths(1);
