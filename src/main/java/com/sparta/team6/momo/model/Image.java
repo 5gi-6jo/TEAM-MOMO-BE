@@ -9,7 +9,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Image {
+public class Image extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
