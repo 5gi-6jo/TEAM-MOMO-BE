@@ -6,11 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.team6.momo.dto.KakaoUserInfoDto;
 import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
-import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.User;
-import com.sparta.team6.momo.model.UserRole;
 import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.auth.MoMoUser;
+import com.sparta.team6.momo.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
@@ -23,10 +22,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import com.sparta.team6.momo.security.jwt.TokenProvider;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -46,6 +45,7 @@ public class OAuthService {
     private final TokenProvider tokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
 
+    @Transactional
     public TokenDto kakaoLogin(String code) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
@@ -58,14 +58,14 @@ public class OAuthService {
             String password = UUID.randomUUID().toString();
             String encodedPassword = passwordEncoder.encode(password);
 
-            kakaoUser =User.builder()
+            User user =User.builder()
                     .email(email)
                     .password(encodedPassword)
                     .nickname(nickname)
                     .userRole(ROLE_USER)
                     .provider(KAKAO)
                     .build();
-            userRepository.save(kakaoUser);
+            kakaoUser = userRepository.save(user);
         }
 
         if (kakaoUser.getProvider() == MOMO) {
@@ -73,7 +73,7 @@ public class OAuthService {
         }
 
             MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         TokenDto tokenDto = tokenProvider.createToken(authentication);
@@ -93,7 +93,7 @@ public class OAuthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "2adbf21838760b4e80d709eeb37a8857");
-        body.add("redirect_uri", "http://localhost:3000/login/oauth2/code/kakao");
+        body.add("redirect_uri", "https://modumoyeo.com/login/oauth2/code/kakao");
         body.add("code", code);
 
         // HTTP 요청 보내기

@@ -1,5 +1,6 @@
 package com.sparta.team6.momo.model;
 
+import io.jsonwebtoken.lang.Assert;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
