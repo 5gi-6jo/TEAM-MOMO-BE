@@ -99,7 +99,7 @@ public class OAuthService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", "2adbf21838760b4e80d709eeb37a8857");
-        body.add("redirect_uri", "https://modumoyeo.com/login/oauth2/code/kakao");
+        body.add("redirect_uri", "http://localhost:3000/login/oauth2/code/kakao");
         body.add("code", code);
 
         // HTTP 요청 보내기
