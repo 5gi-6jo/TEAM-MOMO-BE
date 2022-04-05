@@ -125,12 +125,13 @@ public class UserService {
     @Transactional
     public void updateDeviceToken(String token, Long accountId) {
         Account savedAccount = accountRepository.findById(accountId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
         if (savedAccount instanceof User) {
             User user = (User) savedAccount;
-            user.setNoticeAllowedTrue();
+            if (token != null) user.setNoticeAllowedTrue();
+            else user.setNoticeAllowedFalse();
         }
 
         savedAccount.updateToken(token);
@@ -139,7 +140,7 @@ public class UserService {
     @Transactional
     public void updateNickname(String nickname, Long accountId) {
         Account savedAccount = accountRepository.findById(accountId).orElseThrow(
-                () -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)
+                () -> new CustomException(MEMBER_NOT_FOUND)
         );
         savedAccount.updateNickname(nickname);
     }
