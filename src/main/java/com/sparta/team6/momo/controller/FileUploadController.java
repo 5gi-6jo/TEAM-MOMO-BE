@@ -36,9 +36,9 @@ public class FileUploadController {
         return ResponseEntity.ok().body(new Success<>("이미지 조회 완료", imageList));
     }
 
-    @DeleteMapping("/images/{imageId}")
-    public ResponseEntity<Object> deleteImageS3(@PathVariable Long imageId) {
-        fileUploadService.deleteImageS3(imageId, accountUtils.getCurUserId());
+    @DeleteMapping("/plans/{planId}/images/{imageId}")
+    public ResponseEntity<Object> deleteImageS3(@PathVariable Long planId, @PathVariable Long imageId) {
+        fileUploadService.deleteImageS3(planId, imageId, accountUtils.getCurUserId());
         log.info("이미지 삭제 성공");
         return ResponseEntity.ok().body(new Success<>("이미지 삭제 완료"));
     }

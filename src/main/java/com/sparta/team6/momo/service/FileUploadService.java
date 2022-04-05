@@ -34,7 +34,7 @@ public class FileUploadService {
     private final PlanRepository planRepository;
 
     //Multipart를 통해 전송된 파일을 업로드하는 메서드
-    @CacheEvict(key = "#userId", value = "images")
+    @CacheEvict(key = "#planId", value = "images")
     @Transactional
     public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long userId) {
         List<ImageDto> imageDtoList = new ArrayList<>();
@@ -65,7 +65,7 @@ public class FileUploadService {
         return imageDtoList;
     }
 
-    @Cacheable(key = "#userId", value = "images")
+    @Cacheable(key = "#planId", value = "images")
     public List<ImageDto> showImage(Long planId, Long userId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         List<ImageDto> dtoList = new ArrayList<>();
@@ -83,8 +83,8 @@ public class FileUploadService {
         }
     }
 
-    @CacheEvict(key = "#userId", value = "images")
-    public void deleteImageS3(Long imageId, Long userId) {
+    @CacheEvict(key = "#planId", value = "images")
+    public void deleteImageS3(Long planId, Long imageId, Long userId) {
         Optional<Image> image = imageRepository.findById(imageId);
         if (image.isPresent() && userId.equals(image.get().getPlan().getUser().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
