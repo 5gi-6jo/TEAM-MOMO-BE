@@ -68,9 +68,9 @@ public class FileUploadService {
     @Cacheable(key = "#userId", value = "images")
     public List<ImageDto> showImage(Long planId, Long userId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
+        List<ImageDto> dtoList = new ArrayList<>();
         try {
             if (userId.equals(imageList.get(0).getPlan().getUser().getId())) {
-                List<ImageDto> dtoList = new ArrayList<>();
                 for (Image image : imageList) {
                     dtoList.add(new ImageDto(image.getId(), image.getImage()));
                 }
@@ -78,12 +78,9 @@ public class FileUploadService {
             }
             log.info("Account 정보가 일치하지 않습니다");
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
-
-        } catch (Exception e) {
-            log.info("해당 이미지가 존재하지 않습니다");
-            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
+        } catch (IndexOutOfBoundsException e) {
+            return dtoList;
         }
-
     }
 
     @CacheEvict(key = "#userId", value = "images")
@@ -92,6 +89,7 @@ public class FileUploadService {
         if (image.isPresent() && userId.equals(image.get().getPlan().getUser().getId())) {
             uploadService.deleteFile(image.get().getImage().split(".com/")[1]);
             imageRepository.deleteById(imageId);
+            return;
         }
         log.info("해당 이미지가 존재하지 않습니다");
         throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
