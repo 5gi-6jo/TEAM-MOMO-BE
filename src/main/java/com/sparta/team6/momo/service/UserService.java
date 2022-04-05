@@ -51,6 +51,7 @@ public class UserService {
     public void registerUser(SignupRequestDto requestDto) {
         duplicateEmailCheck(requestDto);
         User user = User.builder()
+                .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .nickname(requestDto.getNickname())
                 .userRole(ROLE_USER)
