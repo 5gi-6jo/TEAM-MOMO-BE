@@ -13,7 +13,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
-import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Image;
 import com.sparta.team6.momo.model.Plan;
 import com.sparta.team6.momo.repository.UserRepository;
@@ -27,8 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.sparta.team6.momo.exception.ErrorCode.MEMBER_NOT_FOUND;
-import static com.sparta.team6.momo.exception.ErrorCode.PLAN_NOT_FOUND;
+import static com.sparta.team6.momo.exception.ErrorCode.*;
+
 
 @Slf4j
 @Service
@@ -44,7 +43,9 @@ public class PlanService {
     @CacheEvict(key = "#userId", value = {"plans", "records"})
     @Transactional
     public Long savePlan(PlanRequestDto request, Long userId) {
-
+        if (planRepository.findByPlanDateBetween(request.getPlanDate(), request.getPlanDate().plusHours(1)).isPresent()) {
+            throw new CustomException(PLAN_DATE_OVERLAPPED);
+        }
         Plan savedPlan = planRepository.save(request.toEntity());
         User user = userRepository.findById(userId).orElseThrow(
                 () -> {
@@ -70,10 +71,10 @@ public class PlanService {
                 uploadService.deleteFile(image.getImage().split(".com/")[1]);
             }
             planRepository.deleteById(planId);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+            return;
         }
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(UNAUTHORIZED_MEMBER);
     }
 
     @CacheEvict(key = "#userId", value = {"plans", "records", "single-plan"})
@@ -84,13 +85,19 @@ public class PlanService {
                     log.info("해당 모임 정보가 존재하지 않습니다");
                     throw new CustomException(PLAN_NOT_FOUND);
                 });
+        if (LocalDateTime.now().isAfter(savedPlan.getNoticeTime())) {
+            log.info("모임이 활성화 된 이후에는 수정할 수 없습니다");
+            throw new CustomException(PLAN_CAN_NOT_MODIFY_AFTER_NOTICE_TIME);
+        } else if (LocalDateTime.now().isAfter(savedPlan.getPlanDate().plusHours(1))) {
+            log.info("모임이 종료된 이후에는 수정할 수 없습니다");
+            throw new CustomException(PLAN_CAN_NOT_MODIFY_AFTER_PLAN_END);
+        }
         if (userId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
             return PlanResponseDto.of(savedPlan);
-        } else {
-            log.info("Account 정보가 일치하지 않습니다");
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
         }
+        log.info("Account 정보가 일치하지 않습니다");
+        throw new CustomException(UNAUTHORIZED_MEMBER);
     }
 
     public DetailResponseDto showDetail(Long planId, Long userId) {
@@ -108,7 +115,7 @@ public class PlanService {
             return DetailResponseDto.from(plan, imageDtoList);
         }
         log.info("Account 정보가 일치하지 않습니다");
-        throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        throw new CustomException(UNAUTHORIZED_MEMBER);
     }
 
     @Cacheable(key = "#userId", value = "plans")

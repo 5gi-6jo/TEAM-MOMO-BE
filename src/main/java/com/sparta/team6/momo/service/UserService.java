@@ -155,7 +155,7 @@ public class UserService {
 
     private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken) {
         if (!tokenUtils.isTokenValidate(validateToken)) {
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
         }
         return tokenProvider.getAuthentication(accessToken);
     }

@@ -17,6 +17,8 @@ import com.sparta.team6.momo.repository.PlanRepository;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sparta.team6.momo.exception.ErrorCode.DO_NOT_HAVE_ANY_RESOURCE;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class RecordService {
 
         if (planList.getTotalPages() <= pageNumber) {
             log.info("모임 정보가 존재하지 않습니다(마지막 페이지)");
-            throw new CustomException(ErrorCode.DO_NOT_HAVE_ANY_RESOURCE);
+            throw new CustomException(DO_NOT_HAVE_ANY_RESOURCE);
         }
         List<RecordResponseDto> dtoList = new ArrayList<>();
         for (Plan plan : planList) {
