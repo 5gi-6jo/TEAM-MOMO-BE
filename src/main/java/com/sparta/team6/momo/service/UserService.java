@@ -101,7 +101,7 @@ public class UserService {
 
     public ReissueResponseDto reissueToken(String bearerToken, String refreshToken) {
         String accessToken = tokenUtils.resolveAccessToken(bearerToken);
-        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
             throw new CustomException(INVALID_REFRESH_TOKEN);
@@ -118,14 +118,15 @@ public class UserService {
     }
 
     @Transactional
-    public void updateDeviceToken(String token, Long accountId) {
-        Account savedAccount = accountRepository.findById(accountId).orElseThrow(
+    public void updateDeviceToken(String token, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-        User user = (User) savedAccount;
-        if (user.isNoticeAllowed()) {
-            savedAccount.updateToken(token);
+        if (token.equals("")) {
+            user.changeNoticeAllowed();
+            return;
         }
+        user.updateToken(token);
     }
 
     @Transactional
@@ -152,9 +153,9 @@ public class UserService {
     }
 
 
-    private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken, ErrorCode errorCode) {
+    private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken) {
         if (!tokenUtils.isTokenValidate(validateToken)) {
-            throw new CustomException(errorCode);
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
         return tokenProvider.getAuthentication(accessToken);
     }

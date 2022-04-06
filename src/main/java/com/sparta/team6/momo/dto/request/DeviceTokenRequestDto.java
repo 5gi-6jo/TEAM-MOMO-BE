@@ -8,6 +8,5 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @NoArgsConstructor
 public class DeviceTokenRequestDto {
-    @NotBlank
     private String token;
 }

@@ -96,7 +96,7 @@ public class UserController {
 
     //device token 저장
     @PostMapping("/devices")
-    public ResponseEntity<Object> updateDeviceToken(@RequestBody @Valid DeviceTokenRequestDto requestDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> updateDeviceToken(@RequestBody DeviceTokenRequestDto requestDto) {
         userService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
     }
