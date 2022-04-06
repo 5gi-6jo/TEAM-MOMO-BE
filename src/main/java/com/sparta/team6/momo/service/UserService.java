@@ -131,7 +131,6 @@ public class UserService {
             if (token != null) user.setNoticeAllowedTrue();
             else user.setNoticeAllowedFalse();
         }
-
         savedAccount.updateToken(token);
     }
 
@@ -167,7 +166,7 @@ public class UserService {
 
     private void duplicateEmailCheck(SignupRequestDto requestDto) {
         userRepository.findByEmail(requestDto.getEmail())
-                .ifPresent( (user) -> {
+                .ifPresent((user) -> {
                     if (user.getProvider() == KAKAO) throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
                     else throw new CustomException(DUPLICATE_EMAIL);
                 });

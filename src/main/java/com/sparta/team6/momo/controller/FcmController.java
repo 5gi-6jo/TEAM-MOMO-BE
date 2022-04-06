@@ -28,8 +28,7 @@ public class FcmController {
         firebaseCloudMessageService.sendMessageTo(
                 responseDto.getToken(),
                 responseDto.getTitle(),
-                responseDto.getBody(),
-                responseDto.getUrl());
+                responseDto.getBody());
 
         return ResponseEntity.ok().body(new Success<>("push message 전송 완료"));
     }
