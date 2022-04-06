@@ -28,6 +28,12 @@ import static com.sparta.team6.momo.exception.ErrorCode.ONLY_LOGOUT_ACCESS;
 @Component
 public class GlobalAspect {
 
+    @Pointcut("execution(* com.sparta.team6.momo.controller..*(..))")
+    private void allController(){}
+
+    @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.login(..))")
+    private void login(){}
+
     @Before("@annotation(com.sparta.team6.momo.annotation.LogoutCheck)")
     public void doLogoutCheck() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -49,7 +55,7 @@ public class GlobalAspect {
         return joinPoint.proceed();
     }
 
-    @Around(value = "execution(* com.sparta.team6.momo.controller..*(..))")
+    @Around(value = "allController() && !login()")
     public Object doLogTrace(ProceedingJoinPoint joinPoint) throws Throwable {
 
         long start = System.currentTimeMillis();

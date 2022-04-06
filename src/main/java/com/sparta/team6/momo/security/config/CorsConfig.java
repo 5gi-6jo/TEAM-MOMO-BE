@@ -19,7 +19,7 @@ public class CorsConfig {
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.addAllowedOrigin("localhost:3000");
-        config.addAllowedOrigin("https://modumoyeo.com/");
+        config.addAllowedOrigin("https://modumoyeo.com");
         config.addExposedHeader("Authorization");
         config.addExposedHeader("Set-Cookie");
 

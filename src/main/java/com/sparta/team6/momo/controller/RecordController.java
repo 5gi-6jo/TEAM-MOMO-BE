@@ -23,7 +23,6 @@ public class RecordController {
     @GetMapping
     public ResponseEntity<Success<List<RecordResponseDto>>> showRecord(@RequestParam("pageNumber") Long pageNumber) {
         List<RecordResponseDto> dtoList = recordService.showRecord(pageNumber, accountUtils.getCurUserId());
-        log.info("추억 리스트 조회 성공");
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 }

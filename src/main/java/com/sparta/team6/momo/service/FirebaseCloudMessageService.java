@@ -36,9 +36,9 @@ public class FirebaseCloudMessageService {
     private final ObjectMapper objectMapper;
     private final PlanRepository planRepository;
 
-    public void sendMessageTo(String targetToken, String title, String body, String url) throws IOException {
+    public void sendMessageTo(String targetToken, String title, String body) throws IOException {
 
-        String message = makeMessage(targetToken, title, body, url);
+        String message = makeMessage(targetToken, title, body);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -66,15 +66,15 @@ public class FirebaseCloudMessageService {
         Thread.sleep(5000);
         for (Plan plan : planList) {
             Long lastMinutes = ChronoUnit.MINUTES.between(plan.getNoticeTime(), plan.getPlanDate());
-            executorService.execute(task(plan.getUser().getToken(), plan.getUrl(), lastMinutes));
+            executorService.execute(task(plan.getUser().getToken(), lastMinutes));
         }
     }
 
-    public Runnable task(String token, String url, Long lastMinutes) {
+    public Runnable task(String token, Long lastMinutes) {
         return () -> {
             try {
-                String body = String.format("모임시간 %d분 전입니다!\n%s", lastMinutes, url);
-                sendMessageTo(token, "모두모여(Momo)", body, url);
+                String body = String.format("모임시간 %d분 전입니다!", lastMinutes);
+                sendMessageTo(token, "모두모여(Momo)", body);
                 log.info("push message 전송 요쳥");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -83,7 +83,7 @@ public class FirebaseCloudMessageService {
         };
     }
 
-    private String makeMessage(String targetToken, String title, String body, String url) throws JsonProcessingException {
+    private String makeMessage(String targetToken, String title, String body) throws JsonProcessingException {
         FcmMessage fcmMessage = FcmMessage.builder()
                 .message(FcmMessage.Message.builder()
                         .token(targetToken)
@@ -91,10 +91,6 @@ public class FirebaseCloudMessageService {
                                 .title(title)
                                 .body(body)
                                 .image(null)
-                                .build()
-                        )
-                        .data(FcmMessage.FcmData.builder()
-                                .url(url)
                                 .build()
                         )
                         .build()

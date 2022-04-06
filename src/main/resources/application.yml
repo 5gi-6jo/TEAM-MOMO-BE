@@ -3,7 +3,8 @@ spring:
     group:
       "local": "localdb,common"
       "prod": "proddb,common"
-
+server:
+  port: 8090
 ---
 
 spring:

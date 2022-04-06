@@ -7,10 +7,10 @@ import com.sparta.team6.momo.dto.request.DeviceTokenRequestDto;
 import com.sparta.team6.momo.dto.request.LoginRequestDto;
 import com.sparta.team6.momo.dto.request.NicknameRequestDto;
 import com.sparta.team6.momo.dto.request.SignupRequestDto;
-import com.sparta.team6.momo.dto.response.AccountResponseDto;
 import com.sparta.team6.momo.dto.response.LoginResponseDto;
 import com.sparta.team6.momo.dto.response.ReissueResponseDto;
 import com.sparta.team6.momo.dto.response.Success;
+import com.sparta.team6.momo.dto.response.UserInfoResponseDto;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.service.UserService;
@@ -35,7 +35,6 @@ public class UserController {
     private final UserService userService;
     private final OAuthService oAuthService;
     private final AccountUtils accountUtils;
-    private final TokenUtils tokenUtils;
 
 
     // 회원가입

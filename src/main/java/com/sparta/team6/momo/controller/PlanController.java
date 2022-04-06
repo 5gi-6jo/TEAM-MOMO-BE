@@ -30,7 +30,6 @@ public class PlanController {
     @GetMapping
     public ResponseEntity<Success<List<MainResponseDto>>> showMain(@RequestParam("date") String date) {
         List<MainResponseDto> dtoList = planService.showMain(date, accountUtils.getCurUserId());
-        log.info("모임 리스트(월) 조회 성공");
         return ResponseEntity.ok().body(new Success<>("조회 완료", dtoList));
     }
 
@@ -39,14 +38,12 @@ public class PlanController {
     @PostMapping
     public ResponseEntity<Success<Long>> makePlan(@Valid @RequestBody PlanRequestDto requestDto, BindingResult bindingResult) {
         Long planId = planService.savePlan(requestDto, accountUtils.getCurUserId());
-        log.info("모임 생성 성공");
         return ResponseEntity.ok().body(new Success<>("생성 완료", planId));
     }
 
     @GetMapping("/{planId}")
     public ResponseEntity<Success<DetailResponseDto>> showDetail(@PathVariable Long planId) {
         DetailResponseDto responseDto = planService.showDetail(planId, accountUtils.getCurUserId());
-        log.info("모임 세부 조회 성공");
         return ResponseEntity.ok().body(new Success<>("조회 완료", responseDto));
     }
 
@@ -57,14 +54,12 @@ public class PlanController {
             @Valid @RequestBody PlanRequestDto requestDto,
             BindingResult bindingResult) {
         PlanResponseDto responseDto = planService.updatePlan(planId, requestDto, accountUtils.getCurUserId());
-        log.info("모임 수정 성공");
         return ResponseEntity.ok().body(new Success<>("수정 완료", responseDto));
     }
 
     @DeleteMapping("/{planId}")
     public ResponseEntity<Success<Object>> deletePlan(@PathVariable Long planId) {
         planService.deletePlan(planId, accountUtils.getCurUserId());
-        log.info("모임 삭제 성공");
         return ResponseEntity.ok().body(new Success<>("삭제 완료"));
     }
 
