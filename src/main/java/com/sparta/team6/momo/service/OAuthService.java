@@ -150,10 +150,11 @@ public class OAuthService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
         
-        JsonNode node = jsonNode.get("kakao_account");
+        log.error(jsonNode.toString());
+        JsonNode node = jsonNode.get("kakao_account").get("email");
         String email;
         if (node == null) email = null;
-        else email = node.get("email").asText();
+        else email = node.asText();
 
         return new KakaoUserInfoDto(id, nickname, email);
     }
