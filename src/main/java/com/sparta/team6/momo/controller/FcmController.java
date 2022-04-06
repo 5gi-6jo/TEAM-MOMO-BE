@@ -1,7 +1,7 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.FcmResponseDto;
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.response.FcmResponseDto;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.sparta.team6.momo.dto.FcmRequestDto;
+import com.sparta.team6.momo.dto.request.FcmRequestDto;
 import com.sparta.team6.momo.service.FirebaseCloudMessageService;
 
 import java.io.IOException;

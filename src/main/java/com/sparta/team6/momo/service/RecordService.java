@@ -10,7 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import com.sparta.team6.momo.dto.RecordResponseDto;
+import com.sparta.team6.momo.dto.response.RecordResponseDto;
 import com.sparta.team6.momo.model.Plan;
 import com.sparta.team6.momo.repository.PlanRepository;
 
