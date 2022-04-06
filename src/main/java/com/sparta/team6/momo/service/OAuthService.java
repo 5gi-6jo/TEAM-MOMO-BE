@@ -149,8 +149,12 @@ public class OAuthService {
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
-        String email = jsonNode.get("kakao_account")
-                .get("email").asText();
+        
+        JsonNode node = jsonNode.get("kakao_account")
+                .get("email");
+        String email;
+        if (node == null) email = null;
+        else email = node.asText();
 
         return new KakaoUserInfoDto(id, nickname, email);
     }
