@@ -23,7 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -113,17 +116,24 @@ public class UserService {
         return user.map(UserInfoResponseDto::from).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
 
+
     @Transactional
-    public void updateDeviceToken(String token, Long accountId) {
-        Optional<User> user = userRepository.findById(accountId);
-        user.ifPresentOrElse();
+    public void updateDeviceToken(String token, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+
+        if (StringUtils.hasText(token)) user.updateToken(token);
+        else user.changeNoticeAllowed();
     }
+
 
     @Transactional
     public void updateAlarm(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         user.ifPresentOrElse(User::changeNoticeAllowed, () -> {throw new CustomException(MEMBER_NOT_FOUND);});
     }
+
 
     @Transactional
     public void updateNickname(String nickname, Long accountId) {
@@ -132,6 +142,7 @@ public class UserService {
         );
         savedAccount.updateNickname(nickname);
     }
+
 
     public TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);

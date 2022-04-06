@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 import static com.sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
-import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +37,7 @@ public class JwtFilter extends GenericFilterBean {
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String bearerToken = request.getHeader(AUTHORIZATION);
         String jwt = tokenUtils.resolveAccessToken(bearerToken);
         String requestURI = request.getRequestURI();
 

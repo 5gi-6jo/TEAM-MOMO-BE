@@ -1,6 +1,10 @@
 package com.sparta.team6.momo.socket.config;
 
+import com.sparta.team6.momo.socket.ChannelInterceptorImpl;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -8,7 +12,15 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final ChannelInterceptorImpl channelInterceptor;
+
+    @Override
+    public void configureClientInboundChannel(@NotNull ChannelRegistration registration) {
+        registration.interceptors(channelInterceptor);
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
