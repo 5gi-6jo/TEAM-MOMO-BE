@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -47,7 +49,7 @@ public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccess
     private void setHeader(HttpServletResponse response, TokenDto jwt) {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html;charset=UTF-8");
-        response.addHeader(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken());
+        response.addHeader(AUTHORIZATION_HEADER, jwt.getAccessToken());
     }
 
     private void setBody(HttpServletResponse response, TokenDto jwt) throws IOException {

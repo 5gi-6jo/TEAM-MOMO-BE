@@ -20,16 +20,17 @@ public class MeetService {
     private final PlanRepository planRepository;
 
     public MeetResponseDto getPlanInfo(String url) {
+
         Plan plan = planRepository.findPlanByUrl(url).
                 orElseThrow(() -> new CustomException(INVALID_MAP_URL));
 
-        if (plan.getPlanDate().plusHours(1L).isBefore(LocalDateTime.now())) {
-            throw new CustomException(MEET_URI_GONE);
-        }
+        if (isPlanEnd(plan)) throw new CustomException(MEET_URI_GONE);
 
-        return MeetResponseDto.builder()
-                .planId(plan.getId())
-                .planeName(plan.getPlanName())
-                .build();
+
+        return new MeetResponseDto(plan.getId(), plan.getPlanName());
+    }
+
+    private boolean isPlanEnd(Plan plan) {
+        return plan.getPlanDate().plusHours(1L).isBefore(LocalDateTime.now());
     }
 }

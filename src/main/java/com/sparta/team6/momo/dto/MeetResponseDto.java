@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-@Builder
 public class MeetResponseDto {
     private Long planId;
     private String planeName;

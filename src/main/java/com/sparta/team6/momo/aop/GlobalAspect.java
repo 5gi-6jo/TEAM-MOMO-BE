@@ -49,9 +49,20 @@ public class GlobalAspect {
         return joinPoint.proceed();
     }
 
-//    @Before("execution(* com.sparta.team6.momo.controller..*(..))")
-//    public void doLogTrace(JoinPoint joinPoint) {
-//        Object[] args = joinPoint.getArgs();
-//        log.info("[trace] {} args={}", joinPoint.getSignature(), args);
-//    }
+    @Around(value = "execution(* com.sparta.team6.momo.controller..*(..))")
+    public Object doLogTrace(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        long start = System.currentTimeMillis();
+        Object[] args = joinPoint.getArgs();
+        log.info("REQUEST : {}({}) = {}",
+                joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), args);
+
+        Object proceed = joinPoint.proceed();
+
+        long end = System.currentTimeMillis();
+        log.info("RESPONSE : {}({}) = {} ({}ms)",
+                joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), proceed, end - start);
+
+        return proceed;
+    }
 }

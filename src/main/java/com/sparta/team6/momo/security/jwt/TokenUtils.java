@@ -1,6 +1,8 @@
 package com.sparta.team6.momo.security.jwt;
 
+import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.DefaultException;
+import com.sparta.team6.momo.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -14,9 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.security.Key;
 import java.util.Date;
+
+import static com.sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
+import static com.sparta.team6.momo.security.jwt.TokenInfo.REFRESH_TOKEN_COOKIE;
 
 @Component
 @RequiredArgsConstructor
@@ -60,7 +66,7 @@ public class TokenUtils implements InitializingBean {
     }
 
     public ResponseCookie createTokenCookie(String refreshToken) {
-        return ResponseCookie.from("refresh_token", refreshToken)
+        return ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
@@ -69,12 +75,9 @@ public class TokenUtils implements InitializingBean {
                 .build();
     }
 
-
-    public ResponseCookie delTokenCookie() {
-        return ResponseCookie.from("refresh_token", "")
-                .build();
+    public String resolveAccessToken(String bearerToken) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        } else return null;
     }
-
-
-
 }

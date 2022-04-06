@@ -1,8 +1,8 @@
 package com.sparta.team6.momo.dto;
 
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class GuestRequestDto {
     private String nickname;
 }

@@ -2,6 +2,7 @@ package com.sparta.team6.momo.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.ResponseCookie;
 
 @Data
 @NoArgsConstructor

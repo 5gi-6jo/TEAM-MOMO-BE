@@ -1,10 +1,12 @@
 package com.sparta.team6.momo.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Success<T> {
     private final boolean success = true;
     private String message = "success";
@@ -23,7 +25,7 @@ public class Success<T> {
         this.data = data;
     }
 
-    public static Success<AccountResponseDto> from(AccountResponseDto accountResponseDto) {
+    public static Success<UserInfoResponseDto> from(UserInfoResponseDto accountResponseDto) {
         return new Success<>(accountResponseDto);
     }
 }

@@ -6,7 +6,6 @@ import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.sparta.team6.momo.exception.CustomException;
@@ -103,7 +102,7 @@ public class PlanService {
             for (Image image : imageList) {
                 imageDtoList.add(new ImageDto(image.getId(), image.getImage()));
             }
-            return DetailResponseDto.of(plan, imageDtoList);
+            return DetailResponseDto.from(plan, imageDtoList);
         }
         log.info("Account 정보가 일치하지 않습니다");
         throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);

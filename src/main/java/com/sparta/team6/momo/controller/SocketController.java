@@ -22,7 +22,6 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@Slf4j
 public class SocketController {
 
     private final String REDIS_CHAT_KEY = "CHATS";

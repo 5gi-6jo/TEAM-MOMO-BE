@@ -1,7 +1,6 @@
 package com.sparta.team6.momo.security.jwt;
 
 import com.sparta.team6.momo.exception.CustomException;
-import com.sparta.team6.momo.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -16,33 +15,35 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Objects;
 
 import static com.sparta.team6.momo.exception.ErrorCode.INVALID_ACCESS_TOKEN;
+import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
 
+@Component
 @RequiredArgsConstructor
 @Slf4j
-@Component
 public class JwtFilter extends GenericFilterBean {
-
-    public static final String AUTHORIZATION_HEADER = "Authorization";
 
     private final TokenProvider tokenProvider;
     private final TokenUtils tokenUtils;
+
+    private static final String REISSUE_URL = "/users/reissue";
+    private static final String LOGOUT_URL = "/users/logout";
 
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        String jwt = resolveToken(httpServletRequest);
-        String requestURI = httpServletRequest.getRequestURI();
+
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        String jwt = tokenUtils.resolveAccessToken(bearerToken);
+        String requestURI = request.getRequestURI();
 
 
         if (StringUtils.hasText(jwt)) {
-
-            if (!httpServletRequest.getRequestURI().equals("/users/reissue") &&
-                    !httpServletRequest.getRequestURI().equals("/users/logout"))
+            if (!requestURI.equals(REISSUE_URL) && !requestURI.equals(LOGOUT_URL))
                 tokenUtils.isTokenValidate(jwt);
 
             if (tokenUtils.isTokenBlackList(jwt))
@@ -56,13 +57,5 @@ public class JwtFilter extends GenericFilterBean {
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }

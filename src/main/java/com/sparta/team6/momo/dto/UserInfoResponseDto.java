@@ -1,25 +1,26 @@
 package com.sparta.team6.momo.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sparta.team6.momo.model.User;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Data
 @Builder
-public class AccountResponseDto {
+public class UserInfoResponseDto {
     private Long userId;
     private String email;
     private String nickname;
-    private boolean isNoticeAllowed;
 
-    public static AccountResponseDto from(User user) {
-        return AccountResponseDto.builder()
+    @JsonProperty("isNoticeAllowed")
+    private boolean noticeAllowed;
+
+    public static UserInfoResponseDto from(User user) {
+        return UserInfoResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .isNoticeAllowed(user.isNoticeAllowed())
+                .noticeAllowed(user.isNoticeAllowed())
                 .build();
     }
 }

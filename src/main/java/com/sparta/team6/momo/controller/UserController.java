@@ -5,26 +5,24 @@ import com.sparta.team6.momo.annotation.DTOValid;
 import com.sparta.team6.momo.annotation.LogoutCheck;
 import com.sparta.team6.momo.dto.*;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
-import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.service.OAuthService;
+import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.sparta.team6.momo.security.jwt.JwtFilter;
 
 import javax.validation.Valid;
-import java.util.Map;
+
+import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
+import static com.sparta.team6.momo.security.jwt.TokenInfo.REFRESH_TOKEN_COOKIE;
 
 
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
-@Slf4j
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -34,74 +32,59 @@ public class UserController {
 
 
     // 회원가입
-    @PostMapping("/signup")
     @LogoutCheck @DTOValid
-    public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
-        userService.registerUser(requestDto);
+    @PostMapping("/signup")
+    public ResponseEntity<Success<Object>> register(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
+        userService.register(requestDto.getEmail(), requestDto.getPassword(), requestDto.getNickname());
         return ResponseEntity.ok().body(new Success<>("회원가입 성공"));
     }
 
 
     // 로그인
-    @PostMapping("/login")
     @LogoutCheck @DTOValid
-    public ResponseEntity<Object> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
-
-
-        Map<String, Object> userInfo = userService.loginUser(requestDto.getEmail(), requestDto.getPassword());
-        TokenDto jwt = (TokenDto) userInfo.get("tokenDto");
-        String nickname = (String) userInfo.get("nickname");
-        boolean isNoticeAllowed = (boolean) userInfo.get("isNoticeAllowed");
-
-        ResponseCookie cookie = tokenUtils.createTokenCookie(jwt.getRefreshToken());
+    @PostMapping("/login")
+    public ResponseEntity<Success<LoginResponseDto>> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
+        LoginResponseDto responseDto = userService.login(requestDto.getEmail(), requestDto.getPassword());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(JwtFilter.AUTHORIZATION_HEADER, jwt.getAccessToken())
-                .body(new Success<>("로그인 성공", new LoginResponseDto(nickname, isNoticeAllowed)));
+                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .body(new Success<>("로그인 성공", responseDto));
     }
+
 
     // 로그아웃
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(
-            @RequestHeader("Authorization") String accessToken,
-            @CookieValue(name = "refresh_token") String refreshToken) {
+    public ResponseEntity<Success<Object>> logout(
+            @RequestHeader(AUTHORIZATION_HEADER) String bearerToken,
+            @CookieValue(REFRESH_TOKEN_COOKIE) String refreshToken) {
 
-        userService.logout(accessToken.substring(7), refreshToken);
-        return ResponseEntity.ok().body(new Success<>());
+        userService.logout(bearerToken, refreshToken);
+        return ResponseEntity.ok().body(new Success<>("로그아웃 성공"));
     }
+
 
     // 토큰 재발행
     @GetMapping("/reissue")
-    public ResponseEntity<?> reissueToken(
-            @RequestHeader("Authorization") String accessToken,
-            @CookieValue(value = "refresh_token") String refreshToken) {
+    public ResponseEntity<Success<Object>> reissueToken(
+            @RequestHeader(AUTHORIZATION_HEADER) String bearerToken,
+            @CookieValue(REFRESH_TOKEN_COOKIE) String refreshToken) {
 
-        TokenDto reissueTokenDto = userService.reissue(accessToken.substring(7), refreshToken);
-        ResponseCookie cookie = tokenUtils.createTokenCookie(reissueTokenDto.getRefreshToken());
+        ReissueResponseDto responseDto = userService.reissueToken(bearerToken, refreshToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(JwtFilter.AUTHORIZATION_HEADER, reissueTokenDto.getAccessToken())
-                .body(new Success<>());
+                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .body(new Success<>("토큰 재발행 성공"));
     }
 
-    //로그인 유저 정보
+
+    // 유저 정보
     @GetMapping
-    public ResponseEntity<?> getUserInfo() {
-        AccountResponseDto userInfo = userService.getUserInfo(accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(Success.from(userInfo));
+    public ResponseEntity<Success<UserInfoResponseDto>> getUserInfo() {
+        UserInfoResponseDto responseDto = userService.getUserInfo(accountUtils.getCurUserId());
+        return ResponseEntity.ok().body(new Success<>("유저 정보 조회 성공", responseDto));
     }
 
-    @GetMapping("/kakao/callback")
-    public ResponseEntity<?> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
-        TokenDto tokenDto = oAuthService.kakaoLogin(code);
-        ResponseCookie cookie = tokenUtils.createTokenCookie(tokenDto.getRefreshToken());
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .header(JwtFilter.AUTHORIZATION_HEADER, tokenDto.getAccessToken())
-                .body(new Success<>());
-    }
 
     //device token 저장
     @PostMapping("/devices")
@@ -110,18 +93,23 @@ public class UserController {
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
     }
 
-    @PatchMapping("/nicknames")
+
     @DTOValid
-    public ResponseEntity<Object> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
+    @PatchMapping("/nicknames")
+    public ResponseEntity<Success<Object>> updateNickname(@RequestBody @Valid NicknameRequestDto requestDto, BindingResult bindingResult) {
         userService.updateNickname(requestDto.getNickname(), accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(new Success<>("변경 완료"));
+        return ResponseEntity.ok().body(new Success<>("닉네임 변경 완료"));
     }
 
 
-//    @PatchMapping("/password")
-//    @DTOValid
-//    public ResponseEntity<> changePassword(@RequestBody @Valid PasswordRequestDto requestDto, BindingResult bindingResult) {
-//
-//    }
+    // 카카오 로그인
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<Success<LoginResponseDto>> kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        LoginResponseDto responseDto = oAuthService.kakaoLogin(code);
 
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .body(new Success<>("카카오 로그인 성공", responseDto));
+    }
 }

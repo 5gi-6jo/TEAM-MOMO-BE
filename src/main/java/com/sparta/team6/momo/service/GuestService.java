@@ -29,7 +29,7 @@ public class GuestService {
         Guest guest = new Guest(nickname);
         Guest savedGuest = guestRepository.save(guest);
 
-        MoMoUser principal = new MoMoUser(savedGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(UserRole.Authority.GUEST)));
+        MoMoUser principal = new MoMoUser(savedGuest.getId(), Collections.singleton(new SimpleGrantedAuthority(UserRole.Role.GUEST)));
         Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         TokenDto tokenDto = tokenProvider.createToken(authentication);

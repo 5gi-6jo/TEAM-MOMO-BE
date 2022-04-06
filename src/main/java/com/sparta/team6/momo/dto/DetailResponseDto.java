@@ -36,7 +36,7 @@ public class DetailResponseDto {
         this.url = url;
     }
 
-    public static DetailResponseDto of(Plan plan, List<ImageDto> imageList) {
+    public static DetailResponseDto from(Plan plan, List<ImageDto> imageList) {
         return DetailResponseDto.builder()
                 .planDate(plan.getPlanDate().toString())
                 .noticeTime(plan.getNoticeTime().toString())

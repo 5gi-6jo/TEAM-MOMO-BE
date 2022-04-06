@@ -4,19 +4,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.team6.momo.dto.KakaoUserInfoDto;
+import com.sparta.team6.momo.dto.LoginResponseDto;
 import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.repository.UserRepository;
 import com.sparta.team6.momo.security.auth.MoMoUser;
 import com.sparta.team6.momo.security.jwt.TokenProvider;
+import com.sparta.team6.momo.security.jwt.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,13 +44,21 @@ public class OAuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final TokenUtils tokenUtils;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public TokenDto kakaoLogin(String code) throws JsonProcessingException {
+    public LoginResponseDto kakaoLogin(String code) throws JsonProcessingException {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
         String email = kakaoUserInfo.getEmail();
+
+        // 임시 코드
+        if (email == null) {
+            email = kakaoUserInfo.getId() + "@momo.com";
+        }
+        //
+
         User kakaoUser = userRepository.findByEmail(email)
                 .orElse(null);
 
@@ -85,8 +92,15 @@ public class OAuthService {
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
                 .set(authentication.getName(), tokenDto.getRefreshToken(), tokenProvider.getREFRESH_TOKEN_VALIDITY(), TimeUnit.MILLISECONDS);
+        ResponseCookie cookie = tokenUtils.createTokenCookie(tokenDto.getRefreshToken());
 
-        return tokenDto;
+
+        return LoginResponseDto.builder()
+                .nickname(kakaoUser.getNickname())
+                .noticeAllowed(kakaoUser.isNoticeAllowed())
+                .tokenDto(tokenDto)
+                .cookie(cookie)
+                .build();
         }
 
 
@@ -142,8 +156,12 @@ public class OAuthService {
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
-        String email = jsonNode.get("kakao_account")
-                .get("email").asText();
+
+        log.error(jsonNode.toString());
+        JsonNode node = jsonNode.get("kakao_account").get("email");
+        String email;
+        if (node == null) email = null;
+        else email = node.asText();
 
         return new KakaoUserInfoDto(id, nickname, email);
     }
