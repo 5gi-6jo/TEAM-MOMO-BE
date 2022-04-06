@@ -60,8 +60,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public LoginResponseDto login(String email, String password) {
 
+    public LoginResponseDto login(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -74,7 +74,7 @@ public class UserService {
         return LoginResponseDto.builder()
                 .nickname(user.getNickname())
                 .noticeAllowed(user.isNoticeAllowed())
-                .tokenDto(tokenDto)
+                .accessToken(tokenDto.getAccessToken())
                 .cookie(cookie)
                 .build();
     }
@@ -101,7 +101,7 @@ public class UserService {
 
     public ReissueResponseDto reissueToken(String bearerToken, String refreshToken) {
         String accessToken = tokenUtils.resolveAccessToken(bearerToken);
-        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken, INVALID_REFRESH_TOKEN);
+        Authentication authentication = getAuthenticationWithCheckToken(refreshToken, accessToken);
 
         if (isRefreshTokenNotEquals(refreshToken, authentication))
             throw new CustomException(INVALID_REFRESH_TOKEN);
@@ -147,9 +147,9 @@ public class UserService {
     }
 
 
-    private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken, ErrorCode errorCode) {
+    private Authentication getAuthenticationWithCheckToken(String validateToken, String accessToken) {
         if (!tokenUtils.isTokenValidate(validateToken)) {
-            throw new CustomException(errorCode);
+            throw new CustomException(INVALID_REFRESH_TOKEN);
         }
         return tokenProvider.getAuthentication(accessToken);
     }

@@ -11,20 +11,19 @@ import com.sparta.team6.momo.dto.response.LoginResponseDto;
 import com.sparta.team6.momo.dto.response.ReissueResponseDto;
 import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.dto.response.UserInfoResponseDto;
-import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.OAuthService;
 import com.sparta.team6.momo.service.UserService;
 import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
 import static com.sparta.team6.momo.security.jwt.TokenInfo.REFRESH_TOKEN_COOKIE;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 
 @RestController
@@ -53,8 +52,8 @@ public class UserController {
         LoginResponseDto responseDto = userService.login(requestDto.getEmail(), requestDto.getPassword());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
-                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .header(SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION, responseDto.getAccessToken())
                 .body(new Success<>("로그인 성공", responseDto));
     }
 
@@ -62,7 +61,7 @@ public class UserController {
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Success<Object>> logout(
-            @RequestHeader(AUTHORIZATION_HEADER) String bearerToken,
+            @RequestHeader(AUTHORIZATION) String bearerToken,
             @CookieValue(REFRESH_TOKEN_COOKIE) String refreshToken) {
 
         userService.logout(bearerToken, refreshToken);
@@ -73,13 +72,13 @@ public class UserController {
     // 토큰 재발행
     @GetMapping("/reissue")
     public ResponseEntity<Success<Object>> reissueToken(
-            @RequestHeader(AUTHORIZATION_HEADER) String bearerToken,
+            @RequestHeader(AUTHORIZATION) String bearerToken,
             @CookieValue(REFRESH_TOKEN_COOKIE) String refreshToken) {
 
         ReissueResponseDto responseDto = userService.reissueToken(bearerToken, refreshToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
-                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .header(SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION, responseDto.getTokenDto().getAccessToken())
                 .body(new Success<>("토큰 재발행 성공"));
     }
 
@@ -114,8 +113,8 @@ public class UserController {
         LoginResponseDto responseDto = oAuthService.kakaoLogin(code);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, responseDto.getCookie().toString())
-                .header(AUTHORIZATION_HEADER, responseDto.getTokenDto().getAccessToken())
+                .header(SET_COOKIE, responseDto.getCookie().toString())
+                .header(AUTHORIZATION, responseDto.getAccessToken())
                 .body(new Success<>("카카오 로그인 성공", responseDto));
     }
 }

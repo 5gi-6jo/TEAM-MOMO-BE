@@ -97,7 +97,7 @@ public class OAuthService {
         return LoginResponseDto.builder()
                 .nickname(kakaoUser.getNickname())
                 .noticeAllowed(kakaoUser.isNoticeAllowed())
-                .tokenDto(tokenDto)
+                .accessToken(tokenDto.getAccessToken())
                 .cookie(cookie)
                 .build();
         }
