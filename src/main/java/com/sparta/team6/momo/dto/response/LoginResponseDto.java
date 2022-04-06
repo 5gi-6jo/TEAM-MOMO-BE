@@ -1,8 +1,9 @@
-package com.sparta.team6.momo.dto;
+package com.sparta.team6.momo.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

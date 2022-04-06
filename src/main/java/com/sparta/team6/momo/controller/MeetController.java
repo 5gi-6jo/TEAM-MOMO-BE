@@ -1,13 +1,13 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.response.Success;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.sparta.team6.momo.dto.MeetResponseDto;
+import com.sparta.team6.momo.dto.response.MeetResponseDto;
 import com.sparta.team6.momo.service.MeetService;
 
 @RestController

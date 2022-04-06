@@ -1,13 +1,11 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.service.FileUploadService;
 import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.sparta.team6.momo.dto.ImageDto;
@@ -36,9 +34,9 @@ public class FileUploadController {
         return ResponseEntity.ok().body(new Success<>("이미지 조회 완료", imageDtoList));
     }
 
-    @DeleteMapping("/images/{imageId}")
-    public ResponseEntity<Success<Object>> deleteImageS3(@PathVariable Long imageId) {
-        fileUploadService.deleteImageS3(imageId, accountUtils.getCurUserId());
+    @DeleteMapping("/plans/{planId}/images/{imageId}")
+    public ResponseEntity<Success<Object>> deleteImageS3(@PathVariable Long planId, @PathVariable Long imageId) {
+        fileUploadService.deleteImageS3(planId, imageId, accountUtils.getCurUserId());
         log.info("이미지 삭제 성공");
         return ResponseEntity.ok().body(new Success<>("이미지 삭제 완료"));
     }

@@ -1,4 +1,4 @@
-package com.sparta.team6.momo.dto;
+package com.sparta.team6.momo.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

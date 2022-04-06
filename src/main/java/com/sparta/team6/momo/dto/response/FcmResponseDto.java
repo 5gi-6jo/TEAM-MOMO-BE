@@ -1,4 +1,4 @@
-package com.sparta.team6.momo.dto;
+package com.sparta.team6.momo.dto.response;
 
 import com.sparta.team6.momo.model.Plan;
 import lombok.Builder;

@@ -3,7 +3,7 @@ package com.sparta.team6.momo.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.sparta.team6.momo.dto.FcmResponseDto;
+import com.sparta.team6.momo.dto.response.FcmResponseDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

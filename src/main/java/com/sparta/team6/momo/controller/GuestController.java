@@ -1,8 +1,8 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.GuestRequestDto;
-import com.sparta.team6.momo.dto.Success;
 import com.sparta.team6.momo.dto.TokenDto;
+import com.sparta.team6.momo.dto.request.GuestRequestDto;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.security.jwt.TokenUtils;
 import com.sparta.team6.momo.service.GuestService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
+
 
 @RestController
 @RequiredArgsConstructor

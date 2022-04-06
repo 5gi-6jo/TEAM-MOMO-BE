@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.team6.momo.dto.KakaoUserInfoDto;
-import com.sparta.team6.momo.dto.LoginResponseDto;
 import com.sparta.team6.momo.dto.TokenDto;
+import com.sparta.team6.momo.dto.response.LoginResponseDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.repository.UserRepository;
@@ -52,7 +52,6 @@ public class OAuthService {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
         String email = kakaoUserInfo.getEmail();
-
         // 임시 코드
         if (email == null) {
             email = kakaoUserInfo.getId() + "@momo.com";
@@ -157,7 +156,6 @@ public class OAuthService {
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
 
-        log.error(jsonNode.toString());
         JsonNode node = jsonNode.get("kakao_account").get("email");
         String email;
         if (node == null) email = null;

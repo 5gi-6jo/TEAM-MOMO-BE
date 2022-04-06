@@ -1,10 +1,13 @@
 package com.sparta.team6.momo.controller;
 
 import com.sparta.team6.momo.annotation.DTOValid;
-import com.sparta.team6.momo.dto.*;
+import com.sparta.team6.momo.dto.request.PlanRequestDto;
+import com.sparta.team6.momo.dto.response.DetailResponseDto;
+import com.sparta.team6.momo.dto.response.MainResponseDto;
+import com.sparta.team6.momo.dto.response.PlanResponseDto;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.service.PlanService;
 import com.sparta.team6.momo.utils.AccountUtils;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +44,7 @@ public class PlanController {
     }
 
     @GetMapping("/{planId}")
-    public ResponseEntity<Success<DetailResponseDto >> showDetail(@PathVariable Long planId) {
+    public ResponseEntity<Success<DetailResponseDto>> showDetail(@PathVariable Long planId) {
         DetailResponseDto responseDto = planService.showDetail(planId, accountUtils.getCurUserId());
         log.info("모임 세부 조회 성공");
         return ResponseEntity.ok().body(new Success<>("조회 완료", responseDto));

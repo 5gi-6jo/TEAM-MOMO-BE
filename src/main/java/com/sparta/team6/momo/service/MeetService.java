@@ -1,6 +1,6 @@
 package com.sparta.team6.momo.service;
 
-import com.sparta.team6.momo.dto.MeetResponseDto;
+import com.sparta.team6.momo.dto.response.MeetResponseDto;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.model.Plan;
 import com.sparta.team6.momo.repository.PlanRepository;
@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static com.sparta.team6.momo.exception.ErrorCode.INVALID_MAP_URL;
 import static com.sparta.team6.momo.exception.ErrorCode.MEET_URI_GONE;

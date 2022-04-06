@@ -1,6 +1,10 @@
 package com.sparta.team6.momo.service;
 
 import com.sparta.team6.momo.dto.*;
+import com.sparta.team6.momo.dto.request.PlanRequestDto;
+import com.sparta.team6.momo.dto.response.DetailResponseDto;
+import com.sparta.team6.momo.dto.response.MainResponseDto;
+import com.sparta.team6.momo.dto.response.PlanResponseDto;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.utils.amazonS3.UploadService;
 import lombok.RequiredArgsConstructor;
@@ -89,7 +93,6 @@ public class PlanService {
         }
     }
 
-    @Cacheable(key = "#userId", value = "single-plan")
     public DetailResponseDto showDetail(Long planId, Long userId) {
         Plan plan = planRepository.findById(planId).orElseThrow(
                 () -> {

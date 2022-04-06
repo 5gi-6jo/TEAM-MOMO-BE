@@ -1,6 +1,6 @@
 package com.sparta.team6.momo.model;
 
-import com.sparta.team6.momo.dto.PlanRequestDto;
+import com.sparta.team6.momo.dto.request.PlanRequestDto;
 import lombok.*;
 
 import javax.persistence.*;

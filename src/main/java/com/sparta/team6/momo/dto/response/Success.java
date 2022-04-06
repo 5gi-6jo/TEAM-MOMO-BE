@@ -1,4 +1,4 @@
-package com.sparta.team6.momo.dto;
+package com.sparta.team6.momo.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
