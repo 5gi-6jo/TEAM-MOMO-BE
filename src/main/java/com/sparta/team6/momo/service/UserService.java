@@ -6,7 +6,6 @@ import com.sparta.team6.momo.dto.response.LoginResponseDto;
 import com.sparta.team6.momo.dto.response.ReissueResponseDto;
 import com.sparta.team6.momo.dto.response.UserInfoResponseDto;
 import com.sparta.team6.momo.exception.CustomException;
-import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.repository.AccountRepository;
@@ -92,10 +91,6 @@ public class UserService {
         Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-
-        User user = userRepository.findById(Long.valueOf(authentication.getName()))
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-        user.setLoginFalse();
     }
 
 
@@ -112,6 +107,7 @@ public class UserService {
         return new ReissueResponseDto(tokenDto, cookie);
     }
 
+
     public UserInfoResponseDto getUserInfo(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.map(UserInfoResponseDto::from).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
@@ -119,16 +115,14 @@ public class UserService {
 
     @Transactional
     public void updateDeviceToken(String token, Long accountId) {
-        Account savedAccount = accountRepository.findById(accountId).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
+        Optional<User> user = userRepository.findById(accountId);
+        user.ifPresentOrElse();
+    }
 
-        if (savedAccount instanceof User) {
-            User user = (User) savedAccount;
-            if (token != null) user.setNoticeAllowedTrue();
-            else user.setNoticeAllowedFalse();
-        }
-        savedAccount.updateToken(token);
+    @Transactional
+    public void updateAlarm(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        user.ifPresentOrElse(User::changeNoticeAllowed, () -> {throw new CustomException(MEMBER_NOT_FOUND);});
     }
 
     @Transactional
@@ -159,7 +153,6 @@ public class UserService {
         String savedRefreshToken = redisTemplate.opsForValue().get(authentication.getName());
         return !refreshToken.equals(savedRefreshToken) || ObjectUtils.isEmpty(savedRefreshToken);
     }
-
 
 
     private void duplicateEmailCheck(String email) {

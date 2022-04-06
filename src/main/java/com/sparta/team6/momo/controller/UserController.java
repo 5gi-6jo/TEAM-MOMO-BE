@@ -37,7 +37,8 @@ public class UserController {
 
 
     // 회원가입
-    @LogoutCheck @DTOValid
+    @LogoutCheck
+    @DTOValid
     @PostMapping("/signup")
     public ResponseEntity<Success<Object>> register(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult) {
         userService.register(requestDto.getEmail(), requestDto.getPassword(), requestDto.getNickname());
@@ -46,7 +47,8 @@ public class UserController {
 
 
     // 로그인
-    @LogoutCheck @DTOValid
+    @LogoutCheck
+    @DTOValid
     @PostMapping("/login")
     public ResponseEntity<Success<LoginResponseDto>> login(@RequestBody @Valid LoginRequestDto requestDto, BindingResult bindingResult) {
         LoginResponseDto responseDto = userService.login(requestDto.getEmail(), requestDto.getPassword());
@@ -96,6 +98,12 @@ public class UserController {
     public ResponseEntity<Object> updateDeviceToken(@RequestBody @Valid DeviceTokenRequestDto requestDto, BindingResult bindingResult) {
         userService.updateDeviceToken(requestDto.getToken(), accountUtils.getCurUserId());
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
+    }
+
+    @PostMapping("/alarms")
+    public ResponseEntity<Object> updateAlarm() {
+        userService.updateAlarm(accountUtils.getCurUserId());
+        return ResponseEntity.ok().body(new Success<>("변경 완료"));
     }
 
 
