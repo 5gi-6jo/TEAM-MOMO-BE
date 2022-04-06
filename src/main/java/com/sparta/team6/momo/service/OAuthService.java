@@ -52,6 +52,13 @@ public class OAuthService {
         String accessToken = getAccessToken(code);
         KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
         String email = kakaoUserInfo.getEmail();
+        
+        // 임시 코드
+        if (email == null) {
+            email = kakaoUserInfo.getId() + "@momo.com";
+        }
+        //
+        
         User kakaoUser = userRepository.findByEmail(email)
                 .orElse(null);
 
