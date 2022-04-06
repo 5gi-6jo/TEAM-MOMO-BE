@@ -122,13 +122,18 @@ public class UserService {
         Account savedAccount = accountRepository.findById(accountId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-
-        if (savedAccount instanceof User) {
-            User user = (User) savedAccount;
-            if (token != null) user.setNoticeAllowedTrue();
-            else user.setNoticeAllowedFalse();
+        User user = (User) savedAccount;
+        if (user.isNoticeAllowed()) {
+            savedAccount.updateToken(token);
         }
-        savedAccount.updateToken(token);
+    }
+
+    @Transactional
+    public void updateAlarm(Long accountId) {
+        User user = userRepository.findById(accountId).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        user.changeNoticeAllowed();
     }
 
     @Transactional
@@ -159,7 +164,6 @@ public class UserService {
         String savedRefreshToken = redisTemplate.opsForValue().get(authentication.getName());
         return !refreshToken.equals(savedRefreshToken) || ObjectUtils.isEmpty(savedRefreshToken);
     }
-
 
 
     private void duplicateEmailCheck(String email) {

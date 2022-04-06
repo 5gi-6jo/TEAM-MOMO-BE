@@ -77,11 +77,7 @@ public class User extends Account {
         this.isLogin = false;
     }
 
-    public void setNoticeAllowedTrue() {
-        this.isNoticeAllowed = true;
-    }
-
-    public void setNoticeAllowedFalse() {
-        this.isNoticeAllowed = false;
+    public void changeNoticeAllowed() {
+        this.isNoticeAllowed = !this.isNoticeAllowed;
     }
 }
