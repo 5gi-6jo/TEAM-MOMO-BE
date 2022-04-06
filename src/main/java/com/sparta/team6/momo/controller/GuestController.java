@@ -1,13 +1,11 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.GuestRequestDto;
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.request.GuestRequestDto;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.dto.TokenDto;
 import com.sparta.team6.momo.service.GuestService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.sparta.team6.momo.security.jwt.JwtFilter;
 

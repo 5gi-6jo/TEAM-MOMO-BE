@@ -1,7 +1,7 @@
 package com.sparta.team6.momo.security.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.dto.TokenDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

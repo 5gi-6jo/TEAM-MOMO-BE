@@ -1,13 +1,11 @@
 package com.sparta.team6.momo.controller;
 
-import com.sparta.team6.momo.dto.Success;
+import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.service.FileUploadService;
 import com.sparta.team6.momo.utils.AccountUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.sparta.team6.momo.dto.ImageDto;

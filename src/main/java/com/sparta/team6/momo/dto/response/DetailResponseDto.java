@@ -1,5 +1,6 @@
-package com.sparta.team6.momo.dto;
+package com.sparta.team6.momo.dto.response;
 
+import com.sparta.team6.momo.dto.ImageDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
