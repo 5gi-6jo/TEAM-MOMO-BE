@@ -1,15 +1,11 @@
 package com.sparta.team6.momo.model;
 
-import io.jsonwebtoken.lang.Assert;
 import lombok.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +27,6 @@ public class User extends Account {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "isLogin", nullable = false)
-    private boolean isLogin;
-
     @Column(name = "isNoticeAllowed", nullable = false)
     private boolean isNoticeAllowed;
 
@@ -49,7 +42,6 @@ public class User extends Account {
         super(nickname, userRole);
         this.email = email;
         this.password = password;
-        this.isLogin = false;
         this.isNoticeAllowed = false;
         this.provider = provider;
     }
@@ -67,14 +59,6 @@ public class User extends Account {
                 .userRole(ROLE_USER)
                 .provider(KAKAO)
                 .build();
-    }
-
-    public void setLoginTrue() {
-        this.isLogin = true;
-    }
-
-    public void setLoginFalse() {
-        this.isLogin = false;
     }
 
     public void changeNoticeAllowed() {

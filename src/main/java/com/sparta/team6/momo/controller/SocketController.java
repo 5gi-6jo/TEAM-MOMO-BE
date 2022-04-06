@@ -17,6 +17,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.PostConstruct;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,11 +46,6 @@ public class SocketController {
         List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + enterDto.getPlanId());
         chatDto.setChats(chats);
 
-//        Map<String, Object> attributes = headerAccessor.getSessionAttributes();
-//        if (attributes != null) {
-//            attributes.put("nickname", chatDto.getSender());
-//            attributes.put("planId", chatDto.getPlanId());
-//        }
         MapDto mapDto = MapDto.from(enterDto);
         socketService.setDestination(enterDto.getPlanId(), mapDto);
 
@@ -56,21 +53,28 @@ public class SocketController {
         simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
     }
 
+
     @MessageMapping("/map.send") // maps/map.send
     public void sendMap(@Payload MapDto mapDto) {
         simpMessagingTemplate.convertAndSend("/topic/map/" + mapDto.getPlanId(), mapDto);
     }
 
+
     @MessageMapping("/chat.send") // maps/chat.send
     public void sendChat(@Payload ChatDto chatDto) {
+        Long planId = chatDto.getPlanId();
 
-        List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + chatDto.getPlanId());
+        List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + planId);
         if (chats == null) {
             chats = new ArrayList<>();
+            LocalDateTime expireDate = socketService.getExpireDate(planId);
+            Timestamp timestamp = Timestamp.valueOf(expireDate);
+            redisTemplate.expireAt(REDIS_CHAT_PREFIX + planId, timestamp);
         }
-        chats.add(chatDto);
-        hashOperations.put(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + chatDto.getPlanId(), chats);
 
-        simpMessagingTemplate.convertAndSend("/topic/chat/" + chatDto.getPlanId(), chatDto);
+        chats.add(chatDto);
+        hashOperations.put(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + planId, chats);
+
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + planId, chatDto);
     }
 }

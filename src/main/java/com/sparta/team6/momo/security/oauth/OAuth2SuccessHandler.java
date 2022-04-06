@@ -1,16 +1,16 @@
 package com.sparta.team6.momo.security.oauth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.team6.momo.dto.response.Success;
 import com.sparta.team6.momo.dto.TokenDto;
+import com.sparta.team6.momo.dto.response.Success;
+import com.sparta.team6.momo.security.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import com.sparta.team6.momo.security.jwt.JwtFilter;
-import com.sparta.team6.momo.security.jwt.TokenProvider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.team6.momo.security.jwt.TokenInfo.AUTHORIZATION_HEADER;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Component
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class OAuth2SuccessHandler extends SavedRequestAwareAuthenticationSuccess
     private void setHeader(HttpServletResponse response, TokenDto jwt) {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html;charset=UTF-8");
-        response.addHeader(AUTHORIZATION_HEADER, jwt.getAccessToken());
+        response.addHeader(AUTHORIZATION, jwt.getAccessToken());
     }
 
     private void setBody(HttpServletResponse response, TokenDto jwt) throws IOException {

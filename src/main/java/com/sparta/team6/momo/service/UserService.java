@@ -6,7 +6,6 @@ import com.sparta.team6.momo.dto.response.LoginResponseDto;
 import com.sparta.team6.momo.dto.response.ReissueResponseDto;
 import com.sparta.team6.momo.dto.response.UserInfoResponseDto;
 import com.sparta.team6.momo.exception.CustomException;
-import com.sparta.team6.momo.exception.ErrorCode;
 import com.sparta.team6.momo.model.Account;
 import com.sparta.team6.momo.model.User;
 import com.sparta.team6.momo.repository.AccountRepository;
@@ -24,7 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -60,8 +62,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public LoginResponseDto login(String email, String password) {
 
+    public LoginResponseDto login(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -74,7 +76,7 @@ public class UserService {
         return LoginResponseDto.builder()
                 .nickname(user.getNickname())
                 .noticeAllowed(user.isNoticeAllowed())
-                .tokenDto(tokenDto)
+                .accessToken(tokenDto.getAccessToken())
                 .cookie(cookie)
                 .build();
     }
@@ -92,10 +94,6 @@ public class UserService {
         Long expiration = tokenUtils.getRemainExpiration(accessToken);
         redisTemplate.opsForValue()
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-
-        User user = userRepository.findById(Long.valueOf(authentication.getName()))
-                .orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
-        user.setLoginFalse();
     }
 
 
@@ -112,30 +110,30 @@ public class UserService {
         return new ReissueResponseDto(tokenDto, cookie);
     }
 
+
     public UserInfoResponseDto getUserInfo(Long userId) {
         Optional<User> user = userRepository.findById(userId);
         return user.map(UserInfoResponseDto::from).orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND));
     }
+
 
     @Transactional
     public void updateDeviceToken(String token, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-        if (token.equals("")) {
-            user.changeNoticeAllowed();
-            return;
-        }
-        user.updateToken(token);
+
+        if (StringUtils.hasText(token)) user.updateToken(token);
+        else user.changeNoticeAllowed();
     }
 
+
     @Transactional
-    public void updateAlarm(Long accountId) {
-        User user = userRepository.findById(accountId).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-        user.changeNoticeAllowed();
+    public void updateAlarm(Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        user.ifPresentOrElse(User::changeNoticeAllowed, () -> {throw new CustomException(MEMBER_NOT_FOUND);});
     }
+
 
     @Transactional
     public void updateNickname(String nickname, Long accountId) {
@@ -144,6 +142,7 @@ public class UserService {
         );
         savedAccount.updateNickname(nickname);
     }
+
 
     public TokenDto createAndSaveToken(Authentication authentication) {
         TokenDto tokenDto = tokenProvider.createToken(authentication);

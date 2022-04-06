@@ -35,14 +35,13 @@ public class TokenProvider implements InitializingBean {
 
 
     private final TokenInfo tokenInfo;
-    private final TokenUtils tokenUtils;
 
     private long ACCESS_TOKEN_VALIDITY;
 
     @Getter
-    private long REFRESH_TOKEN_VALIDITY;
+    private final long REFRESH_TOKEN_VALIDITY;
 
-    private long GUSEST_REFRESH_TOKEN_VALIDITY;
+    private final long GUSEST_REFRESH_TOKEN_VALIDITY;
 
     private static final String AUTHORITIES_KEY = "auth";
 
@@ -53,13 +52,11 @@ public class TokenProvider implements InitializingBean {
             @Value("${jwt.access-token-validity-in-seconds}") long accessTokenValidityInSeconds,
             @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInSeconds,
             @Value("${jwt.guest-refresh-token-validity-in-seconds}") long guestRefreshTokenValidityInSeconds,
-            TokenInfo tokenInfo,
-            TokenUtils tokenUtils) {
+            TokenInfo tokenInfo) {
         ACCESS_TOKEN_VALIDITY = accessTokenValidityInSeconds * 1000;
         REFRESH_TOKEN_VALIDITY = refreshTokenValidityInSeconds * 1000;
         GUSEST_REFRESH_TOKEN_VALIDITY = guestRefreshTokenValidityInSeconds * 1000;
         this.tokenInfo = tokenInfo;
-        this.tokenUtils = tokenUtils;
     }
 
     @Override

@@ -14,9 +14,7 @@ import java.security.Key;
 @Getter
 public class TokenInfo implements InitializingBean {
 
-    public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String REFRESH_TOKEN_COOKIE = "refresh_token";
-
     private final String SECRET;
     private Key key;
 

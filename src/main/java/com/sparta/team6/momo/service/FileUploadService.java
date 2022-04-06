@@ -26,16 +26,16 @@ import java.util.UUID;
 
 import static com.sparta.team6.momo.exception.ErrorCode.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FileUploadService {
 
     private final UploadService uploadService;
     private final ImageRepository imageRepository;
     private final PlanRepository planRepository;
 
-    //Multipart를 통해 전송된 파일을 업로드하는 메서드
+    // Multipart 통해 전송된 파일을 업로드하는 메서드
     @CacheEvict(key = "#planId", value = "images")
     @Transactional
     public List<ImageDto> uploadImage(List<MultipartFile> files, Long planId, Long userId) {
@@ -46,13 +46,15 @@ public class FileUploadService {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(multipartFile.getContentType());
             objectMetadata.setContentLength(multipartFile.getSize());
-            // S3 storage에 저장
+
+            // S3 storage 저장
             try (InputStream inputStream = multipartFile.getInputStream()) {
                 uploadService.uploadFile(inputStream, objectMetadata, fileName);
             } catch (IOException e) {
                 log.info("이미지 파일 변환 실패");
                 throw new CustomException(FILE_CONVERT_ERROR);
             }
+
             // DB에 저장
             Optional<Plan> plan = planRepository.findById(planId);
             if (plan.isPresent() && userId.equals(plan.get().getUser().getId())) {
@@ -67,10 +69,12 @@ public class FileUploadService {
         return imageDtoList;
     }
 
+
     @Cacheable(key = "#planId", value = "images")
     public List<ImageDto> showImage(Long planId, Long userId) {
         List<Image> imageList = imageRepository.findAllByPlan_Id(planId);
         List<ImageDto> dtoList = new ArrayList<>();
+
         try {
             if (userId.equals(imageList.get(0).getPlan().getUser().getId())) {
                 for (Image image : imageList) {
@@ -85,6 +89,7 @@ public class FileUploadService {
         }
     }
 
+
     @CacheEvict(key = "#planId", value = "images")
     public void deleteImageS3(Long planId, Long imageId, Long userId) {
         Optional<Image> image = imageRepository.findById(imageId);
@@ -93,6 +98,7 @@ public class FileUploadService {
             imageRepository.deleteById(imageId);
             return;
         }
+
         log.info("해당 이미지가 존재하지 않습니다");
         throw new CustomException(IMAGE_NOT_FOUND);
     }
@@ -101,6 +107,7 @@ public class FileUploadService {
     private String createFileName(String originalFileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(originalFileName));
     }
+
 
     // 파일의 확장자명을 가져오는 메서드
     private String getFileExtension(String fileName) {

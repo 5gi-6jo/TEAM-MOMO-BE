@@ -2,7 +2,6 @@ package com.sparta.team6.momo.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sparta.team6.momo.dto.TokenDto;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.ResponseCookie;
@@ -17,12 +16,9 @@ public class LoginResponseDto {
     private Boolean noticeAllowed;
 
     @JsonIgnore // header
-    private TokenDto tokenDto;
+    private String accessToken;
 
     @JsonIgnore // cookie
     private ResponseCookie cookie;
-
-
-
 
 }

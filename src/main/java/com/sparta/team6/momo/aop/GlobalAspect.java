@@ -34,6 +34,16 @@ public class GlobalAspect {
     @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.login(..))")
     private void login(){}
 
+    @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.reissueToken(..))")
+    private void reissue(){}
+
+    @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.getUserInfo(..))")
+    private void getUserInfo(){}
+
+    @Pointcut("execution(* com.sparta.team6.momo.controller.SocketController..*(..))")
+    private void socketController(){}
+
+
     @Before("@annotation(com.sparta.team6.momo.annotation.LogoutCheck)")
     public void doLogoutCheck() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -55,7 +65,7 @@ public class GlobalAspect {
         return joinPoint.proceed();
     }
 
-    @Around(value = "allController() && !login()")
+    @Around(value = "allController() && !login() && !socketController() && !reissue() && !getUserInfo()")
     public Object doLogTrace(ProceedingJoinPoint joinPoint) throws Throwable {
 
         long start = System.currentTimeMillis();
