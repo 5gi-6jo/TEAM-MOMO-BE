@@ -26,17 +26,10 @@ import java.util.List;
 @Slf4j
 public class SocketController {
 
-    private final String REDIS_CHAT_KEY = "CHATS";
     private final String REDIS_CHAT_PREFIX = "CHAT";
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final SocketService socketService;
     private final RedisTemplate<String, List<ChatDto>> redisTemplate;
-    private ListOperations<String, List<ChatDto>> listOperations;
-
-    @PostConstruct
-    private void init() {
-        listOperations = redisTemplate.opsForList();
-    }
 
     @MessageMapping("/enter") // maps/enter
     public void enter(@Payload EnterDto enterDto, SimpMessageHeaderAccessor headerAccessor) {
@@ -67,6 +60,7 @@ public class SocketController {
         List<ChatDto> chats = redisTemplate.opsForValue().get(REDIS_CHAT_PREFIX + planId);
         if (chats == null) {
             chats = new ArrayList<>();
+            redisTemplate.opsForValue().set(REDIS_CHAT_PREFIX + planId, chats);
             LocalDateTime expireDate = socketService.getExpireDate(planId).plusHours(3);
             Timestamp timestamp = Timestamp.valueOf(expireDate);
             Boolean expire = redisTemplate.expireAt(REDIS_CHAT_PREFIX + planId, timestamp);

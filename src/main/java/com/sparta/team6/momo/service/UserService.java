@@ -123,17 +123,16 @@ public class UserService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (!token.equals("")) user.updateToken(token);
-        else user.changeNoticeAllowed();
+        if (token.equals("")) user.changeNoticeAllowed();
+        else user.updateToken(token);
+
     }
 
 
     @Transactional
     public void updateAlarm(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-        user.changeNoticeAllowed();
+        Optional<User> user = userRepository.findById(userId);
+        user.ifPresentOrElse(User::changeNoticeAllowed, () -> {throw new CustomException(MEMBER_NOT_FOUND);});
     }
 
 
