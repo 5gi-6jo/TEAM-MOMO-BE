@@ -7,7 +7,7 @@ import com.sparta.team6.momo.dto.MapDto;
 import com.sparta.team6.momo.service.SocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -30,12 +30,12 @@ public class SocketController {
     private final String REDIS_CHAT_PREFIX = "CHAT";
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final SocketService socketService;
-    private final RedisTemplate<String, Object> redisTemplate;
-    private HashOperations<String, String, List<ChatDto>> hashOperations;
+    private final RedisTemplate<String, List<ChatDto>> redisTemplate;
+    private ListOperations<String, List<ChatDto>> listOperations;
 
     @PostConstruct
     private void init() {
-        hashOperations = redisTemplate.opsForHash();
+        listOperations = redisTemplate.opsForList();
     }
 
     @MessageMapping("/enter") // maps/enter
@@ -43,7 +43,7 @@ public class SocketController {
         ChatEnterDto chatDto = ChatEnterDto.from(enterDto);
         chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
-        List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + enterDto.getPlanId());
+        List<ChatDto> chats = redisTemplate.opsForValue().get(REDIS_CHAT_PREFIX + enterDto.getPlanId());
         chatDto.setChats(chats);
 
         MapDto mapDto = MapDto.from(enterDto);
@@ -64,7 +64,7 @@ public class SocketController {
     public void sendChat(@Payload ChatDto chatDto) {
         Long planId = chatDto.getPlanId();
 
-        List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + planId);
+        List<ChatDto> chats = redisTemplate.opsForValue().get(REDIS_CHAT_PREFIX + planId);
         if (chats == null) {
             chats = new ArrayList<>();
             LocalDateTime expireDate = socketService.getExpireDate(planId).plusHours(3);
@@ -74,7 +74,7 @@ public class SocketController {
         }
 
         chats.add(chatDto);
-        hashOperations.put(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + planId, chats);
+        redisTemplate.opsForValue().set(REDIS_CHAT_PREFIX + planId, chats);
 
         simpMessagingTemplate.convertAndSend("/topic/chat/" + planId, chatDto);
     }
