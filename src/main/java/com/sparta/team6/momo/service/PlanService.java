@@ -43,7 +43,8 @@ public class PlanService {
     @CacheEvict(key = "#userId", value = {"plans", "records"})
     @Transactional
     public Long savePlan(PlanRequestDto request, Long userId) {
-        if (planRepository.findByPlanDateBetween(request.getPlanDate(), request.getPlanDate().plusHours(1)).isPresent()) {
+        if (planRepository.findByPlanDateBetween(request.getPlanDate().minusHours(1), request.getPlanDate()).isPresent()) {
+            log.info("이전 모임이 아직 종료되지 않았습니다(모임시간 1시간 뒤 종료)");
             throw new CustomException(PLAN_DATE_OVERLAPPED);
         }
         Plan savedPlan = planRepository.save(request.toEntity());
