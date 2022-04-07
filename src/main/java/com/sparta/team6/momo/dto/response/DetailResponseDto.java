@@ -35,6 +35,7 @@ public class DetailResponseDto {
         this.contents = contents;
         this.imageList = imageList;
         this.url = url;
+
     }
 
     public static DetailResponseDto from(Plan plan, List<ImageDto> imageList) {

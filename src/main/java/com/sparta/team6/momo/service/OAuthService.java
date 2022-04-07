@@ -80,13 +80,11 @@ public class OAuthService {
             throw new CustomException(SAME_EMAIL_OTHER_ACCOUNT_EXIST);
         }
 
-        log.error("{}", kakaoUser);
 
         MoMoUser user = new MoMoUser(kakaoUser.getId(), Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
         Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        log.error("{}", authentication);
 
         TokenDto tokenDto = tokenProvider.createToken(authentication);
         redisTemplate.opsForValue()
