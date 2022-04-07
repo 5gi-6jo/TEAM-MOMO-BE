@@ -25,9 +25,8 @@ public enum ErrorCode {
     FILE_SIZE_EXCEED(BAD_REQUEST, "이미지 파일 업로드 용량 초과(5MB 제한)"),
     FILE_CONVERT_ERROR(BAD_REQUEST, "파일 변환 중 에러가 발생하였습니다"),
     FAILED_TO_SEND_MESSAGE(BAD_REQUEST, "메세지 전송에 실패하였습니다"),
-    PLAN_DATE_OVERLAPPED(BAD_REQUEST, "이전 모임이 아직 종료되지 않았습니다(모임시간 1시간 뒤 종료)"),
+    PLAN_DATE_OVERLAPPED(BAD_REQUEST, "모임 사이에는 최소 1시간 간격이 있어야 합니다"),
     PLAN_CAN_NOT_MODIFY_AFTER_NOTICE_TIME(BAD_REQUEST, "모임이 활성화된 이후에는 수정할 수 없습니다"),
-    PLAN_CAN_NOT_MODIFY_AFTER_PLAN_END(BAD_REQUEST, "모임이 종료된 이후에는 수정할 수 없습니다"),
 
     /* 401 UNAUTHENTICATED : 인증되지 않은 사용자 */
     ONLY_LOGIN_ACCESS(UNAUTHORIZED, "로그인이 필요합니다"),

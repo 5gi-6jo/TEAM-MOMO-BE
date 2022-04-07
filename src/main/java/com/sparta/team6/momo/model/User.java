@@ -61,7 +61,11 @@ public class User extends Account {
                 .build();
     }
 
-    public void changeNoticeAllowed() {
-        this.isNoticeAllowed = !this.isNoticeAllowed;
+    public void setNoticeAllowedTrue() {
+        this.isNoticeAllowed = true;
+    }
+
+    public void setNoticeAllowedFalse() {
+        this.isNoticeAllowed = false;
     }
 }

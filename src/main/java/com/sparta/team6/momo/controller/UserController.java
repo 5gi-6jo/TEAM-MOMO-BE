@@ -100,12 +100,6 @@ public class UserController {
         return ResponseEntity.ok().body(new Success<>("저장 완료"));
     }
 
-    @PostMapping("/alarms")
-    public ResponseEntity<Object> updateAlarm() {
-        userService.updateAlarm(accountUtils.getCurUserId());
-        return ResponseEntity.ok().body(new Success<>("변경 완료"));
-    }
-
 
     @DTOValid
     @PatchMapping("/nicknames")
