@@ -123,7 +123,7 @@ public class UserService {
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
 
-        if (StringUtils.hasText(token)) user.updateToken(token);
+        if (!token.equals("")) user.updateToken(token);
         else user.changeNoticeAllowed();
     }
 
