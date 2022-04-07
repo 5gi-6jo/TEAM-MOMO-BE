@@ -17,10 +17,10 @@ public class ChannelInterceptorImpl implements ChannelInterceptor {
     public void postSend(@NotNull Message<?> message, @NotNull MessageChannel channel, boolean sent) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         StompCommand command = accessor.getCommand();
+        log.info("{}", message);
 
         if (command != null && command.equals(StompCommand.DISCONNECT)) {
             String sessionId = accessor.getSessionId();
-            log.info("{}", accessor);
             log.info(sessionId + "가 나갔습니다");
         }
     }

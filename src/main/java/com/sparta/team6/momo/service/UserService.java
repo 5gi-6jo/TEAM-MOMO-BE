@@ -130,8 +130,10 @@ public class UserService {
 
     @Transactional
     public void updateAlarm(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        user.ifPresentOrElse(User::changeNoticeAllowed, () -> {throw new CustomException(MEMBER_NOT_FOUND);});
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new CustomException(MEMBER_NOT_FOUND)
+        );
+        user.changeNoticeAllowed();
     }
 
 
