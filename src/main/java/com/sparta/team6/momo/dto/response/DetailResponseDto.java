@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import com.sparta.team6.momo.model.Plan;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Getter
@@ -22,9 +23,10 @@ public class DetailResponseDto {
     private List<ImageDto> imageList;
     private String contents;
     private String url;
+    private boolean finished;
 
     @Builder
-    public DetailResponseDto(String planDate, String noticeTime, String finishTime, String planName, String destination, String lat, String lng, List<ImageDto> imageList, String contents, String url) {
+    public DetailResponseDto(String planDate, String noticeTime, String finishTime, String planName, String destination, String lat, String lng, List<ImageDto> imageList, String contents, String url, boolean finished) {
         this.planDate = planDate;
         this.noticeTime = noticeTime;
         this.finishTime = finishTime;
@@ -35,7 +37,7 @@ public class DetailResponseDto {
         this.contents = contents;
         this.imageList = imageList;
         this.url = url;
-
+        this.finished = finished;
     }
 
     public static DetailResponseDto from(Plan plan, List<ImageDto> imageList) {
@@ -50,7 +52,12 @@ public class DetailResponseDto {
                 .contents(plan.getContents())
                 .imageList(imageList)
                 .url(activeCheck(plan.getNoticeTime(), plan.getPlanDate().plusHours(1), plan.getUrl()))
+                .finished(finishCheck(plan.getPlanDate()))
                 .build();
+    }
+
+    private static boolean finishCheck(LocalDateTime planDate) {
+        return LocalDateTime.now().isAfter(planDate.plusHours(1));
     }
 
     private static String activeCheck(LocalDateTime noticeTime, LocalDateTime finishTime, String url) {
