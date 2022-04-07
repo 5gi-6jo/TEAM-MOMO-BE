@@ -43,8 +43,8 @@ public class PlanService {
     @CacheEvict(key = "#userId", value = {"plans", "records"})
     @Transactional
     public Long savePlan(PlanRequestDto request, Long userId) {
-        if (planRepository.findByPlanDateBetween(request.getPlanDate().minusHours(1), request.getPlanDate()).isPresent()) {
-            log.info("이전 모임이 아직 종료되지 않았습니다(모임시간 1시간 뒤 종료)");
+        if (planRepository.findAllByPlanDateBetween(request.getPlanDate().minusMinutes(59), request.getPlanDate().plusMinutes(59)).size() > 0) {
+            log.info("모임 사이에는 최소 1시간 간격이 있어야 합니다");
             throw new CustomException(PLAN_DATE_OVERLAPPED);
         }
         Plan savedPlan = planRepository.save(request.toEntity());
@@ -89,9 +89,6 @@ public class PlanService {
         if (LocalDateTime.now().isAfter(savedPlan.getNoticeTime())) {
             log.info("모임이 활성화 된 이후에는 수정할 수 없습니다");
             throw new CustomException(PLAN_CAN_NOT_MODIFY_AFTER_NOTICE_TIME);
-        } else if (LocalDateTime.now().isAfter(savedPlan.getPlanDate().plusHours(1))) {
-            log.info("모임이 종료된 이후에는 수정할 수 없습니다");
-            throw new CustomException(PLAN_CAN_NOT_MODIFY_AFTER_PLAN_END);
         }
         if (userId.equals(savedPlan.getUser().getId())) {
             savedPlan.update(requestDto);
