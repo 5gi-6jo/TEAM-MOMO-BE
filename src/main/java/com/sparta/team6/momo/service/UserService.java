@@ -122,20 +122,13 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new CustomException(MEMBER_NOT_FOUND)
         );
-
-        if (!token.equals("")) user.updateToken(token);
-        else user.changeNoticeAllowed();
+        if (token.equals("")) {
+            user.setNoticeAllowedFalse();
+            return;
+        }
+        user.updateToken(token);
+        user.setNoticeAllowedTrue();
     }
-
-
-    @Transactional
-    public void updateAlarm(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new CustomException(MEMBER_NOT_FOUND)
-        );
-        user.changeNoticeAllowed();
-    }
-
 
     @Transactional
     public void updateNickname(String nickname, Long accountId) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
 
-    List<Plan> findAllByPlanDateBetween(LocalDateTime start, LocalDateTime end);
+    List<Plan> findAllByUserIdAndPlanDateBetween(Long userId, LocalDateTime start, LocalDateTime end);
 
     Optional<Plan> findPlanByUrl(String url);
 

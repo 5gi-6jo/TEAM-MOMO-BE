@@ -43,7 +43,7 @@ public class PlanService {
     @CacheEvict(key = "#userId", value = {"plans", "records"})
     @Transactional
     public Long savePlan(PlanRequestDto request, Long userId) {
-        if (planRepository.findAllByPlanDateBetween(request.getPlanDate().minusMinutes(59), request.getPlanDate().plusMinutes(59)).size() > 0) {
+        if (planRepository.findAllByUserIdAndPlanDateBetween(userId, request.getPlanDate().minusMinutes(59), request.getPlanDate().plusMinutes(59)).size() > 0) {
             log.info("모임 사이에는 최소 1시간 간격이 있어야 합니다");
             throw new CustomException(PLAN_DATE_OVERLAPPED);
         }
