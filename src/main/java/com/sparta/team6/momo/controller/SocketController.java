@@ -7,19 +7,20 @@ import com.sparta.team6.momo.dto.MapDto;
 import com.sparta.team6.momo.service.SocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 
-import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -32,9 +33,11 @@ public class SocketController {
     private final RedisTemplate<String, List<ChatDto>> redisTemplate;
 
     @MessageMapping("/enter") // maps/enter
-    public void enter(@Payload EnterDto enterDto, SimpMessageHeaderAccessor headerAccessor) {
+    public void enter(@Payload EnterDto enterDto, StompHeaderAccessor headerAccessor) {
         ChatEnterDto chatDto = ChatEnterDto.from(enterDto);
         chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
+
+        headerAccessor.setHeader(Objects.requireNonNull(headerAccessor.getSessionId()), enterDto.getSender());
 
         List<ChatDto> chats = redisTemplate.opsForValue().get(REDIS_CHAT_PREFIX + enterDto.getPlanId());
         chatDto.setChats(chats);

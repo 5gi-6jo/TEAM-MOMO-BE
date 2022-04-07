@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ChannelInterceptorImpl implements ChannelInterceptor {
 
+
     @Override
     public void postSend(@NotNull Message<?> message, @NotNull MessageChannel channel, boolean sent) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -21,6 +22,10 @@ public class ChannelInterceptorImpl implements ChannelInterceptor {
 
         if (command != null && command.equals(StompCommand.DISCONNECT)) {
             String sessionId = accessor.getSessionId();
+            if (sessionId != null) {
+                String planId = (String) accessor.getHeader(sessionId);
+                log.info(planId);
+            }
             log.info(sessionId + "가 나갔습니다");
         }
     }
