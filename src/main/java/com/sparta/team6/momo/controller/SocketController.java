@@ -8,7 +8,6 @@ import com.sparta.team6.momo.service.SocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -24,6 +23,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class SocketController {
 
     private final String REDIS_CHAT_KEY = "CHATS";
@@ -67,9 +67,10 @@ public class SocketController {
         List<ChatDto> chats = hashOperations.get(REDIS_CHAT_KEY, REDIS_CHAT_PREFIX + planId);
         if (chats == null) {
             chats = new ArrayList<>();
-            LocalDateTime expireDate = socketService.getExpireDate(planId);
+            LocalDateTime expireDate = socketService.getExpireDate(planId).plusHours(3);
             Timestamp timestamp = Timestamp.valueOf(expireDate);
-            redisTemplate.expireAt(REDIS_CHAT_PREFIX + planId, timestamp);
+            Boolean expire = redisTemplate.expireAt(REDIS_CHAT_PREFIX + planId, timestamp);
+            log.info("{}", expire);
         }
 
         chats.add(chatDto);

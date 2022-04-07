@@ -1,5 +1,6 @@
 package com.sparta.team6.momo.aop;
 
+import com.google.rpc.context.AttributeContext;
 import com.sparta.team6.momo.exception.CustomException;
 import com.sparta.team6.momo.exception.DefaultException;
 import com.sparta.team6.momo.exception.ErrorCode;
@@ -40,6 +41,9 @@ public class GlobalAspect {
     @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.getUserInfo(..))")
     private void getUserInfo(){}
 
+    @Pointcut("execution(* com.sparta.team6.momo.controller.UserController.kakaoLogin(..))")
+    private void kakaoLogin(){}
+
     @Pointcut("execution(* com.sparta.team6.momo.controller.SocketController..*(..))")
     private void socketController(){}
 
@@ -65,19 +69,20 @@ public class GlobalAspect {
         return joinPoint.proceed();
     }
 
-    @Around(value = "allController() && !login() && !socketController() && !reissue() && !getUserInfo()")
+    @Around(value = "allController() && !login() && !socketController() && !reissue() && !getUserInfo() && !kakaoLogin()")
     public Object doLogTrace(ProceedingJoinPoint joinPoint) throws Throwable {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         long start = System.currentTimeMillis();
         Object[] args = joinPoint.getArgs();
-        log.info("REQUEST : {}({}) = {}",
-                joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), args);
+        log.info("REQUEST USER {} : {}({}) = {}",
+                auth.getName(), joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), args);
 
         Object proceed = joinPoint.proceed();
 
         long end = System.currentTimeMillis();
-        log.info("RESPONSE : {}({}) = {} ({}ms)",
-                joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), proceed, end - start);
+        log.info("RESPONSE USER {} : {}({}) = {} ({}ms)",
+                auth.getName(), joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), proceed, end - start);
 
         return proceed;
     }
