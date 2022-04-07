@@ -17,10 +17,7 @@ import org.springframework.stereotype.Controller;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,7 +34,9 @@ public class SocketController {
         ChatEnterDto chatDto = ChatEnterDto.from(enterDto);
         chatDto.setContent(chatDto.getSender() + "님이 입장하셨습니다");
 
-        headerAccessor.setHeader(Objects.requireNonNull(headerAccessor.getSessionId()), enterDto.getSender());
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put(headerAccessor.getSessionId(), enterDto.getPlanId());
+        headerAccessor.setSessionAttributes(attributes);
 
         List<ChatDto> chats = redisTemplate.opsForValue().get(REDIS_CHAT_PREFIX + enterDto.getPlanId());
         chatDto.setChats(chats);
