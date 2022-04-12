@@ -8,10 +8,14 @@
 
 ### 2. 팀 구성
 
-역할 |이름 | Github | 포지션 -|-|-|- 부팀장 | 유진환 | https://github.com/JinhwanU | Back-end 팀원 | 김재훈 | https://github.com/HoduUlmu
-| Back-end 팀장 | 장윤철 | https://github.com/name8965 | Front-end 팀원 | 정호상 | https://github.com/5aro | Front-end 팀원 | 이지현 |
-| 디자이너 팀원 | 신소연 | | 디자이너
-
+역할 |이름 | Github | 포지션 
+-|-|-|- 
+부팀장 | 유진환 | https://github.com/JinhwanU | Back-end 
+팀원 | 김재훈 | https://github.com/HoduUlmu | Back-end 
+팀장 | 장윤철 | https://github.com/name8965 | Front-end 
+팀원 | 정호상 | https://github.com/5aro | Front-end
+팀원 | 이지현 | | Designer
+팀원 | 신소연 | | Designer
 ### 3. 모두모여란?
 
 모두모여 서비스 바로가기 : https://modumoyeo.com/
