@@ -125,12 +125,33 @@
 </details>
 
 <details>
-<summary><b>Cache 적용하여 주요 API 성능 개선(작성 예정)</b></summary>
+<summary><b>Cache 적용하여 API 성능 개선</b></summary>
 <div markdown="1">       
 
 <b><h3>문제 상황</h3></b>
+   EC2 서버 업그레이드 후(t2.micro->t3.medium) nGrinder를 사용한 스트레스 테스트 진행 결과,<br>
+   Vuser 500명 기준 CPU 사용률 80% 기록하여 성능 개선이 필요함을 인지하였다<br>
+   Query 개선과 Cache을 적용하여 성능 개선을 기대해 볼 수 있었는데,<br> 
+   JPQL 및 QueryDSL에 대한 충분한 공부를 없이 Query개선을 시도하기보다는 (프로젝트 마감 기한이 정해져 있기 때문에 시간적 여유가 없다)<br>
+   Cache를 적용하여 성능 개선을 노려보기로 하였다<br>
+   
+   
 <b><h3>해결 방안</h3></b>
+   <b>Local Cahce</b><br>
+   Local Cache는 서버 내부 저장소에 Cache 데이터를 저장하는 방식으로, 속도는 빠르지만 서버 간의 데이터 공유가 안된다는 단점이 있다.<br>
+   예를 들어, 사용자가 같은 리소스에 대한 요청을 반복해서 보내더라도, A 서버에서는 이전 데이터를, B 서버에서는 최신 데이터를 반환하여 각 Cache가 서로 다른 상태를 가질 수도 있다.<br> 
+   즉, 일관성 문제가 발생할 수 있다.
+   
+   <b>Global Cache</b><br>
+   Global Cache는 서버 내부 저장소가 아닌 별도의 Cache 서버를 두어 서버에서 Cache 서버를 참조하는 것이다.<br>
+   Cache 데이터를 얻으려 할 때 마다 네트워크 트래픽이 발생하기 때문에 Local Cache보다 속도는 느리지만,<br>
+   서버간 데이터를 쉽게 공유할 수 있기 때문에 Local Cache의 정합성 문제와 중복된 캐시 데이터로 인한 서버 자원 낭비 등 문제점을 해결할 수 있다.<br>
+   
 <b><h3>의견 결정</h3></b>
+   현재 프로젝트가 단일 서버 환경이었기 때문에 Local Cache를 적용하려고 하였고 이것이 정답이라고 생각하였다<br>
+   하지만, 프로젝트에서 이미 Redis를 사용중이며,<br>
+   실무에서는 다중 서버 환경에서 작업을 많이 할 것이라고 짐작하여 공부 목적으로 Global Cache를 적용하였다<br><br>
+   <b>Cache 적용 후 성능 개선 결과</b> https://github.com/5gi-6jo/TEAM-MOMO-BE/issues/72#issue-1193479148
    
 <br><br><hr>
 </div>
