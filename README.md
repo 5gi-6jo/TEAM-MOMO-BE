@@ -165,7 +165,7 @@
 
 
 <details>
-<summary><b>Code Refactoring(AOP 적용)(작성 예정)</b></summary>
+<summary><b>Code Refactoring(AOP 적용)</b></summary>
 <div markdown="1">
 
 <b><h3>문제 상황</h3></b>
@@ -186,3 +186,114 @@ annotation을 pointcut으로 지시한 이유는 적용된 메소드에 어떤 �
 </div>
 </details>
 
+<details>
+<summary><b>Push message scheduling</b></summary>
+<div markdown="1">  
+   
+### 🔍 도입 이유
+
+사용자는 모임 생성 시 `자신이 설정했던 시간`에 `push message`를 받게 된다
+
+이 때, 사용자가 어느 시점에 모임을 생성할 지 모르기 때문에 서버에서는 `주기적으로` 현재 생성된 모임 data를 확인하고 시간이 되면 `push message를 전송`해야 한다
+
+### ⚠️ 문제 상황
+
+1. Spring에서 제공하는 `스케쥴러(@Scheduled)`를 사용하면 일정 주기마다 반복적으로 코드 실행이 가능하지만 `일회성으로는 사용할 수 없다`.
+
+2. 스케쥴러의 원활한 작동을 위해서는 `약속 당일 생성하는 모임에 제한`을 두어야 한다 
+( ex: 현재 시간을 기준으로 30분 이후에 예정된 모임은 생성할 수 없다)
+
+### 🧭 해결 방안
+
+1. 스케쥴러를 사용해 주기적으로 DB를 조회한 뒤, Timer 혹은 ScheduledExecutorService를 사용하여 push 전송을 예약한다.
+2. 유저에게 제한 사항을 적용하되, 서비스 이용에 불편을 느끼지 않게끔 scheduling한다
+
+### 💬 의견 조율
+
+- `Timer`는 `Single Thread`이므로 한 번에 많은 알람 요청이 왔을 때 처리 시간이 많이 소요된다
+- `ScheduledExecutorService`는 multi-thread로 작업 가능하여 처리속도는 빠르지만 `Thread 관리가 필수적`이다
+- 매 `5~10분`마다 Scheduling하게 되면 유저가 불편함을 느끼지 않을 뿐더러, 한 번의 주기에 적당한 양의 작업을 처리하게 된다.(한번에 처리하는 작업량이 많을 수록 에러 위험도 증가)
+
+### ✅ 의견 결정
+
+<aside>
+💡 Scheduling 주기는 5~10분으로 결정
+ScheduledExecutorService를 사용해 multi-thread 환경에서 push 전송 예약을 하기로 결정.
+하지만, 현재 해당 서비스에 몇 개의 Thread를 할당하는 것이 적당한지 몰라 스트레스 테스트 후 결정하기로 함
+
+</aside>
+   
+<br><br><hr>
+</div>
+</details>
+
+
+
+<details>
+<summary><b>CI/CD 적용</b></summary>
+<div markdown="1">       
+
+### 🔍 도입 이유
+
+`배포 자동화`를 통해 효율적인 협업 및 작업 환경을 구축하기 위함
+
+### ⚠️ 문제 상황
+
+`Front-end와 협업` 시 코드 배포를 해야하는 상황이 빈번히 발생
+
+filezila를 통한 수동 배포와 배포 이후 에러 확인되어 재배포하는 일이 잦아짐에 따라 `배포에 많은 시간이 소요`됨
+
+### 🧭 해결 방안
+
+1. Jenkins
+2. Github Actions
+
+### 💬 의견 조율
+
+- `Jenkins`를 사용하기 위해선 `서버 설치`가 필요
+- `Jenkins`는 `Docker 환경`에서 실행하는 것이 좋음(호환성 issue)
+- `Github Actions`는 별다른 설치 및 `복잡한 절차 없이 사용` 가능하다
+- `팀원 한명의 이탈`로 인해 개발 인프라에 많은 시간을 할애할 수 없다
+
+### ✅ 의견 결정
+
+<aside>
+💡 처음에는 Jenkins를 우선순위로 두었지만, 시간적 제약(서버 설치, Docker 환경 구성)으로 인해 Github Actions를 사용하기로 결정
+
+</aside>
+   
+<br><br><hr>
+</div>
+</details>
+
+<details>
+<summary><b>Refresh Token 전략</b></summary>
+<div markdown="1">       
+
+### 🔍 도입 이유
+
+`refresh token`과 `access token`의 보안 강화
+
+### ⚠️ 문제 상황
+
+refresh token과 access token 모두 header에 담아 클라이언트의 local storage에 저장할 경우 `XSS 공격에 취약`해짐
+
+### 🧭 해결 방안
+
+1. refresh token은 http-only cookie에 access token은 헤더에 담아 보내기
+2. 실제 refresh token 값은 db에 저장 후 해당 index만 http-only 쿠키에 저장
+
+### 💬 의견 조율
+
+- access token에 `최소한의 유저 정보`만이 들어가야함(sub: email -> db id로 변경)
+
+### ✅ 의견 결정
+
+<aside>
+💡 access token은 해당 유저의 db id값을 subject로, 권한(user,guest)을 claim으로 가지며 header에 실림. refresh token은 유저 정보는 가지지 않으며 http-only cookie에 저장.
+
+</aside>
+   
+<br><br><hr>
+</div>
+</details>
